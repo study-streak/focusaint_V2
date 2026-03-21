@@ -1,0 +1,74 @@
+'use client'
+import { useInView } from '../hooks/useInView'
+
+const steps = [
+  { n: '01', title: 'Watch',     body: 'A focused, distraction-free lesson. No sidebar. No recommendations. No autoplay. Just the concept you chose to learn.' },
+  { n: '02', title: 'Quiz',    body: 'A spaced-repetition quiz surfaces the core ideas. Your brain must retrieve — not recognise. That\'s the difference.' },
+  { n: '03', title: 'Practice',      body: 'Learn To Apply the Concepts in the real world.' },
+  { n: '04', title: 'Summarise', body: 'Write the lesson in your own words. The Feynman technique, automated. If you can\'t explain it, you don\'t know it.' },
+  { n: '05', title: 'Unlock',    body: 'Only then does the next lesson open. Progress is earned, not given. Depth over volume, always.' },
+  { n: '06', title: 'Active Recall',    body: 'Spaced repetition of concepts through reflection and summary revisits.' },
+]
+
+export default function Method() {
+  const [ref, inView] = useInView()
+
+  return (
+    <section id="method" ref={ref} className="section-shell">
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--line)' }}/>
+
+      <div className="container-shell">
+        <div className="method-grid">
+          {/* Left label col */}
+          <div className="sticky-col">
+            <span className={`label fade-up ${inView ? '' : ''}`} style={{ color: 'var(--accent)', display: 'block', marginBottom: 16,
+              opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(16px)', transition: 'all 0.6s ease' }}>
+              The method
+            </span>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3.2rem)',
+              fontWeight: 400, color: 'var(--white)', lineHeight: 1.1, letterSpacing: '-0.02em',
+              marginBottom: 20,
+              opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)',
+              transition: 'all 0.6s ease 0.1s',
+            }}>
+              Watching is not<br /><em style={{ color: 'var(--muted)', fontStyle: 'italic' }}>learning.</em>
+            </h2>
+            <p style={{
+              fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300,
+              color: 'var(--muted)', lineHeight: 1.8, maxWidth: 280,
+              opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)',
+              transition: 'all 0.6s ease 0.2s',
+            }}>
+              Your brain retains information through active retrieval — not passive exposure. Every feature of Focusaint is built around this truth.
+            </p>
+          </div>
+
+          {/* Right steps */}
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {steps.map((s, i) => (
+              <div key={i} style={{
+                display: 'grid', gridTemplateColumns: '48px 1fr',
+                gap: 24, padding: '28px 0',
+                borderBottom: i < steps.length - 1 ? '1px solid var(--line)' : 'none',
+                opacity: inView ? 1 : 0,
+                transform: inView ? 'none' : 'translateY(24px)',
+                transition: `all 0.6s cubic-bezier(0.16,1,0.3,1) ${0.15 + i * 0.08}s`,
+              }}>
+                <span className="label" style={{ paddingTop: 3, color: i === 1 ? 'var(--accent)' : 'var(--muted)' }}>{s.n}</span>
+                <div>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 600, color: 'var(--white)', marginBottom: 8, letterSpacing: '-0.01em' }}>
+                    {s.title}
+                  </h3>
+                  <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8 }}>
+                    {s.body}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
