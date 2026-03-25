@@ -65,20 +65,24 @@ export default function Hero() {
 
         {/* Left */}
         <div>
-          <div className="fade-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 28 }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', display: 'block' }}/>
-            <span className="label" style={{ color: 'var(--accent)' }}>Active Learning Platform</span>
+          <div className="fade-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 32, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', display: 'block' }}/>
+            <span className="label" style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 600 }}>Intelligent Learning Platform</span>
           </div>
 
           <h1 className="fade-up d2" style={{
-            fontFamily: 'var(--font-serif)', fontWeight: 400, lineHeight: 1.08,
-            fontSize: 'clamp(3rem, 5.5vw, 5rem)',
-            color: 'var(--white)', marginBottom: 24, letterSpacing: '-0.02em',
+            fontFamily: 'var(--font-serif)', fontWeight: 300, lineHeight: 1.1,
+            fontSize: 'clamp(3.2rem, 6vw, 5.5rem)',
+            color: 'var(--white)', marginBottom: 28, letterSpacing: '-0.025em', fontStyle: 'normal'
           }}>
             Stop<br />
             <em style={{
               display: 'inline-block',
-              color: 'var(--accent)', fontStyle: 'italic',
+              background: 'linear-gradient(135deg, #d4522f 0%, #c8402a 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontStyle: 'italic',
               opacity: fade ? 1 : 0,
               transform: fade ? 'translateY(0)' : 'translateY(8px)',
               transition: 'opacity 0.28s ease, transform 0.28s ease',
@@ -87,10 +91,10 @@ export default function Hero() {
           </h1>
 
           <p className="fade-up d3" style={{
-            fontFamily: 'var(--font-sans)', fontSize: 'clamp(14px, 1.8vw, 16px)', fontWeight: 300,
-            color: 'var(--muted)', lineHeight: 1.75, maxWidth: 520, marginBottom: 36,
+            fontFamily: 'var(--font-sans)', fontSize: 'clamp(15px, 1.9vw, 17px)', fontWeight: 300,
+            color: 'var(--muted)', lineHeight: 1.8, maxWidth: 540, marginBottom: 40, letterSpacing: '0.01em'
           }}>
-            Millions open YouTube to study. Hours later, almost nothing is remembered. Focusaint replaces passive watching with gated active recall.
+            Millions open YouTube to study. Hours later, almost nothing is remembered. Focusaint replaces passive watching with intelligent active recall.
           </p>
 
           <div className="fade-up d4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
