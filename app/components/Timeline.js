@@ -29,11 +29,11 @@ export default function Timeline() {
   }, [])
 
   const dot = isLight 
-    ? { done: '#2d5a2d', active: 'var(--accent)', future: '#c0c0b8' }
+    ? { done: '#2d5a2d', active: 'var(--accent)', future: '#8f8a82' }
     : { done: '#4a8a4a', active: 'var(--accent)', future: 'rgba(255,255,255,0.12)' }
   
   const line = isLight
-    ? { done: 'rgba(45,90,45,0.3)', active: 'rgba(200,64,42,0.3)', future: 'rgba(0,0,0,0.1)' }
+    ? { done: 'rgba(45,90,45,0.3)', active: 'rgba(200,64,42,0.3)', future: 'rgba(0,0,0,0.14)' }
     : { done: 'rgba(74,138,74,0.25)', active: 'rgba(200,64,42,0.25)', future: 'rgba(255,255,255,0.06)' }
   
   const legendColor = isLight ? '#c0c0b8' : 'rgba(255,255,255,0.15)'
@@ -84,7 +84,11 @@ export default function Timeline() {
                 <div style={{
                   position: 'absolute', left: -24, top: 3,
                   width: 14, height: 14, borderRadius: '50%',
-                  background: item.status === 'done' ? (isLight ? '#2d5a2d' : '#4a8a4a') : item.status === 'active' ? 'var(--accent)' : 'var(--surface)',
+                  background: item.status === 'done'
+                    ? (isLight ? '#2d5a2d' : '#4a8a4a')
+                    : item.status === 'active'
+                      ? 'var(--accent)'
+                      : (isLight ? 'rgba(0,0,0,0.04)' : 'var(--surface)'),
                   border: `1px solid ${dot[item.status]}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   boxShadow: item.status === 'active' ? '0 0 10px rgba(200,64,42,0.4)' : 'none',
@@ -92,6 +96,11 @@ export default function Timeline() {
                   {item.status === 'done' && (
                     <svg width="6" height="6" viewBox="0 0 10 10" fill="none">
                       <path d="M1.5 5L4 7.5L8.5 2.5" stroke={isLight ? '#1a1a1a' : 'white'} strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  )}
+                  {item.status === 'future' && (
+                    <svg width="6" height="6" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 2L8 8M8 2L2 8" stroke={isLight ? '#6b6860' : 'rgba(245,242,238,0.55)'} strokeWidth="1.4" strokeLinecap="round"/>
                     </svg>
                   )}
                 </div>

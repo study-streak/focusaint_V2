@@ -7,6 +7,7 @@ const WORDS = ['Watching.', 'Scrolling.', 'Forgetting.']
 export default function Hero() {
   const [wordIdx, setWordIdx] = useState(0)
   const [fade, setFade] = useState(true)
+  const [isLight, setIsLight] = useState(false)
   const countersRef = useRef(null)
   const didCount = useRef(false)
 
@@ -42,6 +43,17 @@ export default function Hero() {
     }, { threshold: 0.5 })
     obs.observe(el)
     return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const html = document.documentElement
+      setIsLight(html.classList.contains('light') || html.getAttribute('data-theme') === 'light')
+    }
+    checkTheme()
+    const observer = new MutationObserver(checkTheme)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] })
+    return () => observer.disconnect()
   }, [])
 
   return (
@@ -127,19 +139,19 @@ export default function Hero() {
 
         {/* Right — lesson card (desktop) */}
         <div className="fade-up d6 hidden lg:block" style={{ position: 'relative' }}>
-          <LessonCard />
+          <LessonCard isLight={isLight} />
         </div>
 
         {/* Mobile lesson card */}
         <div className="fade-up d6 lg:hidden">
-          <MobileLessonCard />
+          <MobileLessonCard isLight={isLight} />
         </div>
       </div>
     </section>
   )
 }
 
-function MobileLessonCard() {
+function MobileLessonCard({ isLight }) {
   return (
     <div style={{
       background: 'var(--card)',
@@ -228,12 +240,14 @@ function MobileLessonCard() {
               background:
                 step.s === 'done'   ? 'var(--accent)' :
                 step.s === 'active' ? 'rgba(200,64,42,0.14)' :
-                'rgba(255,255,255,0.03)',
+                (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)'),
               color:
                 step.s === 'done'   ? '#fff' :
                 step.s === 'active' ? 'var(--accent)' :
-                'rgba(255,255,255,0.2)',
-              border: step.s === 'active' ? '1px solid rgba(200,64,42,0.3)' : '1px solid transparent',
+                (isLight ? 'rgba(26,26,26,0.58)' : 'rgba(255,255,255,0.2)'),
+              border: step.s === 'active'
+                ? '1px solid rgba(200,64,42,0.3)'
+                : (isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid transparent'),
             }}>
               {step.l}
             </div>
@@ -244,7 +258,7 @@ function MobileLessonCard() {
   )
 }
 
-function LessonCard() {
+function LessonCard({ isLight }) {
   return (
     <div style={{ position: 'relative' }}>
       {/* Shadow card behind */}
@@ -349,12 +363,14 @@ function LessonCard() {
                 background:
                   step.s === 'done'   ? 'var(--accent)' :
                   step.s === 'active' ? 'rgba(200,64,42,0.14)' :
-                  'rgba(255,255,255,0.03)',
+                  (isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.03)'),
                 color:
                   step.s === 'done'   ? '#fff' :
                   step.s === 'active' ? 'var(--accent)' :
-                  'rgba(255,255,255,0.2)',
-                border: step.s === 'active' ? '1px solid rgba(200,64,42,0.3)' : '1px solid transparent',
+                  (isLight ? 'rgba(26,26,26,0.80)' : 'rgba(255,255,255,0.2)'),
+                border: step.s === 'active'
+                  ? '1px solid rgba(200,64,42,0.3)'
+                  : (isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid transparent'),
               }}>
                 {step.l}
               </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useInView } from '../hooks/useInView'
+import { useEffect, useState } from 'react'
 
 const traps = [
   { icon: '∞', title: 'Autoplay Loops', body: 'The next video starts before you\'ve processed the last one. You\'re always watching, never learning.' },
@@ -10,6 +11,18 @@ const traps = [
 
 export default function PlatformTrap() {
   const [ref, inView] = useInView()
+  const [isLight, setIsLight] = useState(false)
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const html = document.documentElement
+      setIsLight(html.classList.contains('light') || html.getAttribute('data-theme') === 'light')
+    }
+    checkTheme()
+    const observer = new MutationObserver(checkTheme)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] })
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <section id="problem" ref={ref} className="section-shell">
@@ -55,17 +68,17 @@ export default function PlatformTrap() {
                 padding: 'clamp(28px, 4vw, 40px)',
                 border: '1px solid var(--line)',
                 borderRadius: 12,
-                background: 'rgba(255, 255, 255, 0.02)',
+                background: isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)',
                 transition: 'border-color 0.3s, background 0.3s',
                 cursor: 'default',
               }}
                 onMouseEnter={e => {
                   e.currentTarget.style.borderColor = 'var(--accent)'
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
+                  e.currentTarget.style.background = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)'
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.borderColor = 'var(--line)'
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)'
+                  e.currentTarget.style.background = isLight ? 'rgba(0, 0, 0, 0.02)' : 'rgba(255, 255, 255, 0.02)'
                 }}
               >
                 <div style={{
@@ -92,7 +105,7 @@ export default function PlatformTrap() {
                   fontFamily: 'var(--font-sans)',
                   fontSize: 'clamp(13px, 1.2vw, 15px)',
                   fontWeight: 300,
-                  color: 'rgba(245, 242, 238, 0.65)',
+                  color: isLight ? 'rgba(26,26,26,0.7)' : 'rgba(245, 242, 238, 0.65)',
                   lineHeight: 1.6,
                 }}>
                   {trap.body}
