@@ -1,6 +1,8 @@
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import Ticker from './components/Ticker'
+import PlatformTrap from './components/PlatformTrap'
+import RealityCheck from './components/RealityCheck'
 import Method from './components/Method'
 import FlipCards from './components/FlipCards'
 import BackedBy from './components/BackedBy'
@@ -19,6 +21,8 @@ export default function Home() {
       <main>
         <Hero />
         <Ticker />
+        <RealityCheck />
+        <PlatformTrap />
         <Method />
         <FlipCards />
         <BackedBy />
