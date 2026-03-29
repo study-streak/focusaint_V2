@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const plans = [
   {

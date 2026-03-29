@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const testimonials = [
   { quote: "I spent 3 months watching React tutorials. Focusaint's 15 gated lessons taught me more in 2 weeks. The summary writing step is the secret.", name: 'Sakura Tanaka', role: 'Frontend Engineer', co: 'Mercari, Tokyo', av: 'ST', streak: 28, result: '3× faster' },

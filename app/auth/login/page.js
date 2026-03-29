@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import ThemeToggle from '../../landing/components/ThemeToggle'
 
 export default function Login() {
   const [mode,     setMode]     = useState('password') // 'password' | 'magic'
@@ -30,7 +31,22 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-shell">
+    <div className="auth-shell" style={{ position: 'relative' }}>
+
+      <div style={{
+        position: 'absolute', top: 18, left: 18, right: 18, zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
+            </svg>
+          </span>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
+        </Link>
+        <ThemeToggle />
+      </div>
 
       {/* Left brand panel */}
       <div style={{
@@ -78,16 +94,6 @@ export default function Login() {
       {/* Right form panel */}
       <div className="auth-form-panel">
         <div className="auth-form-wrap" style={{ maxWidth: 380 }}>
-
-          {/* Mobile logo */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 48 }} className="lg:hidden">
-            <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
-              </svg>
-            </span>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
-          </Link>
 
           {sent ? (
             <MagicSent email={form.email} />
@@ -182,7 +188,7 @@ export default function Login() {
 
               <p style={{ textAlign: 'center', marginTop: 20, fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--muted)' }}>
                 No account yet?{' '}
-                <Link href="/signup" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Create one free</Link>
+                <Link href="/auth/signup" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Create one free</Link>
               </p>
             </div>
           )}

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 import Image from 'next/image'
 
 const team = [

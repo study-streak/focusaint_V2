@@ -1,5 +1,5 @@
 'use client'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const steps = [
   { n: '01', title: 'Watch',     body: 'A focused, distraction-free lesson. No sidebar. No recommendations. No autoplay. Just the concept you chose to learn.' },

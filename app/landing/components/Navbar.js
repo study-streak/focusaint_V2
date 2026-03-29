@@ -82,14 +82,14 @@ export default function Navbar() {
         {/* Actions */}
         <div style={{ alignItems: 'center', gap: 'clamp(8px, 2vw, 12px)' }} className="hidden md:flex">
           <ThemeToggle />
-          <Link href="/login" style={{
+          <Link href="/auth/login" style={{
             fontFamily: 'var(--font-sans)', fontSize: 'clamp(12px, 1.6vw, 13px)', color: 'var(--muted)',
             textDecoration: 'none', transition: 'color 0.2s',
           }}
             onMouseEnter={e => e.target.style.color = 'var(--white)'}
             onMouseLeave={e => e.target.style.color = 'var(--muted)'}
           >Sign in</Link>
-          <Link href="/signup" className="btn-accent" style={{ padding: 'clamp(7px, 1.4vw, 9px) clamp(16px, 2vw, 20px)', fontSize: 'clamp(12px, 1.6vw, 13px)' }}>
+          <Link href="/auth/signup" className="btn-accent" style={{ padding: 'clamp(7px, 1.4vw, 9px) clamp(16px, 2vw, 20px)', fontSize: 'clamp(12px, 1.6vw, 13px)' }}>
             Get started
           </Link>
         </div>
@@ -122,8 +122,8 @@ export default function Navbar() {
           ))}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(8px, 2vw, 10px)', marginTop: 'clamp(14px, 3vw, 20px)' }}>
-            <Link href="/login" className="btn-ghost" style={{ justifyContent: 'center', fontSize: 'clamp(13px, 1.8vw, 14px)', padding: 'clamp(8px, 1.5vw, 10px)' }}>Sign in</Link>
-            <Link href="/signup" className="btn-accent" style={{ justifyContent: 'center', fontSize: 'clamp(13px, 1.8vw, 14px)', padding: 'clamp(8px, 1.5vw, 10px)' }}>Get started</Link>
+            <Link href="/auth/login" className="btn-ghost" style={{ justifyContent: 'center', fontSize: 'clamp(13px, 1.8vw, 14px)', padding: 'clamp(8px, 1.5vw, 10px)' }}>Sign in</Link>
+            <Link href="/auth/signup" className="btn-accent" style={{ justifyContent: 'center', fontSize: 'clamp(13px, 1.8vw, 14px)', padding: 'clamp(8px, 1.5vw, 10px)' }}>Get started</Link>
           </div>
         </div>
       )}

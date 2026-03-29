@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const realityItems = [
   { q: "How many study videos do you watch every day?", a: "Most students watch 5–10+ daily but retain almost nothing. Volume ≠ learning." },

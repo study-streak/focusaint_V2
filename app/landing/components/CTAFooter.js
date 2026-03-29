@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 export function CTA() {
   const [ref, inView] = useInView()

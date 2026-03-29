@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const features = [
   { id: 'limit',  label: 'Video limit',      title: 'Less videos. Deeper learning.', body: 'YouTube incentivises unlimited watching — more time means more ad revenue. Focusaint caps your daily lessons so you go deep, not wide. Depth is where mastery lives.', stat: '3×', statLabel: 'deeper retention vs re-watching' },

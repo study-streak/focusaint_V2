@@ -1,5 +1,5 @@
 'use client'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 import { useEffect, useState } from 'react'
 
 const items = [

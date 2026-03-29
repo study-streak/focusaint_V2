@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useInView } from '../hooks/useInView'
+import { useInView } from '../../hooks/useInView'
 
 const faqs = [
   { q: 'How is Focusaint different from just watching YouTube?', a: 'Every lesson is gated behind comprehension checks. You cannot move to the next video until you answer questions, pass a quiz, and write a summary. This forces active recall — the most effective learning technique backed by cognitive science.' },

@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import ThemeToggle from '../../landing/components/ThemeToggle'
 
 const goals = [
   { id: 'code',   label: 'Learn to code'        },
@@ -38,7 +39,21 @@ export default function Signup() {
   }
 
   return (
-    <div className="auth-shell">
+    <div className="auth-shell" style={{ position: 'relative' }}>
+      <div style={{
+        position: 'absolute', top: 18, left: 18, right: 18, zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
+            </svg>
+          </span>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
+        </Link>
+        <ThemeToggle />
+      </div>
 
       {/* Left panel — brand */}
       <div style={{
@@ -54,15 +69,6 @@ export default function Signup() {
         }}/>
 
         <div>
-          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 64 }}>
-            <span style={{ width: 24, height: 24, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-                <path d="M6 1L9 5.5H3L6 1Z" fill="white"/>
-                <path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
-              </svg>
-            </span>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
-          </Link>
 
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, color: 'var(--white)', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 16 }}>
             The only edtech that makes you <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>prove</em> you learned.
@@ -92,16 +98,6 @@ export default function Signup() {
       {/* Right panel — form */}
       <div className="auth-form-panel">
         <div className="auth-form-wrap">
-
-          {/* Mobile logo */}
-          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 48 }} className="lg:hidden">
-            <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
-              </svg>
-            </span>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
-          </Link>
 
           {done ? (
             <Success name={form.name} />
@@ -180,7 +176,7 @@ function Step1({ form, set, errors, showPass, setShowPass, onNext }) {
 
       <p style={{ textAlign: 'center', marginTop: 20, fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--muted)' }}>
         Already have an account?{' '}
-        <Link href="/login" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Sign in</Link>
+        <Link href="/auth/login" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Sign in</Link>
       </p>
     </div>
   )
