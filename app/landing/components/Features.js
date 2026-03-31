@@ -3,11 +3,46 @@ import { useState } from 'react'
 import { useInView } from '../../hooks/useInView'
 
 const features = [
-  { id: 'limit',  label: 'Video limit',      title: 'Less videos. Deeper learning.', body: 'YouTube incentivises unlimited watching — more time means more ad revenue. Focusaint caps your daily lessons so you go deep, not wide. Depth is where mastery lives.', stat: '3×', statLabel: 'deeper retention vs re-watching' },
-  { id: 'gate',   label: 'Gated progress',   title: 'Earn the next lesson.',         body: 'Progress is locked until you prove comprehension. Answer questions, pass a quiz, write a summary. There is no shortcut. This single constraint is the most powerful learning intervention we\'ve built.', stat: '94%', statLabel: 'average recall rate' },
-  { id: 'quiz',   label: 'Spaced repetition',title: 'Your brain needs to struggle.',  body: 'Spaced-repetition quizzes built into every lesson. The science is clear: retrieval practice — the act of recalling information — is five times more effective than re-reading or re-watching.', stat: '5×', statLabel: 'more effective than passive review' },
-  { id: 'write',  label: 'Summary writing',  title: 'Teach it to own it.',           body: 'After each lesson you write a summary in your own words. The Feynman technique is the gold standard of comprehension testing — and we\'ve made it unavoidable. If you cannot explain it simply, you do not know it.', stat: '87%', statLabel: 'improvement in assessments' },
-  { id: 'streak', label: 'Streak system',    title: 'Consistency over intensity.',   body: 'Seven focused minutes of gated learning outperforms two hours of passive watching, every day. Our streak system rewards depth and regularity — the only two habits that actually compound.', stat: '41d', statLabel: 'average learner streak' },
+  {
+    id: 'limit',
+    label: 'Session pacing',
+    title: 'Not more. Just enough.',
+    body: 'Instead of endless scrolling, your daily sessions are intentionally paced so you spend time understanding rather than jumping between topics.',
+    stat: '3×',
+    statLabel: 'better retention patterns'
+  },
+  {
+    id: 'gate',
+    label: 'Progress checks',
+    title: 'Move ahead with clarity.',
+    body: 'Short checks between sessions help you confirm understanding before continuing, keeping your learning steady and meaningful.',
+    stat: '94%',
+    statLabel: 'completion with clarity'
+  },
+  {
+    id: 'quiz',
+    label: 'Recall practice',
+    title: 'Learning that stays with you.',
+    body: 'Built-in prompts encourage you to revisit and recall key ideas, strengthening memory through simple, repeated engagement.',
+    stat: '5×',
+    statLabel: 'stronger memory retention'
+  },
+  {
+    id: 'write',
+    label: 'Reflection notes',
+    title: 'Put it in your own words.',
+    body: 'Writing short summaries helps you process concepts more clearly and identify gaps without relying only on rewatching.',
+    stat: '87%',
+    statLabel: 'improved understanding'
+  },
+  {
+    id: 'streak',
+    label: 'Consistency tracking',
+    title: 'Progress builds quietly.',
+    body: 'Regular sessions, even short ones, create steady momentum. Over time, small efforts compound into real progress.',
+    stat: '41d',
+    statLabel: 'average active streak'
+  },
 ]
 
 export default function Features() {
@@ -25,9 +60,9 @@ export default function Features() {
           opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)',
           transition: 'all 0.6s ease',
         }}>
-          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 16, fontWeight: 600, fontSize: 12 }}>Features</span>
+          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 16, fontWeight: 600, fontSize: 12 }}>How it works</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.2rem,5vw,3.2rem)', fontWeight: 300, color: 'var(--white)', letterSpacing: '-0.025em', lineHeight: 1.15 }}>
-            Every feature forces<br /><em style={{ fontStyle: 'italic', color: 'var(--accent)', fontWeight: 300 }}>mastery over consumption.</em>
+            Designed to guide<br /><em style={{ fontStyle: 'italic', color: 'var(--accent)', fontWeight: 300 }}>how you actually learn.</em>
           </h2>
         </div>
 

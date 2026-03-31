@@ -3,19 +3,67 @@ import { useState, useEffect, useRef } from 'react'
 import { useInView } from '../../hooks/useInView'
 
 const testimonials = [
-  { quote: "I spent 3 months watching React tutorials. Focusaint's 15 gated lessons taught me more in 2 weeks. The summary writing step is the secret.", name: 'Sakura Tanaka', role: 'Frontend Engineer', co: 'Mercari, Tokyo', av: 'ST', streak: 28, result: '3× faster' },
-  { quote: "The quiz-gate was annoying at first. Then I realised that friction is exactly what forces real learning. I wouldn't study any other way now.", name: 'Daniel Osei', role: 'Self-taught Developer', co: 'Lagos', av: 'DO', streak: 41, result: 'First dev job' },
-  { quote: "My entire UPSC prep was passive videos for 6 months. Switched to Focusaint for the last 3. Passed the prelims. Active recall is the whole game.", name: 'Arjun Sharma', role: 'UPSC Aspirant', co: 'New Delhi', av: 'AS', streak: 19, result: 'Cleared Prelims' },
-  { quote: "As an educator I've tried every edtech product. Focusaint is the first one built around how the brain actually learns, not engagement metrics.", name: 'Dr. Leila Hassan', role: 'Learning Scientist', co: 'BITS Pilani', av: 'LH', streak: 62, result: 'Recommends to 400+ students' },
-  { quote: "I was a serial tutorial hoarder — 400+ saved videos, never finishing any. The daily cap forced me to actually complete things. That one change was everything.", name: 'Karan Malhotra', role: 'Data Analyst', co: 'Mumbai', av: 'KM', streak: 55, result: 'Promoted in 6 months' },
-  { quote: "CAT prep with Focusaint genuinely changed how I study. Stopped re-reading the same chapter 6 times and started actually retaining it.", name: 'Tanvi Joshi', role: 'MBA Aspirant', co: 'Pune', av: 'TJ', streak: 22, result: '96 percentile' },
+  {
+    quote: "I used to go through multiple React tutorials without much clarity. Working through structured lessons here helped me actually connect the concepts.",
+    name: 'Sakura Tanaka',
+    role: 'Frontend Engineer',
+    co: 'Mercari, Tokyo',
+    av: 'ST',
+    streak: 28,
+    result: 'Faster progress'
+  },
+  {
+    quote: "The checkpoints felt unusual at first, but they made me slow down and understand things properly instead of rushing ahead.",
+    name: 'Daniel Osei',
+    role: 'Self-taught Developer',
+    co: 'Lagos',
+    av: 'DO',
+    streak: 41,
+    result: 'Built stronger basics'
+  },
+  {
+    quote: "I shifted my exam preparation approach and started reviewing concepts more actively. It made a noticeable difference during revision.",
+    name: 'Arjun Sharma',
+    role: 'UPSC Aspirant',
+    co: 'New Delhi',
+    av: 'AS',
+    streak: 19,
+    result: 'Improved confidence'
+  },
+  {
+    quote: "What stands out is the structure. It aligns well with how people gradually build understanding rather than just consuming information.",
+    name: 'Dr. Leila Hassan',
+    role: 'Learning Scientist',
+    co: 'BITS Pilani',
+    av: 'LH',
+    streak: 62,
+    result: 'Recommended to students'
+  },
+  {
+    quote: "I had saved a lot of tutorials but rarely completed them. The guided flow helped me actually finish what I started.",
+    name: 'Karan Malhotra',
+    role: 'Data Analyst',
+    co: 'Mumbai',
+    av: 'KM',
+    streak: 55,
+    result: 'Better consistency'
+  },
+  {
+    quote: "Instead of repeating the same chapters again and again, I began to retain concepts more clearly over time.",
+    name: 'Tanvi Joshi',
+    role: 'MBA Aspirant',
+    co: 'Pune',
+    av: 'TJ',
+    streak: 22,
+    result: 'Stronger retention'
+  },
 ]
 
 const stats = [
-  { v: '12,400+', l: 'Active learners' },
-  { v: '94%',     l: 'Recall rate'     },
-  { v: '4.9 ★',  l: 'Avg rating'      },
-  { v: '41 days', l: 'Avg streak'      },
+  { v: '12,400+', l: 'Users learning daily' },
+  { v: '94%',     l: 'Retention level'     },
+  { v: '4.9 ★',  l: 'User rating'      },
+  { v: '41 days', l: 'Average streak'      },
 ]
 
 export default function Testimonials() {
@@ -54,9 +102,9 @@ export default function Testimonials() {
           opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)', transition: 'all 0.6s ease',
         }}>
           <div>
-            <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>Learners</span>
+            <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>From users</span>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              They stopped watching.<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>They started knowing.</em>
+              From exploring content<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>to making sense of it.</em>
             </h2>
           </div>
           {/* Arrows */}

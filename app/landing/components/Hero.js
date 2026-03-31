@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 
-const WORDS = ['Watching.', 'Scrolling.', 'Forgetting.']
+const WORDS = ['Drifting.', 'Jumping.', 'Losing track.']
 
 export default function Hero() {
   const [wordIdx, setWordIdx] = useState(0)
@@ -79,7 +79,7 @@ export default function Hero() {
         <div>
           <div className="fade-up d1" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, marginBottom: 32, paddingBottom: 16, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', display: 'block' }}/>
-            <span className="label" style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 600 }}>Intelligent Learning Platform</span>
+            <span className="label" style={{ color: 'var(--accent)', fontSize: 11, fontWeight: 600 }}>Structured learning environment</span>
           </div>
 
           <h1 className="fade-up d2" style={{
@@ -99,32 +99,32 @@ export default function Hero() {
               transform: fade ? 'translateY(0)' : 'translateY(8px)',
               transition: 'opacity 0.28s ease, transform 0.28s ease',
             }}>{WORDS[wordIdx]}</em><br />
-            Start knowing.
+            Start understanding clearly.
           </h1>
 
           <p className="fade-up d3" style={{
             fontFamily: 'var(--font-sans)', fontSize: 'clamp(15px, 1.9vw, 17px)', fontWeight: 300,
             color: 'var(--muted)', lineHeight: 1.8, maxWidth: 540, marginBottom: 40, letterSpacing: '0.01em'
           }}>
-            Millions open YouTube to study. Hours later, almost nothing is remembered. Focusaint replaces passive watching with intelligent active recall.
+            Many start learning with good intent, but end up jumping between videos without clear progress. This platform brings structure, so each session actually builds on the last.
           </p>
 
           <div className="fade-up d4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
             <Link href="/signup" className="btn-accent">
-              Start for free
+              Begin your learning
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>
-            <a href="#method" className="btn-ghost">See the method</a>
+            <a href="#method" className="btn-ghost">How it works</a>
           </div>
 
           {/* Stats */}
           <div ref={countersRef} className="fade-up d5" style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
             {[
-              { to: 2000, suf: '+', label: 'Learners' },
-              { to: 94,    suf: '%', label: 'Recall rate' },
-              { to: 4.9,   suf: '',  label: 'Rating', dec: true },
+              { to: 2000, suf: '+', label: 'Active users' },
+              { to: 94,    suf: '%', label: 'Retention level' },
+              { to: 4.9,   suf: '',  label: 'User rating', dec: true },
             ].map((s, i) => (
               <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <span
@@ -220,7 +220,7 @@ function MobileLessonCard({ isLight }) {
           border: '1px solid rgba(200,64,42,0.15)', borderRadius: 3, marginBottom: 10,
         }}>
           <p className="label" style={{ color: 'var(--accent)', letterSpacing: '0.14em', fontSize: 7 }}>
-            ▸ quiz to unlock next
+            ▸ quick check to proceed
           </p>
         </div>
 
@@ -343,7 +343,7 @@ function LessonCard({ isLight }) {
             border: '1px solid rgba(200,64,42,0.15)', borderRadius: 4, marginBottom: 14,
           }}>
             <p className="label" style={{ color: 'var(--accent)', letterSpacing: '0.16em' }}>
-              ▸ complete quiz to unlock next lesson
+              ▸ complete check to continue
             </p>
           </div>
 
@@ -388,7 +388,7 @@ function LessonCard({ isLight }) {
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
       }}>
         <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 500, color: 'var(--gold)', marginBottom: 2 }}>🔥 7-day streak</div>
-        <div className="label">Keep it going</div>
+        <div className="label">Stay on track</div>
       </div>
 
       {/* Floating quiz badge */}
@@ -399,7 +399,7 @@ function LessonCard({ isLight }) {
         animation: 'float 5s ease-in-out infinite 1.2s',
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
       }}>
-        <div className="label" style={{ color: 'var(--accent)', marginBottom: 3 }}>Quiz unlocked</div>
+        <div className="label" style={{ color: 'var(--accent)', marginBottom: 3 }}>Next step ready</div>
         <div style={{ fontFamily: 'var(--font-sans)', fontSize: 12, fontWeight: 500, color: 'var(--white)' }}>Big-O Notation</div>
       </div>
     </div>

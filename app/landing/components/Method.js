@@ -2,12 +2,36 @@
 import { useInView } from '../../hooks/useInView'
 
 const steps = [
-  { n: '01', title: 'Watch',     body: 'A focused, distraction-free lesson. No sidebar. No recommendations. No autoplay. Just the concept you chose to learn.' },
-  { n: '02', title: 'Quiz',    body: 'A spaced-repetition quiz surfaces the core ideas. Your brain must retrieve — not recognise. That\'s the difference.' },
-  { n: '03', title: 'Practice',      body: 'Learn To Apply the Concepts in the real world.' },
-  { n: '04', title: 'Summarise', body: 'Write the lesson in your own words. The Feynman technique, automated. If you can\'t explain it, you don\'t know it.' },
-  { n: '05', title: 'Unlock',    body: 'Only then does the next lesson open. Progress is earned, not given. Depth over volume, always.' },
-  { n: '06', title: 'Active Recall',    body: 'Spaced repetition of concepts through reflection and summary revisits.' },
+  {
+    n: '01',
+    title: 'Watch',
+    body: 'Start with a clean, distraction-free lesson where your attention stays on a single concept from beginning to end.'
+  },
+  {
+    n: '02',
+    title: 'Check',
+    body: 'Short questions help you revisit key ideas, ensuring you’re following along instead of just moving forward.'
+  },
+  {
+    n: '03',
+    title: 'Apply',
+    body: 'Work through simple use-cases to see how the concept fits into real scenarios and builds practical understanding.'
+  },
+  {
+    n: '04',
+    title: 'Summarise',
+    body: 'Write a brief explanation in your own words to clarify what you’ve understood and identify any gaps.'
+  },
+  {
+    n: '05',
+    title: 'Continue',
+    body: 'Once you’re clear, the next lesson opens, keeping your progress steady and well-paced.'
+  },
+  {
+    n: '06',
+    title: 'Revisit',
+    body: 'Key ideas are revisited over time so they stay familiar and easier to recall when needed.'
+  },
 ]
 
 export default function Method() {
@@ -23,7 +47,7 @@ export default function Method() {
           <div className="sticky-col">
             <span className={`label fade-up ${inView ? '' : ''}`} style={{ color: 'var(--accent)', display: 'block', marginBottom: 18,
               opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(16px)', transition: 'all 0.6s ease', fontWeight: 600, fontSize: 12 }}>
-              The method
+              Learning flow
             </span>
             <h2 style={{
               fontFamily: 'var(--font-serif)', fontSize: 'clamp(2.2rem,5vw,3.2rem)',
@@ -32,7 +56,7 @@ export default function Method() {
               opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)',
               transition: 'all 0.6s ease 0.1s',
             }}>
-              Watching is not<br /><em style={{ color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>learning.</em>
+              Learning needs<br /><em style={{ color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>active involvement.</em>
             </h2>
             <p style={{
               fontFamily: 'var(--font-sans)', fontSize: 15, fontWeight: 300,
@@ -40,7 +64,7 @@ export default function Method() {
               opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)',
               transition: 'all 0.6s ease 0.2s',
             }}>
-              Your brain retains information through active retrieval — not passive exposure. Every feature is built around this science.
+              Understanding improves when you engage with what you study. Each step here is designed to help you process, apply, and retain information more effectively.
             </p>
           </div>
 

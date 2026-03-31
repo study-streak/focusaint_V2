@@ -4,20 +4,68 @@ import { useState, useEffect } from 'react'
 
 const cards = [
   {
-    front: { label: 'Without Focusaint', title: 'Passive Watching', stat: '12%', statLabel: 'avg retention', body: 'Watch, feel productive, forget everything by morning. The algorithm keeps you comfortable — and ignorant.' },
-    back:  { label: 'With Focusaint',    title: 'Active Recall',    stat: '94%', statLabel: 'proven retention', body: 'Answer questions, pass a quiz, write a summary. Uncomfortable by design — but improves focus, clarity and Understanding.' },
+    front: {
+      label: 'Without structure',
+      title: 'Endless viewing',
+      stat: '12%',
+      statLabel: 'avg retention',
+      body: 'One video leads to another, but very little stays. It feels productive in the moment, but fades quickly.'
+    },
+    back: {
+      label: 'With guidance',
+      title: 'Engaged learning',
+      stat: '94%',
+      statLabel: 'measured recall',
+      body: 'Short prompts and checks help you process each session before moving forward, making the time actually count.'
+    },
   },
   {
-    front: { label: 'Without Focusaint', title: 'Infinite Feed',   stat: '2h+', statLabel: 'wasted per session', body: 'Autoplay, Shorts, recommendations — the platform\'s job is to maximise your watch time, not your knowledge.' },
-    back:  { label: 'With Focusaint',    title: 'Gated Progress',  stat: '3×',  statLabel: 'faster mastery', body: 'A daily lesson cap. No autoplay. No distractions. Depth is enforced, not left to willpower.' },
+    front: {
+      label: 'Without structure',
+      title: 'Constant switching',
+      stat: '2h+',
+      statLabel: 'per session drift',
+      body: 'Recommendations pull you in different directions, making it hard to stay on a single path.'
+    },
+    back: {
+      label: 'With guidance',
+      title: 'Steady progression',
+      stat: '3×',
+      statLabel: 'clearer outcomes',
+      body: 'Sessions are paced and connected, so you continue with direction instead of jumping between topics.'
+    },
   },
   {
-    front: { label: 'Without Focusaint', title: 'No Accountability', stat: '0',   statLabel: 'structure', body: 'Miss a day. Watch twenty videos. Skip to lesson 9. Nothing stops you from learning nothing.' },
-    back:  { label: 'With Focusaint',    title: 'Daily Streaks',     stat: '87%', statLabel: 'hit their goals', body: 'Streaks that reward depth, not duration. Consistency is built in — not wished for.' },
+    front: {
+      label: 'Without structure',
+      title: 'No continuity',
+      stat: '0',
+      statLabel: 'learning rhythm',
+      body: 'Some days are skipped, others are overloaded, but there’s no consistent pattern to build on.'
+    },
+    back: {
+      label: 'With guidance',
+      title: 'Regular progress',
+      stat: '87%',
+      statLabel: 'goal completion',
+      body: 'A simple system keeps your learning steady, helping you return and continue without starting over.'
+    },
   },
   {
-    front: { label: 'Without Focusaint', title: 'Illusion of Learning', stat: '73%', statLabel: 'confuse familiarity with knowledge', body: 'The more you watch, the more it feels like you know. That feeling is the enemy of actual mastery.' },
-    back:  { label: 'With Focusaint',    title: 'Proven Understanding', stat: '5×',  statLabel: 'better exam outcomes', body: 'Write it in your own words. If you cannot explain it simply, you do not know it yet.' },
+    front: {
+      label: 'Without structure',
+      title: 'Surface familiarity',
+      stat: '73%',
+      statLabel: 'overconfidence',
+      body: 'Repeated exposure can feel like understanding, even when the concept isn’t fully clear.'
+    },
+    back: {
+      label: 'With guidance',
+      title: 'Clear understanding',
+      stat: '5×',
+      statLabel: 'better outcomes',
+      body: 'Explaining ideas in your own words highlights what you truly understand and what needs revisiting.'
+    },
   },
 ]
 
@@ -47,13 +95,13 @@ export default function FlipCards() {
           transition: 'all 0.6s ease',
         }}>
           <div>
-            <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>Hover to compare</span>
+            <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>See the difference</span>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              The same hour.<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>Very different results.</em>
+              Same time invested.<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>A different outcome.</em>
             </h2>
           </div>
           <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, fontWeight: 300, color: 'var(--muted)', maxWidth: 280, lineHeight: 1.8 }}>
-            Each card shows the problem on the front and Focusaint's solution on the back.
+            Flip each card to see how the approach changes the result.
           </p>
         </div>
 

@@ -33,7 +33,7 @@ export default function Team() {
         }}>
           <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>The builders</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-            People who refused to<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>just watch the problem.</em>
+            Built by people who care<br /><em style={{ fontStyle: 'italic', color: 'var(--muted)' }}>about how learning actually works.</em>
           </h2>
         </div>
 

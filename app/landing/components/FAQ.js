@@ -3,12 +3,30 @@ import { useState, useEffect } from 'react'
 import { useInView } from '../../hooks/useInView'
 
 const faqs = [
-  { q: 'How is Focusaint different from just watching YouTube?', a: 'Every lesson is gated behind comprehension checks. You cannot move to the next video until you answer questions, pass a quiz, and write a summary. This forces active recall — the most effective learning technique backed by cognitive science.' },
-  { q: 'Why limit the number of daily videos?', a: 'Depth beats breadth. Watching ten tutorials and remembering nothing is worse than finishing one and genuinely understanding it. The daily cap enforces that discipline.' },
-  { q: 'What subjects are available?', a: 'Programming (Python, JavaScript, React, DSA), competitive exam prep (UPSC, JEE, CAT), and professional growth. New structured courses launch monthly.' },
-  { q: 'Can I use my own content?', a: 'Yes — on Focus and Team plans, paste any YouTube URL and Focusaint auto-generates questions, a quiz, and a summary prompt using our AI engine.' },
-  { q: 'What if I fail a quiz?', a: 'Review and retry. There is no penalty — only a gate. Most learners find the second attempt far easier because the first attempt already primed memory through testing.' },
-  { q: 'Is there a mobile app?', a: 'iOS and Android apps are available. Progress, streaks, and lessons sync seamlessly across all devices.' },
+  {
+    q: 'How is this different from learning directly on YouTube?',
+    a: 'Each session is structured with checkpoints — short questions, quick assessments, and reflection prompts — so you move forward only after processing what you have just learned.'
+  },
+  {
+    q: 'Why is there a daily limit on sessions?',
+    a: 'Going through fewer sessions with proper understanding leads to better retention than rushing through many without clarity. The limit helps maintain that balance.'
+  },
+  {
+    q: 'What areas can I explore here?',
+    a: 'Topics range from programming and technical concepts to exam preparation and career-oriented learning, with new structured paths added regularly.'
+  },
+  {
+    q: 'Can I learn from content I already follow?',
+    a: 'Yes — you can add your own video links, and the system organizes them into guided sessions with prompts and checks built around them.'
+  },
+  {
+    q: 'What happens if I do not get it right the first time?',
+    a: 'You simply revisit the concept and try again. The process is designed to reinforce understanding, not penalize mistakes.'
+  },
+  {
+    q: 'Can I access this across devices?',
+    a: 'Yes, your sessions, progress, and history stay in sync, so you can continue from any device without interruption.'
+  },
 ]
 
 export default function FAQ() {
@@ -36,9 +54,9 @@ export default function FAQ() {
           marginBottom: 48,
           opacity: inView ? 1 : 0, transform: inView ? 'none' : 'translateY(20px)', transition: 'all 0.6s ease',
         }}>
-          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>Questions</span>
+          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>Clarity</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em' }}>
-            Anything else?
+            What you might be wondering
           </h2>
         </div>
 
@@ -85,7 +103,7 @@ export default function FAQ() {
           fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--muted)',
           opacity: inView ? 1 : 0, transition: 'all 0.6s ease 0.3s',
         }}>
-          More questions? <a href="mailto:hello@focusaint.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>hello@focusaint.com</a>
+          Still curious?<a href="mailto:hello@focusaint.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>hello@focusaint.com</a>
         </p>
       </div>
     </section>

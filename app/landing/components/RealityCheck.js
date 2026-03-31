@@ -3,9 +3,18 @@ import { useState, useEffect } from 'react'
 import { useInView } from '../../hooks/useInView'
 
 const realityItems = [
-  { q: "How many study videos do you watch every day?", a: "Most students watch 5–10+ daily but retain almost nothing. Volume ≠ learning." },
-  { q: "How many concepts can you explain the next day?", a: "Research shows passive watching leads to less than 10% retention after 24 hours." },
-  { q: "How many problems can you solve in exams?", a: "Without active recall practice, exam performance stays frustratingly low." }
+  {
+    q: "How many study videos do you go through in a day?",
+    a: "It’s common to cover several in one sitting, but without structure, much of it fades quickly."
+  },
+  {
+    q: "How much can you recall the next day?",
+    a: "Without revisiting or applying ideas, it becomes difficult to remember key concepts after some time."
+  },
+  {
+    q: "How confidently can you apply what you’ve learned?",
+    a: "Understanding grows when you practice and revisit ideas, not just when you watch them once."
+  }
 ]
 
 export default function RealityCheck() {
@@ -35,9 +44,9 @@ export default function RealityCheck() {
           transform: inView ? 'none' : 'translateY(20px)', 
           transition: 'all 0.6s ease',
         }}>
-          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>The uncomfortable truth</span>
+          <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12 }}>A quick reflection</span>
           <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(2rem,4vw,3rem)', fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em' }}>
-            Be Honest With Yourself
+            Pause and reflect
           </h2>
         </div>
 
@@ -89,7 +98,9 @@ export default function RealityCheck() {
           transform: inView ? 'none' : 'translateY(20px)', 
           transition: 'all 0.6s ease 0.2s',
         }}>
-          <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>Most students consume dozens of tutorials but struggle to apply concepts when it matters.</em>
+          <em style={{ color: 'var(--accent)', fontStyle: 'italic' }}>
+          Going through many resources can feel productive, but real progress shows when you can apply what you’ve learned.
+        </em>
         </p>
       </div>
     </section>

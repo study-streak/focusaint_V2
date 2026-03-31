@@ -3,10 +3,26 @@ import { useInView } from '../../hooks/useInView'
 import { useEffect, useState } from 'react'
 
 const traps = [
-  { icon: '∞', title: 'Autoplay Loops', body: 'The next video starts before you\'ve processed the last one. You\'re always watching, never learning.' },
-  { icon: '↕', title: 'Infinite Feeds', body: 'Endless recommendations engineered to maximise watch time — not your comprehension.' },
-  { icon: '✗', title: 'No Accountability', body: 'Skip, rewind, abandon. No one tracks whether you understood a thing. The platform doesn\'t care.' },
-  { icon: '◎', title: 'Vanity Metrics', body: 'Hours watched, videos saved, playlists created. None of these measure what you actually learned.' },
+  {
+    icon: '∞',
+    title: 'Continuous Playback',
+    body: 'The next video starts instantly, leaving little time to pause and process what you just saw.'
+  },
+  {
+    icon: '↕',
+    title: 'Endless Suggestions',
+    body: 'New recommendations keep appearing, making it easy to switch topics before finishing one properly.'
+  },
+  {
+    icon: '✗',
+    title: 'No Clear Path',
+    body: 'You can jump between topics freely, but without structure it becomes hard to track what you’ve actually understood.'
+  },
+  {
+    icon: '◎',
+    title: 'Surface Signals',
+    body: 'Time spent and videos watched look productive, but they don’t reflect how much you’ve really grasped.'
+  },
 ]
 
 export default function PlatformTrap() {
@@ -40,7 +56,7 @@ export default function PlatformTrap() {
             transition: 'all 0.6s ease',
           }}>
             <span className="label" style={{ color: 'var(--accent)', display: 'block', marginBottom: 12, fontWeight: 600, fontSize: 12 }}>
-              The problem
+              What happens today
             </span>
             <h2 style={{
               fontFamily: 'var(--font-serif)',
@@ -50,8 +66,8 @@ export default function PlatformTrap() {
               lineHeight: 1.15,
               letterSpacing: '-0.025em',
             }}>
-              Platforms get profit when you{' '}
-              <em style={{ color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>watch more</em>
+              More time spent doesn’t always mean{' '}
+              <em style={{ color: 'var(--accent)', fontStyle: 'italic', fontWeight: 400 }}>more learned</em>
             </h2>
           </div>
 
@@ -125,7 +141,7 @@ export default function PlatformTrap() {
             transform: inView ? 'none' : 'translateY(20px)',
             transition: 'all 0.6s ease 0.2s',
           }}>
-            You didn't plan to waste time. <strong style={{ color: 'var(--white)', fontWeight: 500 }}>The system is engineered to keep you watching.</strong>
+            You started with the intent to learn. <strong style={{ color: 'var(--white)', fontWeight: 500 }}>But without structure, it’s easy to lose direction.</strong>
           </p>
         </div>
       </div>
