@@ -1,91 +1,98 @@
 "use client"
 
 /*
-  COMPONENT: FloatingStats
+  COMPONENT: FloatingStats (Subtle Data Particles)
 
   PURPOSE:
-  - Adds small floating UI elements in corners
-  - Increases perceived system intelligence
+  - Adds floating micro information (XP, time, sessions)
+  - Creates “alive data layer” without clutter
 
-  DATA:
-  - Uses backend data if available
-  - Falls back to static (safe UI)
+  BACKEND DATA:
+  - OPTIONAL (can pass real stats)
+  - If not → uses static fallback
 
-  POSITION:
-  - Top-left → time + XP
-  - Top-right → rank + sessions
+  EXPECTED DATA:
+  data = {
+    stats: [
+      { label: string, value: string }
+    ]
+  }
+
+  DATA FLOW:
+  - backend → primary
+  - fallback → if backend missing
+  - safe with ?? operator
+
+  DESIGN RULE:
+  - LOW opacity
+  - SLOW movement
+  - NON-interfering
 */
 
 import { motion } from "framer-motion"
-import { Clock, Trophy, Target, Star } from "lucide-react"
 
-// 🔹 fallback
+// 🔹 STATIC FALLBACK DATA (subtle, minimal)
 const fallback = {
-    xp: 320,
-    rank: "Silver",
-    sessions: 12,
+    stats: [
+        { label: "XP", value: "+20" },
+        { label: "Focus", value: "45m" },
+        { label: "Streak", value: "5d" },
+    ],
 }
 
 export default function FloatingStats({ data }) {
 
-    const xp = data?.xp ?? fallback.xp
-    const rank = data?.rank ?? fallback.rank
-    const sessions = data?.sessions ?? fallback.sessions
+    /*
+      🔹 BACKEND EXPECTED:
+      data.stats[]
+    */
 
-    const currentTime = new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-    })
+    // 🔹 AUTO SWITCH LOGIC
+    const stats = data?.stats ?? fallback.stats
 
     return (
-        <>
-            {/* 🔹 TOP LEFT */}
-            <div className="absolute top-20 left-4 flex flex-col gap-3">
+        <div className="pointer-events-none fixed inset-0 -z-5 overflow-hidden">
 
-                {/* 🕒 TIME */}
+            {stats.map((s, i) => (
+
                 <motion.div
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 3 }}
-                    className="flex items-center gap-2 px-3 py-1 bg-white/5 backdrop-blur-md rounded-full text-xs text-gray-300"
+                    key={i}
+
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{
+                        opacity: [0, 0.3, 0],
+                        y: [-20, -80, -140],
+                        x: [0, i % 2 === 0 ? 20 : -20, 0],
+                    }}
+
+                    transition={{
+                        duration: 10 + i * 2,
+                        repeat: Infinity,
+                        delay: i * 2,
+                        ease: "easeInOut",
+                    }}
+
+                    className="absolute text-xs text-white/20 font-medium"
+                    style={{
+                        left: `${20 + i * 20}%`,
+                        bottom: "0%",
+                    }}
                 >
-                    <Clock size={14} />
-                    {currentTime}
+
+                    {/* VALUE */}
+                    <span className="text-indigo-300/40 mr-1">
+                        {s.value}
+                    </span>
+
+                    {/* LABEL */}
+                    <span className="text-white/20">
+                        {s.label}
+                    </span>
+
                 </motion.div>
 
-                {/* ⭐ XP */}
-                <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 px-3 py-1 bg-purple-500/10 rounded-full text-xs"
-                >
-                    <Star size={14} className="text-purple-400" />
-                    {xp} XP
-                </motion.div>
+            ))}
 
-            </div>
-
-            {/* 🔹 TOP RIGHT */}
-            <div className="absolute top-20 right-4 flex flex-col gap-3 items-end">
-
-                {/* 🏆 RANK */}
-                <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="flex items-center gap-2 px-3 py-1 bg-yellow-500/10 rounded-full text-xs"
-                >
-                    <Trophy size={14} className="text-yellow-400" />
-                    {rank}
-                </motion.div>
-
-                {/* 🎯 SESSIONS */}
-                <motion.div
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                    className="flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full text-xs"
-                >
-                    <Target size={14} className="text-blue-400" />
-                    {sessions} sessions
-                </motion.div>
-
-            </div>
-        </>
+        </div>
     )
 }
