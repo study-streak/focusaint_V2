@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../../landing/components/ThemeToggle'
+import { persistAuthToken } from '../../../lib/auth-cookie'
 
 export default function Login() {
   const [mode,     setMode]     = useState('password') // 'password' | 'magic'
@@ -22,12 +23,41 @@ export default function Login() {
   }
 
   const submit = async (ev) => {
+    try{
     ev.preventDefault()
     if (!validate()) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    setLoading(false)
-    if (mode === 'magic') setSent(true)
+    // await new Promise(r => setTimeout(r, 1200))
+    const reponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,{
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({email:form.email, password:form.password}),
+    }
+    )
+    const data = reponse.json()
+    if(response.ok){
+        if (response.ok) {
+        persistAuthToken(data.token)
+        router.push(safeNextPath)
+        return
+      }
+      // If unverified, move to OTP step
+      if (response.status === 403 && data?.requiresVerification) {
+        setStep("otp")
+        setError("")
+        return
+      }
+      throw new Error(data.error || data.message || "Login failed")
+      if (mode === 'magic') setSent(true)
+      
+    }
+  
+    } catch(e){
+        setErrors(err instanceof Error ? err.message : "Failed to login")
+    }finally {
+      setLoading(false)
+    }
+
   }
 
   return (

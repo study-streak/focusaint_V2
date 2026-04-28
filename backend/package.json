@@ -1,0 +1,40 @@
+{
+  "name": "focusaint-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "focusaint backend API with Express and MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "verify-indexes": "node scripts/verify-indexes.js"
+  },
+  "dependencies": {
+    "@sentry/node": "^10.42.0",
+    "@sentry/profiling-node": "^10.42.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "csurf": "^1.2.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "express-validator": "^7.3.1",
+    "framer-motion": "^12.34.3",
+    "helmet": "^8.1.0",
+    "isomorphic-dompurify": "^2.36.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.4",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.4",
+    "rate-limit-redis": "^4.3.1",
+    "react": "^19.2.4",
+    "redis": "^5.11.0",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
