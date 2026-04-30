@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import ThemeToggle from '../../landing/components/ThemeToggle'
+import { APIClient } from '../../../lib/api-client'
 
 const goals = [
   { id: 'code',   label: 'Learn to code'        },
@@ -33,9 +34,20 @@ export default function Signup() {
 
   const submit = async () => {
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1400))
-    setLoading(false)
-    setDone(true)
+    try {
+      await APIClient.post('/auth/signup', {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        learningGoal: form.goal
+      })
+      
+      setDone(true)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -100,7 +112,7 @@ export default function Signup() {
         <div className="auth-form-wrap">
 
           {done ? (
-            <Success name={form.name} />
+            <Success name={form.name} email={form.email} />
           ) : step === 1 ? (
             <Step1 form={form} set={set} errors={errors} showPass={showPass} setShowPass={setShowPass} onNext={next} />
           ) : (
@@ -242,7 +254,7 @@ function Step2({ form, set, goals, onSubmit, loading, onBack }) {
   )
 }
 
-function Success({ name }) {
+function Success({ name, email }) {
   return (
     <div className="fade-in" style={{ textAlign: 'center' }}>
       <div style={{
@@ -258,10 +270,10 @@ function Success({ name }) {
         Welcome, {name || 'Learner'}.
       </h2>
       <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8, marginBottom: 28 }}>
-        Your account is ready. Time to stop watching and start knowing.
+        Your account is created! Please check your email for the verification code.
       </p>
-      <Link href="/" className="btn-accent" style={{ fontSize: 14 }}>
-        Go to dashboard
+      <Link href={`/auth/login?email=${encodeURIComponent(email)}`} className="btn-accent" style={{ fontSize: 14 }}>
+        Go to Login
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
         </svg>

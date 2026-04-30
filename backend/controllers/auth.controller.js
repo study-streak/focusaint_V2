@@ -289,23 +289,39 @@ export const forgotPassword = async (req, res) => {
 export const resetPasswordToken = async (req, res) => {
   await connectToMongo()
   try {
-    const { token, newPassword } = req.body
+    const { token, newPassword, email } = req.body
+    
+    let userEmail = email
+    let code = token
+
     if (!token || !validatePassword(newPassword)) {
       return res.status(400).json({ error: "Invalid input" })
     }
-    const decoded = verifyResetToken(token)
-    if (!decoded || !decoded.email || !decoded.code) {
-      return res.status(400).json({ error: "Invalid or expired reset token" })
+
+    // Check if token is a JWT (typically much longer than 6 digits)
+    if (token.length > 20) {
+      const decoded = verifyResetToken(token)
+      if (!decoded || !decoded.email || !decoded.code) {
+        return res.status(400).json({ error: "Invalid or expired reset token" })
+      }
+      userEmail = decoded.email
+      code = decoded.code
     }
-    const { email, code } = decoded
-    const otpRecord = await OTP.findOne({ email, otp: code, type: "reset" })
+
+    if (!userEmail || !code) {
+       return res.status(400).json({ error: "Email and reset code are required" })
+    }
+
+    const otpRecord = await OTP.findOne({ email: userEmail, otp: code, type: "reset" })
     if (!otpRecord || otpRecord.expiresAt < new Date()) {
       return res.status(400).json({ error: "Invalid or expired reset token" })
     }
-    const user = await User.findOne({ email })
+
+    const user = await User.findOne({ email: userEmail })
     if (!user) {
       return res.status(400).json({ error: "User not found" })
     }
+
     user.password = newPassword
     await user.save()
     await OTP.deleteOne({ _id: otpRecord._id })

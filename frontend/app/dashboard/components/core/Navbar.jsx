@@ -56,7 +56,13 @@ export default function Navbar({ data }) {
 
     // 🔹 AUTO SWITCH LOGIC
     const user = data?.user ?? fallback.user
-    const streak = data?.streak ?? fallback.streak
+    
+    // Handle both number and object formats for streak
+    const streakObj = data?.streak;
+    const streak = typeof streakObj === 'object' && streakObj !== null 
+        ? streakObj.currentStreak 
+        : (streakObj ?? fallback.streak);
+
     const notifications =
         data?.notifications ?? fallback.notifications
 

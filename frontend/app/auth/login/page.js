@@ -1,19 +1,36 @@
 'use client'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import ThemeToggle from '../../landing/components/ThemeToggle'
 import { persistAuthToken } from '../../../lib/auth-cookie'
+import { APIClient } from '../../../lib/api-client'
 
-export default function Login() {
+function LoginContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [mode,     setMode]     = useState('password') // 'password' | 'magic'
   const [form,     setForm]     = useState({ email: '', password: '' })
   const [errors,   setErrors]   = useState({})
   const [showPass, setShowPass] = useState(false)
   const [loading,  setLoading]  = useState(false)
   const [sent,     setSent]     = useState(false)
+  
+  const [step, setStep] = useState('login')
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [forgotSent, setForgotSent] = useState(false)
+  const [resetToken, setResetToken] = useState('')
+  const [resetPassword, setResetPassword] = useState('')
+  const [resetConfirm, setResetConfirm] = useState('')
+  const [otp, setOtp] = useState('')
+  const [resending, setResending] = useState(false)
 
   const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: '' })) }
 
+  const nextPath = searchParams.get("next")
+  const safeNextPath = nextPath && nextPath.startsWith("/") ? nextPath : "/dashboard"
+
+  // Validation
   const validate = () => {
     const e = {}
     if (!form.email.includes('@'))                      e.email    = 'Invalid email'
@@ -22,42 +39,97 @@ export default function Login() {
     return !Object.keys(e).length
   }
 
-  const submit = async (ev) => {
-    try{
-    ev.preventDefault()
+  // Handlers
+  const handleLogin = async (ev) => {
+    if (ev) ev.preventDefault()
     if (!validate()) return
     setLoading(true)
-    // await new Promise(r => setTimeout(r, 1200))
-    const reponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,{
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({email:form.email, password:form.password}),
-    }
-    )
-    const data = reponse.json()
-    if(response.ok){
-        if (response.ok) {
-        persistAuthToken(data.token)
-        router.push(safeNextPath)
+    try {
+      if (mode === 'magic') {
+        setSent(true)
+        setLoading(false)
         return
       }
-      // If unverified, move to OTP step
-      if (response.status === 403 && data?.requiresVerification) {
+
+      const data = await APIClient.post('/auth/login', { email: form.email, password: form.password })
+
+      persistAuthToken(data.token)
+      router.push(safeNextPath)
+    } catch (err) {
+      if (err.name === 'APIError' && err.status === 403 && err.data?.requiresVerification) {
         setStep("otp")
-        setError("")
+        setErrors({})
         return
       }
-      throw new Error(data.error || data.message || "Login failed")
-      if (mode === 'magic') setSent(true)
-      
-    }
-  
-    } catch(e){
-        setErrors(err instanceof Error ? err.message : "Failed to login")
-    }finally {
+      setErrors({ global: err instanceof Error ? err.message : "Failed to login" })
+    } finally {
       setLoading(false)
     }
+  }
 
+  const handleForgotPassword = async (ev) => {
+    if (ev) ev.preventDefault()
+    setLoading(true)
+    setErrors({})
+    try {
+      await APIClient.post('/auth/forgot-password', { email: forgotEmail })
+      setForgotSent(true)
+    } catch (err) {
+      setErrors({ global: err instanceof Error ? err.message : "Failed to send reset link" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResetPassword = async (ev) => {
+    if (ev) ev.preventDefault()
+    setLoading(true)
+    setErrors({})
+    try {
+      if (resetPassword !== resetConfirm) throw new Error("Passwords do not match")
+      await APIClient.post('/auth/reset-password', { email: forgotEmail, token: resetToken, newPassword: resetPassword })
+      
+      setStep("login")
+      setErrors({})
+      setForgotSent(false)
+      setResetToken("")
+      setResetPassword("")
+      setResetConfirm("")
+      setForgotEmail("")
+      alert("Password reset successful! Please login.")
+    } catch (err) {
+      setErrors({ global: err instanceof Error ? err.message : "Failed to reset password" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVerifyOTP = async (ev) => {
+    if (ev) ev.preventDefault()
+    setLoading(true)
+    setErrors({})
+    try {
+      const data = await APIClient.post('/auth/verify-otp', { email: form.email, otp })
+      persistAuthToken(data.token)
+      router.push(safeNextPath)
+    } catch (err) {
+      setErrors({ global: err instanceof Error ? err.message : "Failed to verify OTP" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleResendOTP = async () => {
+    setResending(true)
+    setErrors({})
+    try {
+      await APIClient.post('/auth/resend-otp', { email: form.email })
+      setOtp("")
+    } catch (err) {
+      setErrors({ global: err instanceof Error ? err.message : "Failed to resend OTP" })
+    } finally {
+      setResending(false)
+    }
   }
 
   return (
@@ -125,9 +197,9 @@ export default function Login() {
       <div className="auth-form-panel">
         <div className="auth-form-wrap" style={{ maxWidth: 380 }}>
 
-          {sent ? (
+          {step === 'login' && sent ? (
             <MagicSent email={form.email} />
-          ) : (
+          ) : step === 'login' ? (
             <div className="fade-in">
               <div style={{ marginBottom: 32 }}>
                 <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 6 }}>
@@ -174,7 +246,7 @@ export default function Login() {
                 <div style={{ flex: 1, height: 1, background: 'var(--line)' }}/>
               </div>
 
-              <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Email */}
                 <div>
                   <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: errors.email ? 'var(--accent)' : 'var(--muted)', marginBottom: 7 }}>
@@ -190,7 +262,7 @@ export default function Login() {
                       <label style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: errors.password ? 'var(--accent)' : 'var(--muted)' }}>
                         {errors.password || 'Password'}
                       </label>
-                      <a href="#" style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em', color: 'var(--accent)', textDecoration: 'none' }}>FORGOT?</a>
+                      <a href="#" onClick={(e) => { e.preventDefault(); setStep('forgot'); setForgotEmail(form.email); setErrors({}); setForgotSent(false); }} style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.1em', color: 'var(--accent)', textDecoration: 'none' }}>FORGOT?</a>
                     </div>
                     <div style={{ position: 'relative' }}>
                       <input className="input" type={showPass ? 'text' : 'password'} placeholder="Your password" value={form.password} onChange={e => set('password', e.target.value)} style={{ paddingRight: 56 }} />
@@ -209,6 +281,8 @@ export default function Login() {
                   </p>
                 )}
 
+                {errors.global && <p style={{ color: 'var(--accent)', fontSize: 13, margin: '0' }}>{errors.global}</p>}
+
                 <button type="submit" disabled={loading} className="btn-accent" style={{ width: '100%', justifyContent: 'center', fontSize: 14, opacity: loading ? 0.7 : 1, marginTop: 4 }}>
                   {loading ? (
                     <><Spinner />{mode === 'magic' ? 'Sending…' : 'Signing in…'}</>
@@ -221,10 +295,149 @@ export default function Login() {
                 <Link href="/auth/signup" style={{ color: 'var(--accent)', textDecoration: 'none' }}>Create one free</Link>
               </p>
             </div>
-          )}
+          ) : step === 'forgot' ? (
+            <div className="fade-in">
+              <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                  Forgot Password.
+                </h1>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)' }}>
+                  Enter your email to receive a password reset code.
+                </p>
+              </div>
+              <form onSubmit={forgotSent ? (e) => { e.preventDefault(); setStep('reset'); } : handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 7 }}>
+                    Email
+                  </label>
+                  <input className="input" type="email" placeholder="you@example.com" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} disabled={forgotSent} />
+                </div>
+                {errors.global && <p style={{ color: 'var(--accent)', fontSize: 13, margin: '0' }}>{errors.global}</p>}
+                
+                {forgotSent ? (
+                  <>
+                    <p style={{ color: 'var(--green, #34A853)', fontSize: 13, margin: '0' }}>Reset code sent! Check your email.</p>
+                    <button type="submit" className="btn-accent" style={{ width: '100%', justifyContent: 'center', fontSize: 14, marginTop: 4 }}>
+                      Enter Reset Code →
+                    </button>
+                  </>
+                ) : (
+                  <button type="submit" disabled={loading || !forgotEmail} className="btn-accent" style={{ width: '100%', justifyContent: 'center', fontSize: 14, opacity: loading || !forgotEmail ? 0.7 : 1, marginTop: 4 }}>
+                    {loading ? <><Spinner />Sending…</> : 'Send Reset Code →'}
+                  </button>
+                )}
+                
+                <button type="button" onClick={() => { setStep('login'); setErrors({}); }} style={{ background: 'none', border: '1px solid var(--line)', padding: '12px', borderRadius: '4px', color: 'var(--muted)', cursor: 'pointer', marginTop: '8px', fontSize: 13, fontFamily: 'var(--font-sans)' }}>
+                  Back to Login
+                </button>
+              </form>
+            </div>
+          ) : step === 'reset' ? (
+            <div className="fade-in">
+              <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                  Reset Password.
+                </h1>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)' }}>
+                  Enter the code sent to your email and your new password.
+                </p>
+              </div>
+              <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 7 }}>
+                    Reset Code
+                  </label>
+                  <input className="input" type="text" placeholder="Code from email" value={resetToken} onChange={e => setResetToken(e.target.value)} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 7 }}>
+                    New Password
+                  </label>
+                  <input className="input" type="password" placeholder="New password" value={resetPassword} onChange={e => setResetPassword(e.target.value)} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 7 }}>
+                    Confirm Password
+                  </label>
+                  <input className="input" type="password" placeholder="Confirm new password" value={resetConfirm} onChange={e => setResetConfirm(e.target.value)} />
+                </div>
+                {errors.global && <p style={{ color: 'var(--accent)', fontSize: 13, margin: '0' }}>{errors.global}</p>}
+                
+                <button type="submit" disabled={loading || !resetToken || !resetPassword || !resetConfirm} className="btn-accent" style={{ width: '100%', justifyContent: 'center', fontSize: 14, opacity: loading || !resetToken || !resetPassword || !resetConfirm ? 0.7 : 1, marginTop: 4 }}>
+                  {loading ? <><Spinner />Resetting…</> : 'Reset Password →'}
+                </button>
+                <button type="button" onClick={() => { setStep('login'); setErrors({}); }} style={{ background: 'none', border: '1px solid var(--line)', padding: '12px', borderRadius: '4px', color: 'var(--muted)', cursor: 'pointer', marginTop: '8px', fontSize: 13, fontFamily: 'var(--font-sans)' }}>
+                  Back to Login
+                </button>
+              </form>
+            </div>
+          ) : step === 'otp' ? (
+            <div className="fade-in">
+              <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontFamily: 'var(--font-serif)', fontSize: 30, fontWeight: 400, color: 'var(--white)', letterSpacing: '-0.02em', marginBottom: 6 }}>
+                  Verify Email.
+                </h1>
+                <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)' }}>
+                  We've sent a 6-digit code to <span style={{ color: 'var(--white)' }}>{form.email}</span>
+                </p>
+              </div>
+              <form onSubmit={handleVerifyOTP} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 7 }}>
+                    Enter OTP Code
+                  </label>
+                  <input className="input" type="text" placeholder="000000" value={otp} onChange={e => setOtp(e.target.value.slice(0, 6))} maxLength={6} style={{ textAlign: 'center', letterSpacing: '0.5em', fontSize: '20px' }} />
+                </div>
+                {errors.global && <p style={{ color: 'var(--accent)', fontSize: 13, margin: '0' }}>{errors.global}</p>}
+                
+                <button type="submit" disabled={loading || otp.length !== 6} className="btn-accent" style={{ width: '100%', justifyContent: 'center', fontSize: 14, opacity: loading || otp.length !== 6 ? 0.7 : 1, marginTop: 4 }}>
+                  {loading ? <><Spinner />Verifying…</> : 'Verify OTP →'}
+                </button>
+                
+                <div style={{ textAlign: 'center', marginTop: 12 }}>
+                  <button type="button" onClick={handleResendOTP} disabled={resending} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 13, textDecoration: 'underline', fontFamily: 'var(--font-sans)' }}>
+                    {resending ? 'Resending...' : "Didn't receive code? Resend OTP"}
+                  </button>
+                </div>
+
+                <button type="button" onClick={() => { setStep('login'); setOtp(''); setErrors({}); }} style={{ background: 'none', border: '1px solid var(--line)', padding: '12px', borderRadius: '4px', color: 'var(--muted)', cursor: 'pointer', marginTop: '8px', fontSize: 13, fontFamily: 'var(--font-sans)' }}>
+                  Back to Login
+                </button>
+              </form>
+            </div>
+          ) : null}
+
         </div>
       </div>
     </div>
+  )
+}
+
+function LoginFallback() {
+  return (
+    <div className="auth-shell" style={{ position: 'relative' }}>
+      <div style={{
+        position: 'absolute', top: 18, left: 18, right: 18, zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <div style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
+            </svg>
+          </span>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginContent />
+    </Suspense>
   )
 }
 

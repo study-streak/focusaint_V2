@@ -47,7 +47,13 @@ export default function ProgressHUD({ data }) {
     const xp = data?.xp ?? fallback.xp
     const level = data?.level ?? getLevelFromXP(xp)
     const energy = data?.energy ?? fallback.energy
-    const streak = data?.streak ?? fallback.streak
+    
+    // Handle both number and object formats for streak
+    const streakObj = data?.streak;
+    const streak = typeof streakObj === 'object' && streakObj !== null 
+        ? streakObj.currentStreak 
+        : (streakObj ?? fallback.streak);
+
     const sessions = data?.sessions ?? fallback.sessions
 
     const xpProgress = xp % 100

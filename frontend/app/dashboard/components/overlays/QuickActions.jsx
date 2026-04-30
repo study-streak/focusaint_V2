@@ -30,11 +30,12 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // 🔹 STATIC FALLBACK
 const fallback = {
     actions: [
-        { id: 1, label: "Start Session", type: "session" },
+        { id: 1, label: "View Goals", type: "session" },
         { id: 2, label: "Add Task", type: "task" },
         { id: 3, label: "Set Reminder", type: "reminder" },
     ],
@@ -42,6 +43,8 @@ const fallback = {
 
 export default function QuickActions({ data }) {
 
+    const router = useRouter()
+    
     /*
       🔹 BACKEND EXPECTED:
       data.actions[]
@@ -56,7 +59,7 @@ export default function QuickActions({ data }) {
 
         try {
             if (type === "session") {
-                // await fetch("/api/habit/start", { method: "POST" })
+                router.push("/goals")
             }
 
             if (type === "task") {

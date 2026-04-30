@@ -47,8 +47,13 @@ export default function StreakFlame({ data }) {
     */
 
     // 🔹 AUTO SWITCH LOGIC
-    const current = data?.currentStreak ?? fallback.currentStreak
-    const longest = data?.longestStreak ?? fallback.longestStreak
+    const streakObj = data?.streak;
+    
+    const current = (typeof streakObj === 'object' && streakObj !== null ? streakObj.currentStreak : data?.currentStreak) 
+        ?? fallback.currentStreak;
+        
+    const longest = (typeof streakObj === 'object' && streakObj !== null ? streakObj.longestStreak : data?.longestStreak) 
+        ?? fallback.longestStreak;
 
     // 🔹 GAMIFICATION SCALE (higher streak → stronger flame)
     const scale = Math.min(1 + current / 10, 2)
