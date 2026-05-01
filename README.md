@@ -73,17 +73,39 @@ cd backend
 npm install
 ```
 
-Create a `backend/.env` file with at least:
+Create `backend/.env` by copying `backend/.env.example`, then update values for your machine.
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Mac/Linux:
+
+```bash
+cp .env.example .env
+```
+
+Minimum required values to pass backend validation:
 
 ```env
 MONGODB_URI=mongodb://localhost:27017/focusaint
+REDIS_URL=redis://localhost:6379
 JWT_SECRET=replace_with_a_secure_secret
+NODE_ENV=development
 CORS_ORIGIN=http://localhost:3000
+EMAIL_USER=your-email@example.com
+EMAIL_PASSWORD=your-email-app-password
 PORT=5000
-OTP_EXPIRY=10
+FRONTEND_URL=http://localhost:3000
 ```
 
-Optional variables used by features in this project include API keys, email config, Redis, Sentry, and Stripe values.
+Notes:
+
+- `JWT_SECRET` should be a strong random value.
+- `EMAIL_USER` and `EMAIL_PASSWORD` are required by backend env validation.
+- Stripe and Sentry values can remain empty during local development unless you are testing payments/monitoring.
 
 Start backend in development mode:
 
