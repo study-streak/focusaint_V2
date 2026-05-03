@@ -113,6 +113,10 @@ export const corsOptions = {
       process.env.FRONTEND_URL,
       "http://localhost:3000", // Development
       "http://localhost:3001", // Alternative dev port
+      "https://www.focusaint.com",
+      "http://www.focusaint.com",
+      "https://focusaint.com",
+      "http://focusaint.com",
     ].filter(Boolean) // Remove undefined values
 
     // Check if origin is in allowed list
