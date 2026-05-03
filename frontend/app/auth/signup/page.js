@@ -14,7 +14,7 @@ const goals = [
   { id: 'skills', label: 'Build new skills'     },
 ]
 
-export default function Signup() {
+function SignupContent() {
   const [form,     setForm]     = useState({ name: '', email: '', password: '', goal: '' })
   const [errors,   setErrors]   = useState({})
   const [showPass, setShowPass] = useState(false)
@@ -75,83 +75,90 @@ export default function Signup() {
     onError: () => alert("Google Login failed")
   })
 
+  return (
+    <div className="auth-shell" style={{ position: 'relative' }}>
+      <div style={{
+        position: 'absolute', top: 18, left: 18, right: 18, zIndex: 20,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
+            </svg>
+          </span>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
+        </Link>
+        <ThemeToggle />
+      </div>
+
+      {/* Left panel — brand */}
+      <div style={{
+        flex: '0 0 420px', display: 'none', flexDirection: 'column', justifyContent: 'space-between',
+        padding: '48px', borderRight: '1px solid var(--line)', position: 'relative', overflow: 'hidden',
+      }} className="hidden lg:flex">
+        {/* Grid bg */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+          maskImage: 'radial-gradient(ellipse 100% 100% at 0% 0%, black 20%, transparent 80%)',
+        }}/>
+
+        <div>
+
+          <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, color: 'var(--white)', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 16 }}>
+            The only edtech that makes you <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>prove</em> you learned.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8 }}>
+            No passive scrolling. No comfort watching. Gated progress that forces mastery.
+          </p>
+        </div>
+
+        {/* Social proof */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {[
+            { q: '"Passed UPSC prelims after switching from YouTube."', name: 'Arjun S.', streak: 19 },
+            { q: '"Got my first dev job after 41 days on Focusaint."', name: 'Daniel O.', streak: 41 },
+          ].map((t, i) => (
+            <div key={i} style={{ padding: '16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 6 }}>
+              <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'rgba(245,242,238,0.7)', lineHeight: 1.65, marginBottom: 10 }}>{t.q}</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--muted)' }}>{t.name}</span>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--gold)' }}>🔥 {t.streak}d</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right panel — form */}
+      <div className="auth-form-panel">
+        <div className="auth-form-wrap">
+
+          {done ? (
+            <Success name={form.name} email={form.email} />
+          ) : step === 1 ? (
+            <Step1 form={form} set={set} errors={errors} showPass={showPass} setShowPass={setShowPass} onNext={next} onGoogleClick={loginWithGoogle} />
+          ) : (
+            <Step2 form={form} set={set} goals={goals} onSubmit={submit} loading={loading} onBack={() => setStep(1)} />
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function Signup() {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="auth-shell" style={{ position: 'relative' }}>
-        <div style={{
-          position: 'absolute', top: 18, left: 18, right: 18, zIndex: 20,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
-          <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ width: 22, height: 22, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
-              </svg>
-            </span>
-            <span style={{ fontFamily: 'var(--font-serif)', fontSize: 18, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
-          </Link>
-          <ThemeToggle />
-        </div>
-
-        {/* Left panel — brand */}
-        <div style={{
-          flex: '0 0 420px', display: 'none', flexDirection: 'column', justifyContent: 'space-between',
-          padding: '48px', borderRight: '1px solid var(--line)', position: 'relative', overflow: 'hidden',
-        }} className="hidden lg:flex">
-          {/* Grid bg */}
-          <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
-            backgroundSize: '60px 60px',
-            maskImage: 'radial-gradient(ellipse 100% 100% at 0% 0%, black 20%, transparent 80%)',
-          }}/>
-
-          <div>
-
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: 36, fontWeight: 400, color: 'var(--white)', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: 16 }}>
-              The only edtech that makes you <em style={{ fontStyle: 'italic', color: 'var(--accent)' }}>prove</em> you learned.
-            </h2>
-            <p style={{ fontFamily: 'var(--font-sans)', fontSize: 14, fontWeight: 300, color: 'var(--muted)', lineHeight: 1.8 }}>
-              No passive scrolling. No comfort watching. Gated progress that forces mastery.
-            </p>
-          </div>
-
-          {/* Social proof */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {[
-              { q: '"Passed UPSC prelims after switching from YouTube."', name: 'Arjun S.', streak: 19 },
-              { q: '"Got my first dev job after 41 days on Focusaint."', name: 'Daniel O.', streak: 41 },
-            ].map((t, i) => (
-              <div key={i} style={{ padding: '16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 6 }}>
-                <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'rgba(245,242,238,0.7)', lineHeight: 1.65, marginBottom: 10 }}>{t.q}</p>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--muted)' }}>{t.name}</span>
-                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--gold)' }}>🔥 {t.streak}d</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right panel — form */}
-        <div className="auth-form-panel">
-          <div className="auth-form-wrap">
-
-            {done ? (
-              <Success name={form.name} email={form.email} />
-            ) : step === 1 ? (
-              <Step1 form={form} set={set} errors={errors} showPass={showPass} setShowPass={setShowPass} onNext={next} onGoogleClick={loginWithGoogle} />
-            ) : (
-              <Step2 form={form} set={set} goals={goals} onSubmit={submit} loading={loading} onBack={() => setStep(1)} />
-            )}
-          </div>
-        </div>
-      </div>
+      <SignupContent />
     </GoogleOAuthProvider>
   )
 }
+
 
 function Step1({ form, set, errors, showPass, setShowPass, onNext, onGoogleClick }) {
   return (
