@@ -21,7 +21,7 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
             const monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
 
             // Create single task (Goal)
-            const taskResponse = await APIClient.post('/plan/task', {
+            const taskResponse = await APIClient.post('/api/plan/task', {
                 title: title,
                 duration: parseInt(duration) || 60,
                 category: "study",
@@ -33,7 +33,7 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
             const taskId = taskResponse.task._id
 
             if (deadline) {
-                await APIClient.post(`/plan/task/${taskId}/deadline`, {
+                await APIClient.post(`/api/plan/task/${taskId}/deadline`, {
                     deadline
                 })
             }

@@ -35,7 +35,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
         setIsAnalyzing(true)
         try {
             // Call study-assistant in analyze mode (default)
-            const response = await APIClient.post('/ai/study-assistant', {
+            const response = await APIClient.post('/api/ai/study-assistant', {
                 videoUrl,
                 mode: "analyze"
             })
@@ -93,7 +93,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
 
         try {
             // Call AI API for study assistant chat
-            const response = await APIClient.post('/ai/chat', {
+            const response = await APIClient.post('/api/ai/chat', {
                 videoUrl: videoUrl || "https://youtube.com/watch?v=mock",
                 message: userMsg,
                 summary: studyPack?.summary || [] // Pass summary for context if available

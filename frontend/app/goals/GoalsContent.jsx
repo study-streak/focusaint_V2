@@ -17,7 +17,7 @@ export default function GoalsContent() {
         try {
             const date = new Date()
             const monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-            const response = await APIClient.get(`/plan/monthly?month=${monthStr}`)
+            const response = await APIClient.get(`/api/plan/monthly?month=${monthStr}`)
             
             if (response.tasks) {
                 // Map backend tasks to goal representation

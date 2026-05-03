@@ -12,7 +12,7 @@ export function useDashboardData() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await APIClient.get("/user/dashboard")
+                const result = await APIClient.get("/api/user/dashboard")
                 setData(result)
             } catch (error) {
                 console.error("Failed to fetch dashboard data:", error)

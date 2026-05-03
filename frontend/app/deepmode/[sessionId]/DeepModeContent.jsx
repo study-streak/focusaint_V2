@@ -79,7 +79,7 @@ export default function DeepModeContent() {
             if (!sessionId) return;
             try {
                 // Fetch proctored task (we use sessionId as taskId here)
-                const res = await APIClient.get(`/plan/task/${sessionId}/proctored`)
+                const res = await APIClient.get(`/api/plan/task/${sessionId}/proctored`)
                 if (res && res.task) {
                     setTaskData(res.task)
                     if (res.task.duration) {
@@ -151,7 +151,7 @@ export default function DeepModeContent() {
         sessionStartTime.current = Date.now()
         
         try {
-            await APIClient.post(`/plan/task/${sessionId}/proctored/start`, {
+            await APIClient.post(`/api/plan/task/${sessionId}/proctored/start`, {
                 attachmentId: attId,
                 mode: "deep",
             })
@@ -188,7 +188,7 @@ export default function DeepModeContent() {
         }
 
         try {
-            await APIClient.post(`/plan/task/${sessionId}/proctored/end`, {
+            await APIClient.post(`/api/plan/task/${sessionId}/proctored/end`, {
                 attachmentId: currentAttachmentId,
                 duration: focusedMinutes,
                 violations: violationsRef.current,
@@ -233,7 +233,7 @@ export default function DeepModeContent() {
     const handleCompleteFlowDone = async () => {
         // Mark the task as complete after the full flow
         try {
-            await APIClient.patch(`/plan/task/${sessionId}/complete`)
+            await APIClient.patch(`/api/plan/task/${sessionId}/complete`)
         } catch (e) {
             console.error(e)
         }

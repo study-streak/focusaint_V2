@@ -54,7 +54,7 @@ export default function SessionCompleteFlow({
         setPhase(PHASES.LOADING)
         setError(null)
         try {
-            const res = await APIClient.post("/quiz/generate", {
+            const res = await APIClient.post("/api/quiz/generate", {
                 videoUrl: contentUrl,
                 questionCount: 5,
             })
@@ -86,7 +86,7 @@ export default function SessionCompleteFlow({
                 userAnswer: answers[i] ?? -1,
             }))
 
-            const res = await APIClient.post("/quiz/submit", {
+            const res = await APIClient.post("/api/quiz/submit", {
                 questions: questionsWithAnswers,
                 sessionId,
             })
@@ -119,7 +119,7 @@ export default function SessionCompleteFlow({
         setError(null)
         try {
             // Mark attachment complete
-            await APIClient.patch(`/plan/task/${sessionId}/attachment/${attachmentId}/complete`)
+            await APIClient.patch(`/api/plan/task/${sessionId}/attachment/${attachmentId}/complete`)
         } catch (err) {
             console.warn("Failed to mark attachment complete:", err)
         }

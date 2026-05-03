@@ -25,7 +25,7 @@ export default function PlannerContent() {
         if (!goalId) return;
         setIsLoading(true)
         try {
-            const res = await APIClient.get(`/plan/task/${goalId}/proctored`)
+            const res = await APIClient.get(`/api/plan/task/${goalId}/proctored`)
             if (res?.task) {
                 setTask(res.task)
             }
@@ -72,7 +72,7 @@ export default function PlannerContent() {
             if (isPlaylistUrl(newLink)) {
                 setPlaylistLoading(true)
                 try {
-                    const res = await APIClient.post(`/plan/task/${goalId}/attachment/playlist`, {
+                    const res = await APIClient.post(`/api/plan/task/${goalId}/attachment/playlist`, {
                         url: newLink
                     })
                     setPlaylistMessage(`✓ Added ${res.count} videos from playlist`)
@@ -84,7 +84,7 @@ export default function PlannerContent() {
                     console.error("Playlist expansion failed:", playlistErr)
                     // Fallback: add as single link if playlist expansion fails
                     const fallbackName = customName.trim() || 'YouTube Playlist'
-                    await APIClient.post(`/plan/task/${goalId}/attachment`, {
+                    await APIClient.post(`/api/plan/task/${goalId}/attachment`, {
                         type: "link",
                         name: fallbackName,
                         url: newLink
@@ -117,7 +117,7 @@ export default function PlannerContent() {
                 name = isYoutube ? 'YouTube Video' : 'Web Resource'
             }
 
-            await APIClient.post(`/plan/task/${goalId}/attachment`, {
+            await APIClient.post(`/api/plan/task/${goalId}/attachment`, {
                 type: "link",
                 name: name,
                 url: newLink
@@ -166,7 +166,7 @@ export default function PlannerContent() {
 
         try {
             setIsLoading(true);
-            await APIClient.post(`/plan/task/${goalId}/distribute`, { distributedAcrossDays });
+            await APIClient.post(`/api/plan/task/${goalId}/distribute`, { distributedAcrossDays });
             fetchTask();
             alert(`Goal scheduled across ${diffDays} days!`);
         } catch (e) {
@@ -203,7 +203,7 @@ export default function PlannerContent() {
     const handleRemoveAttachment = async (attachmentId) => {
         if (!confirm("Remove this material?")) return;
         try {
-            await APIClient.delete(`/plan/task/${goalId}/attachment/${attachmentId}`)
+            await APIClient.delete(`/api/plan/task/${goalId}/attachment/${attachmentId}`)
             fetchTask()
         } catch (e) {
             console.error(e)
@@ -461,8 +461,8 @@ export default function PlannerContent() {
                             </p>
                             <button
                                 onClick={async () => {
-                                    if (task.completed) await APIClient.patch(`/plan/task/${goalId}/uncomplete`);
-                                    else await APIClient.patch(`/plan/task/${goalId}/complete`);
+                                    if (task.completed) await APIClient.patch(`/api/plan/task/${goalId}/uncomplete`);
+                                    else await APIClient.patch(`/api/plan/task/${goalId}/complete`);
                                     fetchTask();
                                 }}
                                 className="mt-6 w-full py-2.5 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition-colors text-white"

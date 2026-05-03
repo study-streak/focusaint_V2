@@ -35,7 +35,7 @@ function LearnContent() {
             if (!pathId) {
                 // Fetch first active path or redirect to generation
                 try {
-                    const dashboard = await APIClient.get("/learn/dashboard")
+                    const dashboard = await APIClient.get("/api/learn/dashboard")
                     if (dashboard.paths.length > 0) {
                         const activePath = dashboard.paths[0]
                         router.push(`/dashboard/learn?pathId=${activePath._id}&day=${activePath.currentDay}`)
@@ -48,7 +48,7 @@ function LearnContent() {
             }
 
             try {
-                const result = await APIClient.get(`/learn/lesson/${pathId}/${day}`)
+                const result = await APIClient.get(`/api/learn/lesson/${pathId}/${day}`)
                 setLesson(result.lesson)
                 setProgress(result.progress)
                 if (result.progress?.isCompleted) setStep('complete')
@@ -70,7 +70,7 @@ function LearnContent() {
 
     const handleReflectionSubmit = async () => {
         try {
-            await APIClient.post("/learn/submit-reflection", {
+            await APIClient.post("/api/learn/submit-reflection", {
                 lessonId: lesson._id,
                 reflection,
                 quizScore

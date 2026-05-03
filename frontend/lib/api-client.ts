@@ -1,7 +1,8 @@
 import { captureException, addBreadcrumb } from './sentry';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
-const API_BASE_URL = baseUrl ? (baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`) : "/api"
+// Ensure we have a consistent base. If no baseUrl, we use empty string and rely on the endpoint prefix.
+const API_BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl
 
 export class APIError extends Error {
   status: number;
@@ -44,7 +45,7 @@ export class APIClient {
     
     if (!token) {
       try {
-        const response = await fetch(`${API_BASE_URL}/csrf-token`, {
+        const response = await fetch(`${API_BASE_URL}/api/csrf-token`, {
           credentials: "include", // Important: include cookies
         })
         const data = await response.json()
@@ -90,8 +91,9 @@ export class APIClient {
       },
     });
 
+    const finalEndpoint = endpoint.startsWith("/api") ? endpoint : `/api${endpoint.startsWith("/") ? "" : "/"}${endpoint}`
     try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
         ...options,
         headers,
         credentials: "include", // Important: include cookies for CSRF
