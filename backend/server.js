@@ -38,6 +38,7 @@ import focusScoreRoutes from "./routes/focusScore.js"
 import healthRoutes from "./routes/health.js"
 import reminderRoutes from "./routes/reminder.js"
 import quizRoutes from "./routes/quiz.js"
+import learnRoutes from "./routes/learn.js"
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js"
 import { initializeCronJobs } from "./services/cronJobs.js"
 import { metricsMiddleware } from "./services/metrics.js"
@@ -156,6 +157,7 @@ app.use("/api/focus-score", focusScoreRoutes)
 app.use("/api/health", healthRoutes)
 app.use("/api/reminders", reminderRoutes)
 app.use("/api/quiz", quizRoutes)
+app.use("/api/learn", learnRoutes)
 
 // Legacy health check endpoint (keep for backward compatibility)
 app.get("/api/health-legacy", async (req, res) => {

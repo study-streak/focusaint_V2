@@ -2,6 +2,7 @@ import mongoose from "mongoose"
 import HabitTask from "../models/HabitTask.js"
 import User from "../models/User.js"
 import StreakRecord from "../models/StreakRecord.js"
+import HabitSession from "../models/HabitSession.js"
 import { connectToMongo } from "../utils/db.js"
 import {
   inferProctoredPreset,
@@ -489,6 +490,7 @@ export const addAttachment = async (req, res) => {
       mimeType: mimeType || null,
       uploadedAt: new Date(),
       openCount: 0,
+      dueDate: req.body.dueDate || null,
     }
 
     task.attachments.push(attachment)
@@ -658,6 +660,16 @@ export const distributeTask = async (req, res) => {
       completedAt: null,
     }))
 
+    // 🎯 NEW: Distribute individual attachments across the scheduled days
+    if (task.attachments && task.attachments.length > 0) {
+      const dayCount = distributedAcrossDays.length
+      task.attachments.forEach((att, index) => {
+        // Simple distribution: evenly spread attachments over the days
+        const dayIndex = Math.min(index % dayCount, dayCount - 1)
+        att.dueDate = distributedAcrossDays[dayIndex].date
+      })
+    }
+
     await task.save()
 
     res.json({
@@ -787,6 +799,33 @@ export const endProctoredSession = async (req, res) => {
 
     await task.save()
 
+    // 🎯 NEW: Create a corresponding HabitSession so it shows up in stats and focus time
+    try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+
+      await HabitSession.create({
+        userId: req.user.userId,
+        startTime: session.startedAt,
+        endTime: session.endedAt,
+        duration: session.duration,
+        sessionDate: today,
+        status: "completed",
+        notes: `Deep Mode: ${task.title}`
+      })
+
+      // Update User global stats
+      const user = await User.findById(req.user.userId)
+      if (user) {
+        user.totalSessions += 1
+        user.lastSessionDate = new Date()
+        await user.save()
+      }
+    } catch (sessionErr) {
+      console.warn("Failed to log focus session for dashboard stats:", sessionErr)
+      // We don't fail the request if stats logging fails
+    }
+
     res.json({
       message: "Proctored session ended",
       session,
@@ -797,3 +836,130 @@ export const endProctoredSession = async (req, res) => {
     res.status(500).json({ error: "Failed to end proctored session" })
   }
 }
+
+/**
+ * PLAYLIST: Extract YouTube playlist videos and add as individual attachments
+ * 
+ * Uses YouTube's oEmbed API for individual video titles.
+ * Fetches playlist page HTML to extract video IDs (no API key needed).
+ */
+export const addPlaylistAsAttachments = async (req, res) => {
+  try {
+    await connectToMongo()
+
+    const { taskId } = req.params
+    const { url } = req.body
+
+    if (!url) {
+      return res.status(400).json({ error: "Playlist URL is required" })
+    }
+
+    // Extract playlist ID from URL
+    let listId = null
+    try {
+      const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`)
+      listId = urlObj.searchParams.get('list')
+    } catch (e) {
+      return res.status(400).json({ error: "Invalid URL format" })
+    }
+
+    if (!listId) {
+      return res.status(400).json({ error: "No playlist ID found in URL. Make sure you're using a YouTube playlist link." })
+    }
+
+    const task = await HabitTask.findOne({ _id: taskId, userId: req.user.userId })
+    if (!task) {
+      return res.status(404).json({ error: "Task not found" })
+    }
+
+    // Fetch the playlist page to extract video IDs
+    // We use the embed playlist page which lists all videos
+    const playlistPageUrl = `https://www.youtube.com/playlist?list=${listId}`
+    let videoIds = []
+
+    try {
+      const response = await fetch(playlistPageUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        }
+      })
+      const html = await response.text()
+
+      // Extract video IDs from the playlist page HTML
+      // YouTube embeds video data in JSON within the page
+      const videoIdRegex = /"videoId":"([a-zA-Z0-9_-]{11})"/g
+      const matches = new Set()
+      let match
+      while ((match = videoIdRegex.exec(html)) !== null) {
+        matches.add(match[1])
+      }
+      videoIds = [...matches]
+    } catch (fetchErr) {
+      console.error("Failed to fetch playlist page:", fetchErr)
+      return res.status(500).json({ error: "Failed to fetch playlist data from YouTube" })
+    }
+
+    if (videoIds.length === 0) {
+      return res.status(400).json({ error: "Could not find any videos in this playlist. It may be private or empty." })
+    }
+
+    // Cap at 50 videos to avoid massive tasks
+    const cappedVideoIds = videoIds.slice(0, 50)
+
+    // Fetch titles for each video using oEmbed (batch with concurrency limit)
+    const concurrencyLimit = 5
+    const videoDetails = []
+
+    for (let i = 0; i < cappedVideoIds.length; i += concurrencyLimit) {
+      const batch = cappedVideoIds.slice(i, i + concurrencyLimit)
+      const results = await Promise.allSettled(
+        batch.map(async (videoId) => {
+          try {
+            const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`
+            const resp = await fetch(oembedUrl)
+            if (resp.ok) {
+              const data = await resp.json()
+              return { videoId, title: data.title || `Video ${videoId}` }
+            }
+            return { videoId, title: `Video ${videoId}` }
+          } catch {
+            return { videoId, title: `Video ${videoId}` }
+          }
+        })
+      )
+      for (const result of results) {
+        if (result.status === "fulfilled") {
+          videoDetails.push(result.value)
+        }
+      }
+    }
+
+    // Create attachments for each video
+    const newAttachments = videoDetails.map((video, index) => ({
+      _id: new mongoose.Types.ObjectId(),
+      type: "link",
+      name: `${index + 1}. ${video.title}`,
+      url: `https://www.youtube.com/watch?v=${video.videoId}&list=${listId}`,
+      fileSize: null,
+      mimeType: null,
+      uploadedAt: new Date(),
+      openCount: 0,
+      completed: false,
+    }))
+
+    task.attachments.push(...newAttachments)
+    await task.save()
+
+    res.status(201).json({
+      message: `Added ${newAttachments.length} videos from playlist`,
+      count: newAttachments.length,
+      attachments: newAttachments,
+      task,
+    })
+  } catch (error) {
+    console.error("Add playlist error:", error)
+    res.status(500).json({ error: "Failed to process playlist" })
+  }
+}
+

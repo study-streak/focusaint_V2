@@ -14,7 +14,10 @@ export  const authenticateToken = (req, res, next) => {
       console.log(err)
       return res.status(403).json({ error: "Invalid or expired token" })
     }
-    req.user = user
+    req.user = {
+      ...user,
+      id: user.userId // Add id alias for controllers using req.user.id
+    }
     
     // Set user context for Sentry error tracking
     setUserContext({

@@ -23,6 +23,7 @@ import {
   getProctoredTask,
   startProctoredSession,
   endProctoredSession,
+  addPlaylistAsAttachments,
 } from "../controllers/plan.controller.js"
 
 const router = express.Router()
@@ -77,6 +78,7 @@ router.post("/bulk", authenticateToken, bulkCreateTasks)
 // Attachment routes
 router.post("/task/:taskId/attachment", authenticateToken, addAttachment)
 router.post("/task/:taskId/attachment/upload", authenticateToken, upload.single("file"), uploadAttachment)
+router.post("/task/:taskId/attachment/playlist", authenticateToken, addPlaylistAsAttachments)
 router.delete("/task/:taskId/attachment/:attachmentId", authenticateToken, removeAttachment)
 
 // Deadline and distribution

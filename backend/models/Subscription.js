@@ -21,7 +21,7 @@ const subscriptionSchema = new mongoose.Schema({
   // Plan details
   plan: {
     type: String,
-    enum: ['premium_monthly', 'premium_yearly'],
+    enum: ['premium_monthly', 'premium_yearly', 'pro_monthly', 'pro_yearly'],
     required: true
   },
   status: {

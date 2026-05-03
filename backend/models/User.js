@@ -12,7 +12,21 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() { return !this.googleId }, // Required only for standard email/password signup
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    authProvider: {
+      type: String,
+      enum: ["local", "google"],
+      default: "local",
+    },
+    profileImage: {
+      type: String,
+      default: null,
     },
     name: {
       type: String,
@@ -49,7 +63,7 @@ const userSchema = new mongoose.Schema(
     },
     subscriptionTier: {
       type: String,
-      enum: ["free", "premium"],
+      enum: ["free", "premium", "pro"],
       default: "free",
       alias: "tier", // Allow using 'tier' as an alias
     },

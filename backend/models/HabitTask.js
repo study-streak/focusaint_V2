@@ -82,6 +82,10 @@ const habitTaskSchema = new mongoose.Schema(
           default: false,
         },
         completedAt: Date,
+        dueDate: {
+          type: String, // YYYY-MM-DD
+          default: null,
+        },
       },
     ],
     // Distribute task across multiple days (empty = single day task)

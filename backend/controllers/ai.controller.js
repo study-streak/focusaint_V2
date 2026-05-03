@@ -395,7 +395,7 @@ async function generateChatReply({ apiKey, videoUrl, message, summary, metadata 
   return typeof result === "string" ? result : "I can help break this down—ask me about concepts, examples, or revision strategy."
 }
 
-async function callLLM({ apiKey, expectJson, systemPrompt, userPrompt }) {
+export async function callLLM({ apiKey, expectJson, systemPrompt, userPrompt }) {
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"
   const baseUrl = process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta"
 

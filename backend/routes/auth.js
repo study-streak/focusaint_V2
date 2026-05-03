@@ -11,7 +11,8 @@ import {
   signup,
   login,
   forgotPassword,
-  resetPasswordToken
+  resetPasswordToken,
+  googleLogin
 } from "../controllers/auth.controller.js"
 
 const router = express.Router()
@@ -27,6 +28,9 @@ router.post("/signup", authSignupLimiter, signup)
 
 // Password-based login; if unverified, send OTP and require verification
 router.post("/login", authLoginLimiter, login)
+
+// Google OAuth login
+router.post("/google", authLoginLimiter, googleLogin)
 
 // Request password reset
 router.post("/forgot-password", authPasswordResetLimiter, forgotPassword)

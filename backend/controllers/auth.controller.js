@@ -1,10 +1,13 @@
 import jwt from "jsonwebtoken"
+import { OAuth2Client } from "google-auth-library"
 import User from "../models/User.js"
 import OTP from "../models/OTP.js"
 import StreakRecord from "../models/StreakRecord.js"
 import { sendOTP } from "../services/email.js"
 import { validateEmail, validatePassword } from "../utils/validation.js"
 import { connectToMongo } from "../utils/db.js"
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 /**
  * Resend OTP for existing pending verifications
@@ -329,5 +332,101 @@ export const resetPasswordToken = async (req, res) => {
   } catch (error) {
     console.error("Reset password error:", error)
     res.status(500).json({ error: "Failed to reset password" })
+  }
+}
+
+/**
+ * Google OAuth Login / Signup
+ */
+export const googleLogin = async (req, res) => {
+  try {
+    await connectToMongo()
+    const { token, accessToken } = req.body
+
+    let payload
+    if (token) {
+      // Verify Google ID Token
+      const ticket = await googleClient.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      })
+      payload = ticket.getPayload()
+    } else if (accessToken) {
+      // Verify via Google UserInfo API using Access Token
+      const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!response.ok) throw new Error("Failed to fetch user info from Google")
+      const data = await response.json()
+      payload = {
+        email: data.email,
+        name: data.name,
+        picture: data.picture,
+        sub: data.sub,
+      }
+    }
+
+    if (!payload) {
+      return res.status(400).json({ error: "Google token or access token is required" })
+    }
+
+    const { email, name, picture, sub: googleId } = payload
+
+    if (!email) {
+      return res.status(400).json({ error: "Google account must have an email" })
+    }
+
+    // Find or create user
+    let user = await User.findOne({ email })
+
+    if (!user) {
+      // Create new user if they don't exist
+      user = await User.create({
+        email,
+        name: name || email.split("@")[0],
+        isEmailVerified: true, // Google emails are already verified
+        profileImage: picture,
+        authProvider: "google",
+        googleId,
+      })
+
+      // Ensure streak record exists
+      await StreakRecord.create({ userId: user._id })
+    } else {
+      // Update existing user if needed
+      if (!user.isEmailVerified) {
+        user.isEmailVerified = true
+        await user.save()
+      }
+      
+      // Update googleId if not already set (merging accounts)
+      if (!user.googleId) {
+        user.googleId = googleId
+        user.authProvider = user.authProvider || "google"
+        await user.save()
+      }
+    }
+
+    // Generate FocusAInt JWT token
+    const focusToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET || "focusaint_secret_key",
+      { expiresIn: "7d" }
+    )
+
+    res.json({
+      message: "Google login successful",
+      token: focusToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        currentStreak: user.currentStreak,
+        profileImage: user.profileImage,
+      },
+    })
+  } catch (error) {
+    console.error("Google login error:", error)
+    res.status(500).json({ error: "Google authentication failed" })
   }
 }
