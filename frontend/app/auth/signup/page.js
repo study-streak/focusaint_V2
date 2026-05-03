@@ -39,7 +39,7 @@ function SignupContent() {
   const submit = async () => {
     setLoading(true)
     try {
-      await APIClient.post('/auth/signup', {
+      await APIClient.post('/api/auth/signup', {
         name: form.name,
         email: form.email,
         password: form.password,
@@ -58,7 +58,7 @@ function SignupContent() {
     setLoading(true)
     setErrors({})
     try {
-      const data = await APIClient.post('/auth/google', { 
+      const data = await APIClient.post('/api/auth/google', { 
         accessToken: tokenResponse.access_token 
       })
       persistAuthToken(data.token)

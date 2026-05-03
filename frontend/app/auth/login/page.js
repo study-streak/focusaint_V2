@@ -52,7 +52,7 @@ function LoginContent() {
         return
       }
 
-      const data = await APIClient.post('/auth/login', { email: form.email, password: form.password })
+      const data = await APIClient.post('/api/auth/login', { email: form.email, password: form.password })
 
       persistAuthToken(data.token)
       router.push(safeNextPath)
@@ -73,7 +73,7 @@ function LoginContent() {
     setLoading(true)
     setErrors({})
     try {
-      await APIClient.post('/auth/forgot-password', { email: forgotEmail })
+      await APIClient.post('/api/auth/forgot-password', { email: forgotEmail })
       setForgotSent(true)
     } catch (err) {
       setErrors({ global: err instanceof Error ? err.message : "Failed to send reset link" })
@@ -88,7 +88,7 @@ function LoginContent() {
     setErrors({})
     try {
       if (resetPassword !== resetConfirm) throw new Error("Passwords do not match")
-      await APIClient.post('/auth/reset-password', { email: forgotEmail, token: resetToken, newPassword: resetPassword })
+      await APIClient.post('/api/auth/reset-password', { email: forgotEmail, token: resetToken, newPassword: resetPassword })
       
       setStep("login")
       setErrors({})
@@ -110,7 +110,7 @@ function LoginContent() {
     setLoading(true)
     setErrors({})
     try {
-      const data = await APIClient.post('/auth/verify-otp', { email: form.email, otp })
+      const data = await APIClient.post('/api/auth/verify-otp', { email: form.email, otp })
       persistAuthToken(data.token)
       router.push(safeNextPath)
     } catch (err) {
@@ -123,7 +123,7 @@ function LoginContent() {
     setResending(true)
     setErrors({})
     try {
-      await APIClient.post('/auth/resend-otp', { email: form.email })
+      await APIClient.post('/api/auth/resend-otp', { email: form.email })
       setOtp("")
     } catch (err) {
       setErrors({ global: err instanceof Error ? err.message : "Failed to resend OTP" })
@@ -136,7 +136,7 @@ function LoginContent() {
     setLoading(true)
     setErrors({})
     try {
-      const data = await APIClient.post('/auth/google', { 
+      const data = await APIClient.post('/api/auth/google', { 
         accessToken: tokenResponse.access_token 
       })
       persistAuthToken(data.token)
