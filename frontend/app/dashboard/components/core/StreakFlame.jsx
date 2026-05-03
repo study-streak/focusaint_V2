@@ -32,8 +32,8 @@ import { Flame } from "lucide-react"
 
 // 🔹 STATIC FALLBACK DATA (used when backend not available)
 const fallback = {
-    currentStreak: 4,
-    longestStreak: 12,
+    currentStreak: 0,
+    longestStreak: 0,
 }
 
 export default function StreakFlame({ data }) {

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import ThemeToggle from '../../landing/components/ThemeToggle'
 import { persistAuthToken } from '../../../lib/auth-cookie'
 import { APIClient } from '../../../lib/api-client'
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google'
 
 function LoginContent() {
   const router = useRouter()
@@ -118,7 +119,6 @@ function LoginContent() {
       setLoading(false)
     }
   }
-
   const handleResendOTP = async () => {
     setResending(true)
     setErrors({})
@@ -131,6 +131,27 @@ function LoginContent() {
       setResending(false)
     }
   }
+
+  const handleGoogleSuccess = async (tokenResponse) => {
+    setLoading(true)
+    setErrors({})
+    try {
+      const data = await APIClient.post('/auth/google', { 
+        accessToken: tokenResponse.access_token 
+      })
+      persistAuthToken(data.token)
+      router.push(safeNextPath)
+    } catch (err) {
+      setErrors({ global: err instanceof Error ? err.message : "Google login failed" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: handleGoogleSuccess,
+    onError: () => setErrors({ global: "Google Login failed" })
+  })
 
   return (
     <div className="auth-shell" style={{ position: 'relative' }}>
@@ -161,15 +182,6 @@ function LoginContent() {
           backgroundSize: '60px 60px',
           maskImage: 'radial-gradient(ellipse 100% 100% at 0% 100%, black 20%, transparent 80%)',
         }}/>
-
-        <Link href="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ width: 24, height: 24, borderRadius: 4, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-              <path d="M6 1L9 5.5H3L6 1Z" fill="white"/><path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
-            </svg>
-          </span>
-          <span style={{ fontFamily: 'var(--font-serif)', fontSize: 20, fontWeight: 600, color: 'var(--white)' }}>Focusaint</span>
-        </Link>
 
         {/* Large stat */}
         <div>
@@ -222,30 +234,7 @@ function LoginContent() {
                 ))}
               </div>
 
-              {/* OAuth */}
-              <div className="auth-oauth-grid" style={{ marginBottom: 20 }}>
-                {[
-                  { label: 'Google', icon: <GoogleIcon /> },
-                  { label: 'GitHub', icon: <GitHubIcon /> },
-                ].map(s => (
-                  <button key={s.label} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-                    padding: '10px', borderRadius: 4, border: '1px solid var(--line)',
-                    background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
-                    fontFamily: 'var(--font-sans)', fontSize: 13, transition: 'all 0.2s',
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.color = 'var(--white)' }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.color = 'var(--muted)' }}
-                  >{s.icon}{s.label}</button>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-                <div style={{ flex: 1, height: 1, background: 'var(--line)' }}/>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.15em' }}>OR</span>
-                <div style={{ flex: 1, height: 1, background: 'var(--line)' }}/>
-              </div>
-
+              {/* Form starts here */}
               <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {/* Email */}
                 <div>
@@ -289,6 +278,34 @@ function LoginContent() {
                   ) : mode === 'magic' ? 'Send magic link ✦' : 'Sign in →'}
                 </button>
               </form>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
+                <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--muted)', letterSpacing: '0.1em' }}>OR CONTINUE WITH</span>
+                <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+              </div>
+
+              <div className="auth-oauth-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <button onClick={() => loginWithGoogle()} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  padding: '11px', borderRadius: 4, border: '1px solid var(--line)',
+                  background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)', fontSize: 13, transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.color = 'var(--white)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.color = 'var(--muted)' }}
+                ><GoogleIcon />Google</button>
+
+                <button style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  padding: '11px', borderRadius: 4, border: '1px solid var(--line)',
+                  background: 'transparent', color: 'var(--muted)', cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)', fontSize: 13, transition: 'all 0.2s',
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.color = 'var(--white)' }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--line)'; e.currentTarget.style.color = 'var(--muted)' }}
+                ><GitHubIcon />GitHub</button>
+              </div>
 
               <p style={{ textAlign: 'center', marginTop: 20, fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--muted)' }}>
                 No account yet?{' '}
@@ -434,10 +451,14 @@ function LoginFallback() {
 }
 
 export default function Login() {
+  const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+
   return (
-    <Suspense fallback={<LoginFallback />}>
-      <LoginContent />
-    </Suspense>
+    <GoogleOAuthProvider clientId={clientId}>
+      <Suspense fallback={<LoginFallback />}>
+        <LoginContent />
+      </Suspense>
+    </GoogleOAuthProvider>
   )
 }
 

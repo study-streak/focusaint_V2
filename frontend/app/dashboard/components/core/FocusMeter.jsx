@@ -28,8 +28,8 @@ import { motion } from "framer-motion"
 
 // 🔹 STATIC FALLBACK DATA (used when backend not ready / fails)
 const fallback = {
-    score: 72,
-    rank: "Silver",
+    score: 0,
+    rank: "Unranked",
 }
 
 export default function FocusMeter({ data }) {

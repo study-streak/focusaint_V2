@@ -6,11 +6,11 @@ const items = [
   { date: 'Oct 2025', title: 'The idea',           body: 'Aryan fails a DSA interview after 80+ hours of YouTube. Realises passive watching is the core problem.', status: 'done'   },
   { date: 'Dec 2025', title: 'Nirmaan cohort',      body: 'Selected for Nirmaan Cohort 45 at IIT Madras. Seed capital, mentors, and lab access.', status: 'done', highlight: true },
   { date: 'Jan 2026', title: 'First prototype',     body: 'A Chrome extension that blocks autoplay and adds a quiz after each video. 60 beta users, 91% retention improvement.', status: 'done'   },
-  { date: 'April 2026', title: 'Platform launch',     body: 'Full web platform with gated lessons, spaced-repetition quizzes, and summary writing. 1,200 users in Week 1.', status: 'active'   },
-  { date: 'June 2026', title: '10,000 learners',     body: 'Crossed 10K active learners. 94% recall rate validated by IIT Madras Learning Sciences Lab.', status: 'future'   },
-  { date: 'Aug 2026', title: 'AI quiz engine',       body: 'Paste any YouTube URL. Focusaint auto-generates questions, quizzes, and summary prompts.', status: 'future' },
-  { date: 'Nov 2026', title: 'Institutions',         body: 'B2B plan for coaching centres, colleges, and corporate L&D teams.', status: 'future' },
-  { date: 'Jan 2027',    title: 'Pan-India scale',      body: 'Regional language support. Partnerships with NPTEL and CBSE.', status: 'future' },
+  { date: 'May 2026', title: 'Platform launch',     body: 'Full web platform with gated lessons, spaced-repetition quizzes, and summary writing. 1,200 users in Week 1.', status: 'active'   },
+  // { date: 'June 2026', title: '10,000 learners',     body: 'Crossed 10K active learners. 94% recall rate validated by IIT Madras Learning Sciences Lab.', status: 'future'   },
+  // { date: 'Aug 2026', title: 'AI quiz engine',       body: 'Paste any YouTube URL. Focusaint auto-generates questions, quizzes, and summary prompts.', status: 'future' },
+  // { date: 'Nov 2026', title: 'Institutions',         body: 'B2B plan for coaching centres, colleges, and corporate L&D teams.', status: 'future' },
+  // { date: 'Jan 2027',    title: 'Pan-India scale',      body: 'Regional language support. Partnerships with NPTEL and CBSE.', status: 'future' },
 ]
 
 export default function Timeline() {

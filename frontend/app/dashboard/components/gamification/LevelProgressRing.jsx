@@ -34,8 +34,8 @@ import { motion } from "framer-motion"
 
 // 🔹 STATIC FALLBACK DATA
 const fallback = {
-    xp: 240,
-    level: 3,
+    xp: 0,
+    level: 1,
 }
 
 export default function LevelProgressRing({ data }) {

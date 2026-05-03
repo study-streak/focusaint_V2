@@ -9,7 +9,7 @@ import BackedBy from './components/BackedBy'
 import Features from './components/Features'
 import Team from './components/Team'
 import Timeline from './components/Timeline'
-import Testimonials from './components/Testimonials'
+// import Testimonials from './components/Testimonials'
 import Pricing from './components/Pricing'
 import FAQ from './components/FAQ'
 import { CTA, Footer } from './components/CTAFooter'
@@ -29,7 +29,7 @@ export default function Home() {
         <Features />
         <Team />
         <Timeline />
-        <Testimonials />
+        {/* <Testimonials /> */}
         <Pricing />
         <FAQ />
         <CTA />

@@ -32,11 +32,11 @@ import { Flame, Zap, Trophy, Target } from "lucide-react"
 
 // 🔹 fallback (safe UI)
 const fallback = {
-    streak: 5,
-    xp: 260,
-    level: 3,
-    energy: 70,
-    sessions: 12,
+    streak: 0,
+    xp: 0,
+    level: 1,
+    energy: 0,
+    sessions: 0,
 }
 
 // 🔹 helper

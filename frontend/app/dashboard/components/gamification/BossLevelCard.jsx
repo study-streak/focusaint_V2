@@ -47,7 +47,7 @@ const fallback = {
     title: "Deep Focus Marathon",
     duration: 60,
     difficulty: "hard",
-    unlocked: true,
+    unlocked: false,
     completed: false,
 }
 

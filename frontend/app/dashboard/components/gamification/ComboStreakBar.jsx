@@ -36,7 +36,7 @@ import { Zap } from "lucide-react"
 
 // 🔹 STATIC FALLBACK DATA
 const fallback = {
-    combo: 3,
+    combo: 0,
 }
 
 export default function ComboStreakBar({ data }) {

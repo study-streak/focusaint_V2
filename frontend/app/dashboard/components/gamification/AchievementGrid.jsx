@@ -45,8 +45,8 @@ import AchievementBadge from "./AchievementBadge"
 
 // 🔹 STATIC FALLBACK DATA
 const fallbackAchievements = [
-    { id: 1, title: "3 Day Streak", unlocked: true },
-    { id: 2, title: "10 Sessions", unlocked: true },
+    { id: 1, title: "3 Day Streak", unlocked: false },
+    { id: 2, title: "10 Sessions", unlocked: false },
     { id: 3, title: "First Quiz", unlocked: false },
     { id: 4, title: "Focus Master", unlocked: false },
     { id: 5, title: "Consistency Pro", unlocked: false },

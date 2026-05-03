@@ -97,37 +97,66 @@ export class APIClient {
         credentials: "include", // Important: include cookies for CSRF
       })
 
-      if (!response.ok) {
-        const error = await response.json()
-        const errorMessage = error.message || error.error || "API request failed"
-        
-        // Add breadcrumb for API error
-        addBreadcrumb({
-          message: `API Error: ${errorMessage}`,
-          category: 'api',
-          level: 'error',
-          data: {
-            endpoint,
-            method,
-            status: response.status,
-            error: error,
-          },
+        if (!response.ok) {
+          let error: any = {}
+          try {
+            error = await response.json()
+          } catch (e) {
+            error = { message: "Unexpected server error" }
+          }
+          // Try to extract a string message from common error structures
+          const rawError = (typeof error.error === 'object' ? error.error?.message : null) || 
+                           error.message || 
+                           error.error || 
+                           "API request failed"
+          
+          const errorMessage = typeof rawError === 'string' ? rawError : JSON.stringify(rawError)
+          
+          // Add breadcrumb for API error
+          addBreadcrumb({
+            message: `API Error: ${errorMessage}`,
+            category: 'api',
+            level: 'error',
+            data: {
+              endpoint,
+              method,
+              status: response.status,
+              error: error,
+            },
+          });
+
+          // Handle unauthorized/expired token
+          // Special case: Do NOT logout if it's just a token limit reached error
+          const isTokenLimit = error.error === 'TOKEN_LIMIT_EXCEEDED' || error.message?.includes('limit exceeded');
+          
+          if ((response.status === 401 || response.status === 403) && !isTokenLimit) {
+            if (typeof window !== "undefined") {
+              // Only clear and redirect if we're in the browser
+              localStorage.removeItem("token")
+              // Use direct cookie clearing to avoid importing auth-cookie if possible
+              document.cookie = "focusaint_token=; Path=/; Max-Age=0; SameSite=Lax"
+              
+              // Redirect to login if not already there
+              if (!window.location.pathname.startsWith('/auth')) {
+                window.location.href = `/auth/login?next=${encodeURIComponent(window.location.pathname)}`
+              }
+            }
+          }
+          
+          throw new APIError(errorMessage, response.status, error)
+        }
+
+        return response.json()
+      } catch (error) {
+        // Capture exception in Sentry
+        captureException(error as Error, {
+          endpoint,
+          method,
+          apiBaseUrl: API_BASE_URL,
         });
         
-        throw new APIError(errorMessage, response.status, error)
+        throw error;
       }
-
-      return response.json()
-    } catch (error) {
-      // Capture exception in Sentry
-      captureException(error as Error, {
-        endpoint,
-        method,
-        apiBaseUrl: API_BASE_URL,
-      });
-      
-      throw error;
-    }
   }
 
   static async get<T>(endpoint: string): Promise<T> {

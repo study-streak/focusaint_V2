@@ -1,14 +1,14 @@
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
-import Navbar from "./components/core/Navbar"
-import AmbientBackground from "./components/ui-effects/AmbientBackground"
+import Navbar from "../dashboard/components/core/Navbar"
+import AmbientBackground from "../dashboard/components/ui-effects/AmbientBackground"
 
-export default async function DashboardLayout({ children }) {
+export default async function GoalsLayout({ children }) {
     const cookieStore = await cookies()
     const token = cookieStore.get('focusaint_token')?.value
 
     if (!token || token === 'undefined' || token === 'null') {
-        redirect("/auth/login?callbackUrl=/dashboard")
+        redirect("/auth/login?callbackUrl=/goals")
     }
 
     return (

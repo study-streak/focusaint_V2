@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@react-oauth/google": "^0.13.5",
     "@sentry/nextjs": "^10.50.0",
     "axios": "^1.15.2",
     "framer-motion": "^12.38.0",
@@ -15,7 +16,8 @@
     "next": "^16.2.4",
     "react": "^19.2.5",
     "react-confetti": "^6.4.0",
-    "react-dom": "^19.2.5"
+    "react-dom": "^19.2.5",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
