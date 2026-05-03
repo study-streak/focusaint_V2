@@ -134,36 +134,33 @@ async function startServer() {
   }
 }
 
-// Routes helper to handle both /api and non-/api paths (useful for some deployment proxies)
-const mount = (path, router) => {
-  app.use(path, router)
-  if (path.startsWith("/api/")) {
-    app.use(path.replace("/api/", "/"), router)
-  }
-}
+// Main API Router to group all functional routes
+const apiRouter = express.Router();
+
+// Public routes (No CSRF needed for these)
+apiRouter.get("/csrf-token", getCsrfToken);
+apiRouter.use("/auth", authRoutes);
+apiRouter.use("/health", healthRoutes);
+
+// Apply CSRF protection to the rest of the API routes
+apiRouter.use(csrfProtection);
+
+// Protected functional routes
+apiRouter.use("/user", userRoutes);
+apiRouter.use("/habit", habitRoutes);
+apiRouter.use("/plan", planRoutes);
+apiRouter.use("/ai", aiRoutes);
+apiRouter.use("/subscription", subscriptionRoutes);
+apiRouter.use("/focus-score", focusScoreRoutes);
+apiRouter.use("/reminders", reminderRoutes);
+apiRouter.use("/quiz", quizRoutes);
+apiRouter.use("/learn", learnRoutes);
+
+// Mount the API Router at both /api and root to handle prefix-stripping proxies
+app.use("/api", apiRouter);
+app.use("/", apiRouter);
 
 app.get('/',(req, res)=>{ return res.status(200).json({message:"server is running fine"})})
-// CSRF token endpoint (GET request, no CSRF validation needed)
-app.get("/api/csrf-token", getCsrfToken)
-
-// Webhook endpoint (must be before body parsing middleware for raw body)
-// Note: This is handled in subscription.js with express.raw()
-app.use("/api/subscription/webhook", subscriptionRoutes)
-app
-// Apply CSRF protection to all state-changing API routes
-app.use("/api", csrfProtection)
-
-app.use("/api/auth", authRoutes)
-app.use("/api/user", userRoutes)
-app.use("/api/habit", habitRoutes)
-app.use("/api/plan", planRoutes)
-app.use("/api/ai", aiRoutes)
-app.use("/api/subscription", subscriptionRoutes)
-app.use("/api/focus-score", focusScoreRoutes)
-app.use("/api/health", healthRoutes)
-app.use("/api/reminders", reminderRoutes)
-app.use("/api/quiz", quizRoutes)
-app.use("/api/learn", learnRoutes)
 
 // Legacy health check endpoint (keep for backward compatibility)
 app.get("/api/health-legacy", async (req, res) => {
