@@ -52,6 +52,10 @@ export default function NotesSection({ goalTitle = "Focus Goal", materialName = 
 
             const rect = videoElement.getBoundingClientRect()
             
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+                throw new Error("Screen capture is not supported in this environment. Please ensure you are using a secure connection (HTTPS or localhost).")
+            }
+
             const stream = await navigator.mediaDevices.getDisplayMedia({ 
                 video: { 
                     cursor: "never",
@@ -113,6 +117,7 @@ export default function NotesSection({ goalTitle = "Focus Goal", materialName = 
             }
         } catch (err) {
             console.error("Failed to capture screen:", err)
+            alert(err.message || "Failed to capture screen. Please try again.")
             setIsCapturing(false)
         }
     }

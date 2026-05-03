@@ -16,14 +16,15 @@ export const resendOTP = async (req, res) => {
   await connectToMongo()
 
   try {
-    const { email } = req.body
+    const { email: rawEmail } = req.body
+    const email = rawEmail?.toLowerCase()
 
     if (!validateEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" })
     }
 
     // Check if there's a pending OTP request
-    const existingOTP = await OTP.findOne({ email })
+    const existingOTP = await OTP.findOne({ email, type: "signup" })
     if (!existingOTP) {
       return res.status(400).json({ error: "No pending verification found. Please sign up or login first." })
     }
@@ -64,14 +65,15 @@ export const verifyOTP = async (req, res) => {
   try {
     await connectToMongo()
 
-    const { email, otp } = req.body
+    const { email: rawEmail, otp } = req.body
+    const email = rawEmail?.toLowerCase()
 
     if (!validateEmail(email) || !otp) {
       return res.status(400).json({ error: "Invalid email or OTP" })
     }
 
     // Find OTP record
-    const otpRecord = await OTP.findOne({ email, otp })
+    const otpRecord = await OTP.findOne({ email, otp, type: "signup" })
 
     if (!otpRecord) {
       return res.status(400).json({ error: "Invalid or expired OTP" })
@@ -131,7 +133,8 @@ export const signup = async (req, res) => {
   try {
     await connectToMongo()
 
-    const { email, password, name, learningGoal } = req.body
+    const { email: rawEmail, password, name, learningGoal } = req.body
+    const email = rawEmail?.toLowerCase()
 
     if (!validateEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" })
@@ -160,8 +163,8 @@ export const signup = async (req, res) => {
     // Generate OTP and send for email verification
     const otp = Math.floor(100000 + Math.random() * 900000).toString()
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
-    await OTP.deleteMany({ email })
-    await OTP.create({ email, otp, expiresAt })
+    await OTP.deleteMany({ email, type: "signup" })
+    await OTP.create({ email, otp, expiresAt, type: "signup" })
     await sendOTP(email, otp, user.name)
 
     res.status(201).json({
@@ -182,7 +185,8 @@ export const login = async (req, res) => {
   try {
     await connectToMongo()
 
-    const { email, password } = req.body
+    const { email: rawEmail, password } = req.body
+    const email = rawEmail?.toLowerCase()
 
     if (!validateEmail(email) || !password) {
       return res.status(400).json({ error: "Invalid credentials" })
@@ -198,12 +202,23 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid password" })
     }
 
-    // If email not verified, send OTP and block login
+    // If email not verified, check for existing OTP or send new one
     if (!user.isEmailVerified) {
+      const existingOTP = await OTP.findOne({ email, type: "signup" })
+      
+      if (existingOTP && existingOTP.expiresAt > new Date()) {
+        // Use existing valid OTP instead of creating a new one
+        return res.status(403).json({
+          error: "Email not verified. Please enter the verification code sent to your email.",
+          requiresVerification: true,
+          email,
+        })
+      }
+
       const otp = Math.floor(100000 + Math.random() * 900000).toString()
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
-      await OTP.deleteMany({ email })
-      await OTP.create({ email, otp, expiresAt })
+      await OTP.deleteMany({ email, type: "signup" })
+      await OTP.create({ email, otp, expiresAt, type: "signup" })
       await sendOTP(email, otp, user.name)
 
       return res.status(403).json({
@@ -257,7 +272,8 @@ function verifyResetToken(token) {
 export const forgotPassword = async (req, res) => {
   await connectToMongo()
   try {
-    const { email } = req.body
+    const { email: rawEmail } = req.body
+    const email = rawEmail?.toLowerCase()
     if (!validateEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" })
     }
@@ -292,7 +308,8 @@ export const forgotPassword = async (req, res) => {
 export const resetPasswordToken = async (req, res) => {
   await connectToMongo()
   try {
-    const { token, newPassword, email } = req.body
+    const { token, newPassword, email: rawEmail } = req.body
+    const email = rawEmail?.toLowerCase()
     
     let userEmail = email
     let code = token

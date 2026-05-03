@@ -26,6 +26,14 @@ function LoginContent() {
   const [otp, setOtp] = useState('')
   const [resending, setResending] = useState(false)
 
+  // Auto-populate email from URL if present
+  useState(() => {
+    const emailParam = searchParams.get('email')
+    if (emailParam && !form.email) {
+      setForm(f => ({ ...f, email: emailParam }))
+    }
+  })
+
   const set = (k, v) => { setForm(f => ({ ...f, [k]: v })); setErrors(e => ({ ...e, [k]: '' })) }
 
   const nextPath = searchParams.get("next")
