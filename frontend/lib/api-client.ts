@@ -3,8 +3,8 @@ import { captureException, addBreadcrumb } from './sentry';
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
 // In the browser, we use relative paths to take advantage of Next.js rewrites and avoid CORS
 // On the server (SSR), we need the absolute URL
-const API_BASE_URL = typeof window !== "undefined" ? "" : (baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl)
-
+// let API_BASE_URL = typeof window !== "undefined" ? "" : (baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl)
+const API_BASE_URL = baseUrl ? (baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`) : "/api"
 export class APIError extends Error {
   status: number;
   data: any;
