@@ -2,7 +2,8 @@ import { captureException, addBreadcrumb } from './sentry';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
 // Ensure we have a consistent base. If no baseUrl, we use empty string and rely on the endpoint prefix.
-const API_BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl
+// const API_BASE_URL = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl
+const API_BASE_URL = baseUrl ? (baseUrl.endsWith("/api") ? baseUrl : `${baseUrl}/api`) : "/api"
 
 export class APIError extends Error {
   status: number;
