@@ -134,7 +134,13 @@ async function startServer() {
   }
 }
 
-// Routes
+// Routes helper to handle both /api and non-/api paths (useful for some deployment proxies)
+const mount = (path, router) => {
+  app.use(path, router)
+  if (path.startsWith("/api/")) {
+    app.use(path.replace("/api/", "/"), router)
+  }
+}
 
 app.get('/',(req, res)=>{ return res.status(200).json({message:"server is running fine"})})
 // CSRF token endpoint (GET request, no CSRF validation needed)
