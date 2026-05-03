@@ -51,7 +51,7 @@ export default function LevelProgressRing({ data }) {
     const level = data?.level ?? fallback.level
 
     // 🔹 GAMIFICATION LOGIC
-    const xpPerLevel = 100
+    const xpPerLevel = 500
     const progress = xp % xpPerLevel
 
     // 🔹 SVG math

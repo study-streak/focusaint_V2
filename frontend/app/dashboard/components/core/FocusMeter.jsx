@@ -47,6 +47,7 @@ export default function FocusMeter({ data }) {
     // Else → fallback
     const score = data?.score ?? fallback.score
     const rank = data?.rank ?? fallback.rank
+    const rankColor = data?.rankColor ?? "text-gray-400"
 
     // 🔹 circle math (UI only)
     const radius = 45
@@ -102,7 +103,7 @@ export default function FocusMeter({ data }) {
                         {score}%
                     </motion.span>
 
-                    <span className="text-xs text-gray-400">
+                    <span className={`text-xs ${rankColor}`}>
                         {rank}
                     </span>
 

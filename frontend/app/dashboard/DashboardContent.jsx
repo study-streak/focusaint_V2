@@ -25,6 +25,7 @@ import XPToast from "./components/gamification/XPToast"
 import JourneyMap from "./components/core/JourneyMap"
 import SessionHeatmap from "./components/analytics/SessionHeatmap"
 import WeeklyGraph from "./components/analytics/WeeklyGraph"
+import RecentSessions from "./components/analytics/RecentSessions"
 
 // OVERLAYS
 import NotificationPanel from "./components/overlays/NotificationPanel"
@@ -122,15 +123,19 @@ export default function DashboardContent() {
                     </div>
                 </div>
 
-                <div className="md:col-span-6">
+                <div className="md:col-span-12">
                     <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-                        <WeeklyGraph data={data} />
+                        <SessionHeatmap data={data} />
                     </div>
                 </div>
 
-                <div className="md:col-span-6">
+                <div className="md:col-span-4">
+                    <RecentSessions data={data} />
+                </div>
+
+                <div className="md:col-span-8">
                     <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
-                        <SessionHeatmap data={data} />
+                        <WeeklyGraph data={data} />
                     </div>
                 </div>
 
