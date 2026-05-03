@@ -85,7 +85,7 @@ export default function LevelProgressRing({ data }) {
                         cx="50%"
                         cy="50%"
                         r={radius}
-                        stroke="#8b5cf6"
+                        stroke="var(--accent2)"
                         strokeWidth="10"
                         fill="transparent"
 
@@ -121,7 +121,7 @@ export default function LevelProgressRing({ data }) {
 
                 {/* 🔥 GLOW */}
                 <motion.div
-                    className="absolute inset-0 rounded-full bg-purple-400/10 blur-xl"
+                    className="absolute inset-0 rounded-full bg-[var(--accent2)]/10 blur-xl"
                     animate={{
                         scale: [1, 1.2, 1],
                         opacity: [0.3, 0.6, 0.3],

@@ -231,8 +231,8 @@ export default function PlannerContent() {
                     </Link>
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <h1 className="text-4xl font-semibold tracking-tight">{task.title}</h1>
-                            <p className="text-gray-400 mt-2">
+                            <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight">{task.title}</h1>
+                            <p className="text-gray-400 mt-2 text-sm sm:text-base">
                                 Goal Planner • {task.deadline ? `Deadline: ${task.deadline}` : 'No deadline set'}
                             </p>
                         </div>
@@ -261,12 +261,12 @@ export default function PlannerContent() {
                     <div className="md:col-span-2">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h2 className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">Learning Roadmap</h2>
-                                <p className="text-sm text-gray-500 mt-1">Master each level to reach your goal.</p>
+                                <h2 className="text-xl sm:text-2xl font-serif font-semibold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">Learning Roadmap</h2>
+                                <p className="text-sm text-gray-400 mt-1">Master each level to reach your goal.</p>
                             </div>
                             <button
                                 onClick={() => setShowAddMaterial(!showAddMaterial)}
-                                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-indigo-400 hover:text-indigo-300 hover:bg-white/10 transition-all"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-[var(--accent)] hover:text-[var(--accent)] hover:bg-white/10 transition-all"
                             >
                                 <Plus className="w-4 h-4" /> Add Level
                             </button>
@@ -276,7 +276,7 @@ export default function PlannerContent() {
                             <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl mb-12 space-y-4 shadow-2xl">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-500 mb-2 block">Level Name</label>
+                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Level Name</label>
                                         <input
                                             type="text"
                                             value={customName}
@@ -286,7 +286,7 @@ export default function PlannerContent() {
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-500 mb-2 block">Resource URL</label>
+                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Resource URL</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="url"
@@ -306,13 +306,13 @@ export default function PlannerContent() {
                                     </div>
                                 </div>
                                 <div className="pt-2">
-                                    <label className="text-xs font-mono tracking-widest uppercase text-gray-500 mb-2 block">Or Upload PDF</label>
+                                    <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Or Upload PDF</label>
                                     <div className="flex gap-4 items-center p-3 rounded-2xl bg-white/5 border border-dashed border-white/10">
                                         <input
                                             type="file"
                                             accept=".pdf"
                                             onChange={(e) => setNewFile(e.target.files[0])}
-                                            className="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 cursor-pointer"
+                                            className="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 cursor-pointer"
                                         />
                                         {newFile && (
                                             <button
@@ -334,14 +334,14 @@ export default function PlannerContent() {
                                     <Plus className="w-8 h-8 text-gray-600" />
                                 </div>
                                 <h3 className="text-lg font-medium text-gray-300">Your roadmap is empty</h3>
-                                <p className="text-gray-500 mt-2 text-sm">Add materials to start your learning quest.</p>
+                                <p className="text-gray-400 mt-2 text-sm">Add materials to start your learning quest.</p>
                             </div>
                         ) : (
                             <div className="relative pt-10 pb-20 px-4">
                                 {/* The Roadmap Path (SVG) */}
-                                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-indigo-500/20 to-transparent -translate-x-1/2 pointer-events-none" />
+                                <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[var(--accent)]/20 to-transparent md:-translate-x-1/2 pointer-events-none" />
                                 
-                                <div className="relative space-y-24">
+                                <div className="relative space-y-16 md:space-y-24">
                                     {task.attachments.map((att, index) => {
                                         const isCompleted = att.completed;
                                         const isOdd = index % 2 !== 0;
@@ -353,46 +353,46 @@ export default function PlannerContent() {
                                                 initial={{ opacity: 0, y: 20 }}
                                                 whileInView={{ opacity: 1, y: 0 }}
                                                 viewport={{ once: true }}
-                                                className={`relative flex items-center ${isOdd ? 'flex-row-reverse' : ''}`}
+                                                className={`relative flex items-center md:${isOdd ? 'flex-row-reverse' : 'flex-row'} flex-row pl-20 md:pl-0`}
                                             >
                                                 {/* Connecting Line from Center */}
-                                                <div className={`absolute top-1/2 ${isOdd ? 'right-1/2 left-auto mr-10' : 'left-1/2 right-auto ml-10'} w-20 h-px bg-gradient-to-r ${isOdd ? 'from-indigo-500/50 to-transparent' : 'from-transparent to-indigo-500/50'} -translate-y-1/2`} />
+                                                <div className={`absolute top-1/2 ${isOdd ? 'md:right-1/2 md:left-auto md:mr-10' : 'md:left-1/2 md:right-auto md:ml-10'} left-8 w-12 md:w-20 h-px bg-gradient-to-r ${isOdd ? 'md:from-[var(--accent)]/50 md:to-transparent' : 'md:from-transparent md:to-[var(--accent)]/50'} from-[var(--accent)]/50 to-transparent -translate-y-1/2`} />
 
                                                 {/* Content Card */}
-                                                <div className={`w-[45%] ${isOdd ? 'text-right' : 'text-left'}`}>
-                                                    <div className={`inline-block p-6 rounded-3xl backdrop-blur-xl border transition-all duration-500 group ${
-                                                        isCompleted ? 'bg-emerald-500/5 border-emerald-500/20 shadow-[0_0_50px_-12px_rgba(16,185,129,0.1)]' : 
-                                                        isNext ? 'bg-indigo-500/10 border-indigo-500/30 shadow-[0_0_50px_-12px_rgba(99,102,241,0.2)]' :
+                                                <div className={`w-full md:w-[45%] md:${isOdd ? 'text-right' : 'text-left'} text-left`}>
+                                                    <div className={`inline-block w-full p-4 sm:p-6 rounded-3xl backdrop-blur-xl border transition-all duration-500 group ${
+                                                        isCompleted ? 'bg-[#4a8a4a]/5 border-[#4a8a4a]/20 shadow-[0_0_50px_-12px_rgba(74,138,74,0.1)]' : 
+                                                        isNext ? 'bg-[var(--accent)]/10 border-[var(--accent)]/30 shadow-[0_0_50px_-12px_rgba(200,64,42,0.2)]' :
                                                         'bg-white/5 border-white/10 opacity-60'
                                                     }`}>
-                                                        <div className={`flex items-center gap-3 mb-3 ${isOdd ? 'flex-row-reverse' : ''}`}>
+                                                        <div className={`flex items-center gap-3 mb-3 md:${isOdd ? 'flex-row-reverse' : 'flex-row'} flex-row`}>
                                                             {att.url?.includes('youtube') ? (
-                                                                <PlayCircle className={`w-5 h-5 ${isCompleted ? 'text-emerald-400' : 'text-rose-500'}`} />
+                                                                <PlayCircle className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-[var(--accent)]'}`} />
                                                             ) : att.type === 'file' ? (
-                                                                <FileText className={`w-5 h-5 ${isCompleted ? 'text-emerald-400' : 'text-blue-400'}`} />
+                                                                <FileText className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-blue-400'}`} />
                                                             ) : (
-                                                                <LinkIcon className={`w-5 h-5 ${isCompleted ? 'text-emerald-400' : 'text-emerald-400'}`} />
+                                                                <LinkIcon className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-[#4a8a4a]'}`} />
                                                             )}
-                                                            <span className="text-[10px] font-mono tracking-widest uppercase text-gray-500">Level {index + 1}</span>
+                                                            <span className="text-[10px] font-mono tracking-widest uppercase text-gray-400">Level {index + 1}</span>
                                                         </div>
 
-                                                        <h4 className={`text-lg font-medium mb-2 ${isCompleted ? 'text-emerald-100 line-through decoration-emerald-500/40' : 'text-white'}`}>
+                                                        <h4 className={`text-lg font-serif font-medium mb-2 ${isCompleted ? 'text-[#4a8a4a]/80 line-through decoration-[#4a8a4a]/40' : 'text-white'}`}>
                                                             {att.name || 'Untitled Material'}
                                                         </h4>
 
                                                         {att.dueDate && (
-                                                            <div className={`flex items-center gap-2 mb-4 ${isOdd ? 'justify-end' : ''}`}>
-                                                                <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-                                                                <span className="text-xs text-indigo-400/80 font-medium">Due {new Date(att.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                                            <div className={`flex items-center gap-2 mb-4 md:${isOdd ? 'justify-end' : 'justify-start'} justify-start`}>
+                                                                <Calendar className="w-3.5 h-3.5 text-[var(--accent)]" />
+                                                                <span className="text-xs text-[var(--accent)]/80 font-medium">Due {new Date(att.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                                                             </div>
                                                         )}
 
-                                                        <div className={`flex items-center gap-2 mt-4 ${isOdd ? 'flex-row-reverse' : ''}`}>
+                                                        <div className={`flex items-center gap-2 mt-4 md:${isOdd ? 'flex-row-reverse' : 'flex-row'} flex-row`}>
                                                             <button
                                                                 onClick={() => startDeepMode(att._id)}
                                                                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-                                                                    isCompleted ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20' :
-                                                                    isNext ? 'bg-indigo-600 text-white shadow-lg hover:bg-indigo-500 hover:scale-105' :
+                                                                    isCompleted ? 'bg-[#4a8a4a]/10 text-[#4a8a4a] border border-[#4a8a4a]/20 hover:bg-[#4a8a4a]/20' :
+                                                                    isNext ? 'bg-[var(--accent)] text-white shadow-lg hover:bg-[var(--accent)]/80 hover:scale-105' :
                                                                     'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
                                                                 }`}
                                                             >
@@ -409,21 +409,21 @@ export default function PlannerContent() {
                                                 </div>
 
                                                 {/* Center Node */}
-                                                <div className="absolute left-1/2 -translate-x-1/2 z-10">
-                                                    <div className={`w-14 h-14 rounded-full flex items-center justify-center border-4 transition-all duration-1000 ${
-                                                        isCompleted ? 'bg-emerald-500 border-emerald-900 shadow-[0_0_30px_rgba(16,185,129,0.4)]' :
-                                                        isNext ? 'bg-indigo-600 border-indigo-900 animate-pulse shadow-[0_0_30px_rgba(99,102,241,0.4)]' :
+                                                <div className="absolute left-8 md:left-1/2 -translate-x-1/2 z-10">
+                                                    <div className={`w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center border-2 md:border-4 transition-all duration-1000 ${
+                                                        isCompleted ? 'bg-[#4a8a4a] border-[#4a8a4a]/30 shadow-[0_0_30px_rgba(74,138,74,0.4)]' :
+                                                        isNext ? 'bg-[var(--accent)] border-[var(--accent)]/30 animate-pulse shadow-[0_0_30px_rgba(200,64,42,0.4)]' :
                                                         'bg-gray-800 border-gray-900 shadow-inner'
                                                     }`}>
                                                         {isCompleted ? (
-                                                            <CheckCircle2 className="w-6 h-6 text-white" />
+                                                            <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
                                                         ) : (
-                                                            <span className={`font-serif text-xl ${isNext ? 'text-white' : 'text-gray-600'}`}>{index + 1}</span>
+                                                            <span className={`font-serif text-lg md:text-xl ${isNext ? 'text-white' : 'text-gray-600'}`}>{index + 1}</span>
                                                         )}
                                                     </div>
                                                     {/* Orbiting Ring for Active Node */}
                                                     {isNext && (
-                                                        <div className="absolute inset-0 w-14 h-14 rounded-full border border-indigo-400/30 scale-150 animate-ping" />
+                                                        <div className="absolute inset-0 w-10 h-10 md:w-14 md:h-14 rounded-full border border-[var(--accent)]/30 scale-150 animate-ping" />
                                                     )}
                                                 </div>
                                             </motion.div>
@@ -435,13 +435,13 @@ export default function PlannerContent() {
                                 <div className="mt-32 text-center relative">
                                     <div className="absolute top-0 left-1/2 -translate-x-1/2 h-20 w-px bg-gradient-to-b from-indigo-500/20 to-transparent -translate-y-full" />
                                     <div className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center border transition-all duration-1000 ${
-                                        task.completed ? 'bg-indigo-500 border-indigo-400 shadow-[0_0_100px_-10px_rgba(99,102,241,0.6)] scale-110' : 'bg-white/5 border-white/10'
+                                        task.completed ? 'bg-[var(--accent)] border-[var(--accent)]/30 shadow-[0_0_100px_-10px_rgba(200,64,42,0.6)] scale-110' : 'bg-white/5 border-white/10'
                                     }`}>
                                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className={task.completed ? 'text-white' : 'text-gray-700'}>
                                             <path d="M4 15V4M4 4H14.5L15.5 6H20V15H11.5L10.5 13H4M4 13V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     </div>
-                                    <h3 className={`mt-6 font-serif text-2xl ${task.completed ? 'text-white' : 'text-gray-500'}`}>
+                                    <h3 className={`mt-6 font-serif text-2xl ${task.completed ? 'text-white' : 'text-gray-400'}`}>
                                         {task.completed ? 'Goal Conquered!' : 'Reach the Peak'}
                                     </h3>
                                 </div>

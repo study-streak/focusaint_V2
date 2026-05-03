@@ -67,11 +67,11 @@ export default function StreakFlame({ data }) {
                 transition={{ repeat: Infinity, duration: 1.4 }}
                 className="relative"
             >
-                <Flame size={54} className="text-orange-500" />
+                <Flame size={54} className="text-[var(--accent)]" />
 
                 {/* 🔥 INNER GLOW */}
                 <motion.div
-                    className="absolute inset-0 bg-orange-400/30 rounded-full blur-xl"
+                    className="absolute inset-0 bg-[var(--accent)]/30 rounded-full blur-xl"
                     animate={{
                         opacity: [0.4, 0.9, 0.4],
                         scale: [1, 1.4, 1],
@@ -82,7 +82,7 @@ export default function StreakFlame({ data }) {
                 {/* 🔥 OUTER AURA (HIGH STREAK ONLY) */}
                 {current > 7 && (
                     <motion.div
-                        className="absolute inset-0 bg-red-400/20 rounded-full blur-2xl"
+                        className="absolute inset-0 bg-[var(--accent)]/20 rounded-full blur-2xl"
                         animate={{
                             scale: [1, 1.6, 1],
                             opacity: [0.2, 0.6, 0.2],
@@ -121,7 +121,7 @@ export default function StreakFlame({ data }) {
                         initial={{ width: 0 }}
                         animate={{ width: `${Math.min(current * 10, 100)}%` }}
                         transition={{ duration: 1 }}
-                        className="bg-orange-400 h-2 rounded-full"
+                        className="bg-[var(--accent)] h-2 rounded-full"
                     />
 
                 </div>

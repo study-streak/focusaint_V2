@@ -57,22 +57,22 @@ export default function GoalsContent() {
 
     return (
         <>
-            <div className="px-6 mt-8 mb-12 flex justify-between items-end">
+            <div className="px-6 mt-8 mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
                     <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors mb-4">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
                     </Link>
-                    <h1 className="text-4xl font-semibold tracking-tight">Active Goals</h1>
-                    <p className="text-gray-400 mt-2">Select a goal to enter its planner and start Deep Mode.</p>
+                    <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight">Active Goals</h1>
+                    <p className="text-gray-400 mt-2 text-sm sm:text-base">Select a goal to enter its planner and start Deep Mode.</p>
                 </div>
                 
                 <button 
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/25"
+                    className="w-full md:w-auto btn-accent"
                 >
                     <Plus className="w-5 h-5" />
-                    Create Goals
+                    Create Goal
                 </button>
             </div>
 

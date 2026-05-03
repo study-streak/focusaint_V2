@@ -13,7 +13,7 @@
   --card:    #141414;
   --line:    rgba(255,255,255,0.06);
   --white:   #f5f2ee;
-  --muted:   #6b6860;
+  --muted:   #94a3b8; /* Increased brightness for better contrast */
   --accent:  #c8402a;
   --accent2: #e05a3a;
   --gold:    #c4963a;
@@ -79,6 +79,7 @@ body {
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--muted);
+  opacity: 0.85;
 }
 
 /* accent btn */
@@ -308,7 +309,7 @@ html.light .tl-future { color: var(--muted); opacity: 0.7; }
 .timeline-grid { grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; }
 .testimonial-feature-grid { grid-template-columns: 1fr auto; gap: 40px; align-items: start; }
 .backedby-grid { grid-template-columns: 1fr auto; gap: 48px; align-items: center; }
-.feature-grid { grid-template-columns: 220px 1fr; gap: 1px; }
+.feature-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; }
 .footer-top-grid { grid-template-columns: auto 1fr auto; gap: 40px; align-items: center; }
 
 .sticky-col {

@@ -65,12 +65,12 @@ export default function AchievementGrid({ data }) {
         data?.achievements ?? fallbackAchievements
 
     return (
-        <div className="bg-[#020617] border border-white/5 rounded-xl p-5">
+        <div className="bg-[var(--black)] border border-white/5 rounded-xl p-5">
 
             {/* 🧠 HEADER */}
             <div className="flex items-center gap-2 mb-4">
-                <Trophy className="text-yellow-400" />
-                <p className="text-sm text-gray-300">Achievements</p>
+                <Trophy className="text-[var(--gold)]" />
+                <p className="text-sm text-gray-300 font-mono tracking-wider">ACHIEVEMENTS</p>
             </div>
 
             {/* 🎮 GRID */}

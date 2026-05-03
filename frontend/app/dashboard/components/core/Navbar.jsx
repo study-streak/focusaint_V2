@@ -55,27 +55,32 @@ export default function Navbar({ data: externalData }) {
     const notifications = data?.notifications ?? []
 
     return (
-        <div className="w-full flex items-center justify-between px-6 py-4 bg-[#020617] border-b border-white/5">
+        <div className="w-full flex items-center justify-between px-3 sm:px-6 py-4 bg-[var(--black)] border-b border-white/5 sticky top-0 z-[100] backdrop-blur-md bg-opacity-90">
 
             {/* 🧠 LEFT: BRAND */}
             <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-
-                className="text-lg font-semibold tracking-wide text-white"
+                className="text-base sm:text-xl font-serif font-semibold tracking-tight text-white flex items-center gap-2"
             >
+                <div className="w-6 h-6 rounded-md bg-[var(--accent)] flex items-center justify-center">
+                    <svg width="70%" height="70%" viewBox="0 0 12 12" fill="none">
+                        <path d="M6 1L9 5.5H3L6 1Z" fill="white"/>
+                        <path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
+                    </svg>
+                </div>
                 Focusaint
             </motion.div>
 
             {/* 🔥 CENTER: STREAK HUD */}
             <motion.div
-                whileHover={{ scale: 1.08 }}
-
-                className="relative flex items-center gap-2 px-4 py-1 rounded-full bg-orange-500/10 border border-orange-500/20"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="relative flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20"
             >
-                <Flame className="text-orange-400" size={18} />
+                <Flame className="text-[var(--accent)] shrink-0" size={18} />
 
-                <span className="text-sm font-medium">
+                <span className="text-[10px] sm:text-sm font-medium whitespace-nowrap text-[var(--accent)]">
                     {streak} Day Streak
                 </span>
 
@@ -90,7 +95,7 @@ export default function Navbar({ data: externalData }) {
             </motion.div>
 
             {/* ⚡ RIGHT: NOTIFICATION + USER */}
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-3 sm:gap-5">
 
                 {/* 🔔 Notification Bell */}
                 <div className="relative">

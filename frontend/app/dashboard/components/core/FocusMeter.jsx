@@ -80,7 +80,7 @@ export default function FocusMeter({ data }) {
                         cx="50%"
                         cy="50%"
                         r={radius}
-                        stroke="#3b82f6"
+                        stroke="var(--accent)"
                         strokeWidth="10"
                         fill="transparent"
                         strokeDasharray={circumference}
@@ -112,7 +112,7 @@ export default function FocusMeter({ data }) {
                 {/* 🔥 HIGH SCORE GLOW */}
                 {score > 75 && (
                     <motion.div
-                        className="absolute inset-0 rounded-full bg-blue-400/20 blur-xl"
+                        className="absolute inset-0 rounded-full bg-[var(--accent)]/20 blur-xl"
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ repeat: Infinity, duration: 2 }}
                     />

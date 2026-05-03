@@ -55,8 +55,16 @@ export default function ProgressHUD({ data }) {
         : (streakObj ?? fallback.streak);
 
     const sessions = data?.sessions ?? fallback.sessions
-
     const xpProgress = xp % 100
+
+    const getRankFromLevel = (lvl) => {
+        if (lvl >= 50) return "GRANDMASTER"
+        if (lvl >= 20) return "ELITE"
+        if (lvl >= 10) return "PRO"
+        if (lvl >= 5) return "PIONEER"
+        return "INITIATE"
+    }
+    const rank = data?.rank ?? getRankFromLevel(level)
 
     return (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -64,16 +72,16 @@ export default function ProgressHUD({ data }) {
             {/* 🔥 STREAK CARD */}
             <motion.div
                 whileHover={{ scale: 1.06 }}
-                className="relative bg-gradient-to-br from-orange-500/20 to-transparent p-4 rounded-xl overflow-hidden"
+                className="relative bg-gradient-to-br from-[var(--accent)]/20 to-transparent p-4 rounded-xl overflow-hidden border border-[var(--accent)]/10"
             >
-                <Flame className="text-orange-400 mb-2" />
+                <Flame className="text-[var(--accent)] mb-2" />
 
-                <p className="text-xs text-gray-400">Streak</p>
+                <p className="text-xs text-gray-400 font-mono tracking-wider">STREAK</p>
                 <p className="text-lg font-bold">{streak} days</p>
 
                 {/* glow */}
                 <motion.div
-                    className="absolute inset-0 bg-orange-400/10 blur-xl"
+                    className="absolute inset-0 bg-[var(--accent)]/10 blur-xl"
                     animate={{ opacity: [0.2, 0.6, 0.2] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                 />
@@ -82,18 +90,18 @@ export default function ProgressHUD({ data }) {
             {/* ⚡ ENERGY CARD */}
             <motion.div
                 whileHover={{ scale: 1.06 }}
-                className="bg-gradient-to-br from-yellow-500/20 to-transparent p-4 rounded-xl"
+                className="bg-gradient-to-br from-[var(--gold)]/20 to-transparent p-4 rounded-xl border border-[var(--gold)]/10"
             >
-                <Zap className="text-yellow-400 mb-2" />
+                <Zap className="text-[var(--gold)] mb-2" />
 
-                <p className="text-xs text-gray-400">Energy</p>
+                <p className="text-xs text-gray-400 font-mono tracking-wider">ENERGY</p>
 
-                <div className="w-full bg-gray-700 h-2 rounded-full mt-1">
+                <div className="w-full bg-gray-800 h-2 rounded-full mt-1">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${energy}%` }}
                         transition={{ duration: 1 }}
-                        className="bg-yellow-400 h-2 rounded-full"
+                        className="bg-[var(--gold)] h-2 rounded-full shadow-[0_0_10px_rgba(196,150,58,0.3)]"
                     />
                 </div>
 
@@ -103,24 +111,24 @@ export default function ProgressHUD({ data }) {
             {/* 🏆 XP + LEVEL CARD (MOST IMPORTANT) */}
             <motion.div
                 whileHover={{ scale: 1.06 }}
-                className="relative bg-gradient-to-br from-purple-500/20 to-transparent p-4 rounded-xl col-span-2"
+                className="relative bg-gradient-to-br from-[var(--accent2)]/20 to-transparent p-4 rounded-xl col-span-2 border border-[var(--accent2)]/10"
             >
                 <div className="flex justify-between items-center mb-2">
                     <div>
-                        <p className="text-xs text-gray-400">Level</p>
-                        <p className="text-lg font-bold">Lv. {level}</p>
+                        <p className="text-xs text-gray-400 font-mono tracking-wider">RANK</p>
+                        <p className="text-lg font-serif font-bold italic tracking-tight">{rank}</p>
                     </div>
 
-                    <Trophy className="text-purple-400" />
+                    <Trophy className="text-[var(--accent2)]" />
                 </div>
 
                 {/* XP BAR */}
-                <div className="w-full bg-gray-700 h-3 rounded-full overflow-hidden">
+                <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden border border-white/5">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${xpProgress}%` }}
                         transition={{ duration: 1 }}
-                        className="bg-purple-400 h-3 rounded-full"
+                        className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent2)] h-3 rounded-full"
                     />
                 </div>
 
@@ -134,14 +142,14 @@ export default function ProgressHUD({ data }) {
                 <motion.span
                     animate={{ y: [-2, -6, -2], opacity: [0.5, 1, 0.5] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
-                    className="absolute top-2 right-3 text-xs text-purple-300"
+                    className="absolute top-2 right-3 text-xs text-[var(--accent2)] font-mono"
                 >
                     +XP
                 </motion.span>
 
                 {/* glow */}
                 <motion.div
-                    className="absolute inset-0 bg-purple-400/10 blur-xl"
+                    className="absolute inset-0 bg-[var(--accent2)]/10 blur-xl"
                     animate={{ opacity: [0.2, 0.6, 0.2] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                 />
@@ -150,11 +158,11 @@ export default function ProgressHUD({ data }) {
             {/* 🎯 SESSIONS CARD */}
             <motion.div
                 whileHover={{ scale: 1.06 }}
-                className="bg-gradient-to-br from-blue-500/20 to-transparent p-4 rounded-xl"
+                className="bg-gradient-to-br from-[var(--gold)]/20 to-transparent p-4 rounded-xl border border-[var(--gold)]/10"
             >
-                <Target className="text-blue-400 mb-2" />
+                <Target className="text-[var(--gold)] mb-2" />
 
-                <p className="text-xs text-gray-400">Sessions</p>
+                <p className="text-xs text-gray-400 font-mono tracking-wider">SESSIONS</p>
                 <p className="text-lg font-bold">{sessions}</p>
             </motion.div>
 
