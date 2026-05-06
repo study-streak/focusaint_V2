@@ -53,8 +53,8 @@ export async function checkSessionLimit(user) {
   // Check and reset if needed
   await checkAndResetDailyCounter(user)
   
-  // Premium users have unlimited sessions
-  if (user.subscriptionTier === "premium") {
+  // Premium and Pro users have unlimited sessions
+  if (user.subscriptionTier === "premium" || user.subscriptionTier === "pro") {
     return {
       allowed: true,
       remaining: -1, // -1 indicates unlimited

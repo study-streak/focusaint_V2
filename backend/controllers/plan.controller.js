@@ -9,6 +9,9 @@ import {
   mergeProctoredSettings,
   normalizeProctoredPreset,
 } from "../utils/proctoredPresets.js"
+import { checkSessionLimit, incrementSessionCounter } from "../utils/sessionCounter.js"
+import { checkFeatureAccess } from "../utils/featureAvailability.js"
+import { SessionLimitError } from "../utils/errors.js"
 
 /**
  * Helper: Update streak when a task is completed on its assigned date
@@ -718,7 +721,7 @@ export const getProctoredTask = async (req, res) => {
 /**
  * PROCTORED: Start proctored session
  */
-export const startProctoredSession = async (req, res) => {
+export const startProctoredSession = async (req, res, next) => {
   try {
     await connectToMongo()
 
@@ -728,6 +731,27 @@ export const startProctoredSession = async (req, res) => {
     const task = await HabitTask.findOne({ _id: taskId, userId: req.user.userId })
     if (!task) {
       return res.status(404).json({ error: "Task not found" })
+    }
+
+    // Get user to check tier and session limit
+    const user = await User.findById(req.user.userId)
+    if (!user) {
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    // 1. Check for Deep Mode (proctored) access based on tier
+    // Proctored sessions are considered part of "deep_mode" feature
+    const access = checkFeatureAccess("deep_mode", user.subscriptionTier)
+    if (!access.allowed) {
+      return res.status(403).json(TierRestrictionError.deepMode(user.subscriptionTier).toJSON())
+    }
+
+    // 2. Check daily session limit for free tier users (if they somehow pass the tier check)
+    // Even if we allowed Deep Mode for Free users, they would still be limited to 3 sessions total
+    const limitCheck = await checkSessionLimit(user)
+    if (!limitCheck.allowed) {
+      const resetAt = new Date(new Date().setUTCHours(24, 0, 0, 0)).toISOString()
+      return res.status(403).json(new SessionLimitError(user.dailySessionCount, limitCheck.limit, resetAt).toJSON())
     }
 
     const attachment = task.attachments.find((a) => a._id.toString() === attachmentId)
@@ -758,6 +782,9 @@ export const startProctoredSession = async (req, res) => {
     }
 
     task.proctoredSessions.push(session)
+    
+    // 3. Increment session counter and save
+    await incrementSessionCounter(req.user.userId)
     await task.save()
 
     res.json({

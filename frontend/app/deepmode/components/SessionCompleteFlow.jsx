@@ -64,12 +64,16 @@ export default function SessionCompleteFlow({
                 setAnswers({})
                 setPhase(PHASES.QUIZ)
             } else {
-                // If quiz generation fails, skip to reflection
+                // If quiz generation fails, skip to reflection but finalize session first
+                await APIClient.post(`/api/habit/${sessionId}/finalize`)
                 setPhase(PHASES.REFLECTION)
             }
         } catch (err) {
             console.error("Quiz generation failed:", err)
-            // Skip quiz if generation fails, go straight to reflection
+            // Skip quiz if generation fails, go straight to reflection but finalize session
+            try {
+                await APIClient.post(`/api/habit/${sessionId}/finalize`)
+            } catch (e) {}
             setPhase(PHASES.REFLECTION)
         }
     }

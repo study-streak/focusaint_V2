@@ -190,9 +190,9 @@ FREE ($0)       PREMIUM ($4.99)     PRO ($19.99)
 | Metric | Free | Premium | Pro |
 |--------|------|---------|-----|
 | Daily Sessions | 3 | ∞ | ∞ |
-| Daily Tokens | 1,000 | 10,000 | 10,000 |
+| Daily Tokens | 5,000 | 25,000 | 100,000 |
 | History | 30d | ∞ | ∞ |
-| Price/mo | $0 | $4.99 | $19.99 |
+| Price/mo | ₹0 | ₹199 | ₹499 |
 
 ---
 

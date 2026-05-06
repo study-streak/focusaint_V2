@@ -8,6 +8,9 @@ import {
   trackTokenUsage,
   estimateTokenCount,
 } from "../services/tokenTracking.js"
+import HabitSession from "../models/HabitSession.js"
+import User from "../models/User.js"
+import { updateStreak } from "./habit.controller.js"
 
 /**
  * Generate quiz questions from study materials
@@ -102,12 +105,31 @@ export const submitQuiz = async (req, res) => {
       sessionId,
     })
 
+    // If sessionId is provided, mark session as completed and update streak/stats
+    if (sessionId) {
+      const session = await HabitSession.findById(sessionId)
+      if (session && session.status === "awaiting_quiz") {
+        session.status = "completed"
+        await session.save()
+
+        // Update streak
+        await updateStreak(req.user.id)
+
+        // Update user stats
+        const user = await User.findById(req.user.id)
+        user.totalSessions += 1
+        user.lastSessionDate = new Date()
+        await user.save()
+      }
+    }
+
     return res.json({
       quizId: quizResult._id,
       score: quizResult.score,
       correctAnswers: quizResult.correctAnswers,
       totalQuestions: quizResult.totalQuestions,
       questions: questionsWithResults,
+      sessionStatus: sessionId ? "completed" : undefined,
     })
   } catch (error) {
     console.error("Quiz submission error:", error)

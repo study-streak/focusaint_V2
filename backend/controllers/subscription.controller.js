@@ -62,7 +62,7 @@ export const createSubscription = async (req, res) => {
       return res.status(400).json({ error: 'Plan is required' });
     }
     // Only allow known plans
-    if (!['premium_monthly', 'premium_yearly', 'free'].includes(plan)) {
+    if (!['premium_monthly', 'premium_yearly', 'pro_monthly', 'pro_yearly', 'free'].includes(plan)) {
       return res.status(400).json({ error: 'Invalid plan.' });
     }
     const user = await User.findById(req.user.id);
@@ -112,11 +112,13 @@ export const createSubscription = async (req, res) => {
       });
     }
 
-    // Dodo Payments: create checkout session for premium plans
+    // Dodo Payments: create checkout session for premium/pro plans
     // Map plan to Dodo Payments product_id
     const productMap = {
       premium_monthly: 'prod_subscription_monthly',
-      premium_yearly: 'prod_subscription_yearly'
+      premium_yearly: 'prod_subscription_yearly',
+      pro_monthly: 'prod_subscription_pro_monthly',
+      pro_yearly: 'prod_subscription_pro_yearly'
     };
     const product_id = productMap[plan];
     if (!product_id) {
@@ -175,7 +177,7 @@ export const createCheckoutSession = async (req, res) => {
     const { plan } = req.body;
     
     // Validate plan
-    if (!plan || !['monthly', 'yearly'].includes(plan)) {
+    if (!plan || !['monthly', 'yearly', 'pro_monthly', 'pro_yearly'].includes(plan)) {
       return res.status(400).json({ error: 'Invalid plan selected' });
     }
     
@@ -195,9 +197,13 @@ export const createCheckoutSession = async (req, res) => {
     }
     
     // Get price ID from environment
-    const priceId = plan === 'monthly' 
-      ? process.env.STRIPE_PRICE_MONTHLY 
-      : process.env.STRIPE_PRICE_YEARLY;
+    const priceMap = {
+      'monthly': process.env.STRIPE_PRICE_MONTHLY,
+      'yearly': process.env.STRIPE_PRICE_YEARLY,
+      'pro_monthly': process.env.STRIPE_PRICE_PRO_MONTHLY,
+      'pro_yearly': process.env.STRIPE_PRICE_PRO_YEARLY
+    };
+    const priceId = priceMap[plan];
     
     if (!priceId) {
       return res.status(500).json({ error: 'Subscription plan not configured' });
@@ -266,7 +272,7 @@ export const getSubscriptionStatus = async (req, res) => {
     
     res.json({
       hasSubscription: true,
-      tier: 'premium',
+      tier: subscription.plan.startsWith('pro') ? 'pro' : 'premium',
       plan: subscription.plan,
       status: subscription.status,
       currentPeriodEnd: subscription.currentPeriodEnd,
@@ -545,7 +551,8 @@ async function handleCheckoutSessionCompleted(session) {
   });
   
   // Update user tier
-  await User.findByIdAndUpdate(userId, { tier: 'premium' });
+  const tier = plan.startsWith('pro') ? 'pro' : 'premium';
+  await User.findByIdAndUpdate(userId, { tier });
   
   console.log(`Subscription created for user ${userId}`);
 }
@@ -569,7 +576,10 @@ async function handleSubscriptionUpdate(stripeSubscription) {
   await subscription.save();
   
   // Update user tier based on status
-  const tier = ['active', 'trialing'].includes(stripeSubscription.status) ? 'premium' : 'free';
+  let tier = 'free';
+  if (['active', 'trialing'].includes(stripeSubscription.status)) {
+    tier = subscription.plan.startsWith('pro') ? 'pro' : 'premium';
+  }
   await User.findByIdAndUpdate(subscription.userId, { tier });
   
   console.log(`Subscription updated: ${stripeSubscription.id}`);

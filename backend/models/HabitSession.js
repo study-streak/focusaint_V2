@@ -25,7 +25,7 @@ const habitSessionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "completed", "abandoned"],
+      enum: ["active", "completed", "abandoned", "awaiting_quiz"],
       default: "active",
     },
     notes: {

@@ -4,7 +4,8 @@ import StreakRecord from "../models/StreakRecord.js"
 import User from "../models/User.js"
 import { connectToMongo } from "../utils/db.js"
 import { checkSessionLimit, incrementSessionCounter } from "../utils/sessionCounter.js"
-import { SessionLimitError } from "../utils/errors.js"
+import { checkFeatureAccess } from "../utils/featureAvailability.js"
+import { SessionLimitError, TierRestrictionError } from "../utils/errors.js"
 
 /**
  * Start a new habit session
@@ -19,6 +20,15 @@ export const startSession = async (req, res, next) => {
     const user = await User.findById(req.user.userId)
     if (!user) {
       return res.status(404).json({ error: "User not found" })
+    }
+
+    // Check for Deep Mode access if requested
+    const { mode = "habit" } = req.body
+    if (mode === "deep") {
+      const access = checkFeatureAccess("deep_mode", user.subscriptionTier)
+      if (!access.allowed) {
+        throw access.error
+      }
     }
 
     // Check session limit for free tier users
@@ -89,6 +99,39 @@ export const endSession = async (req, res) => {
 
     session.endTime = endTime
     session.duration = duration
+    session.status = "awaiting_quiz"
+    await session.save()
+
+    res.json({
+      message: "Session ended. Complete the quiz to finish and save progress.",
+      session,
+      duration,
+    })
+  } catch (error) {
+    console.error("End session error:", error)
+    res.status(500).json({ error: "Failed to end session" })
+  }
+}
+
+/**
+ * Finalize a session (fallback when quiz is not possible)
+ */
+export const finalizeSession = async (req, res) => {
+  try {
+    await connectToMongo()
+
+    const { sessionId } = req.params
+
+    const session = await HabitSession.findOne({
+      _id: sessionId,
+      userId: req.user.userId,
+      status: "awaiting_quiz"
+    })
+
+    if (!session) {
+      return res.status(404).json({ error: "Session not found or already completed" })
+    }
+
     session.status = "completed"
     await session.save()
 
@@ -97,18 +140,21 @@ export const endSession = async (req, res) => {
 
     // Update user stats
     const user = await User.findById(req.user.userId)
-    user.totalSessions += 1
-    user.lastSessionDate = new Date()
-    await user.save()
+    if (user) {
+      user.totalSessions += 1
+      user.lastSessionDate = new Date()
+      // Minimal XP for session without quiz
+      user.focusScore = (user.focusScore || 0) + 5
+      await user.save()
+    }
 
     res.json({
-      message: "Session completed",
-      session,
-      duration,
+      message: "Session finalized",
+      session
     })
   } catch (error) {
-    console.error("End session error:", error)
-    res.status(500).json({ error: "Failed to end session" })
+    console.error("Finalize session error:", error)
+    res.status(500).json({ error: "Failed to finalize session" })
   }
 }
 
@@ -155,10 +201,10 @@ export const getHistory = async (req, res) => {
     }
 
     // Apply tier-based restrictions
-    if (userTier === 'free' && dateFilter.$gte) {
+    if (userTier === 'free') {
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       // Ensure free users can't access data older than 30 days
-      if (dateFilter.$gte < thirtyDaysAgo) {
+      if (!dateFilter.$gte || dateFilter.$gte < thirtyDaysAgo) {
         dateFilter.$gte = thirtyDaysAgo
       }
     }
@@ -264,6 +310,14 @@ export const logSession = async (req, res, next) => {
     const user = await User.findById(req.user.userId)
     if (!user) {
       return res.status(404).json({ error: "User not found" })
+    }
+
+    // Check for Deep Mode access if requested
+    if (mode === "deep") {
+      const access = checkFeatureAccess("deep_mode", user.subscriptionTier)
+      if (!access.allowed) {
+        throw access.error
+      }
     }
 
     // Check session limit for free tier users
@@ -395,7 +449,7 @@ export const getStats = async (req, res) => {
 /**
  * Helper function to update streak
  */
-async function updateStreak(userId) {
+export async function updateStreak(userId) {
   try {
     await connectToMongo()
 

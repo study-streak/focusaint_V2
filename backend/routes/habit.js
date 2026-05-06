@@ -4,6 +4,7 @@ import { sessionCreateLimiter } from "../middleware/rateLimit.js"
 import {
   startSession,
   endSession,
+  finalizeSession,
   getHistory,
   getStreak,
   getQuota,
@@ -18,6 +19,9 @@ router.post("/start", authenticateToken, sessionCreateLimiter, startSession)
 
 // End habit session
 router.post("/:sessionId/end", authenticateToken, endSession)
+
+// Finalize habit session (fallback)
+router.post("/:sessionId/finalize", authenticateToken, finalizeSession)
 
 // Get session history
 router.get("/history", authenticateToken, getHistory)

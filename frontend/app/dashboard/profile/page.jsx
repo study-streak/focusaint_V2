@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { APIClient } from "../../../lib/api-client"
+import PricingSection from "../components/PricingSection"
 
 export default function ProfilePage() {
     const [user, setUser] = useState(null)
@@ -74,41 +75,10 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="border-t border-white/10 pt-8">
-                        <h2 className="text-xl font-bold mb-6">Subscription Plans</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* FREE */}
-                            <div className={`p-6 rounded-2xl border ${user?.subscriptionTier === 'free' ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/10 bg-white/5'}`}>
-                                <h3 className="font-bold text-lg mb-2">Free</h3>
-                                <p className="text-sm text-white/60 mb-4">Basic features to get you started.</p>
-                                <p className="text-2xl font-bold mb-6">$0 <span className="text-sm font-normal text-white/40">/mo</span></p>
-                                <button disabled={user?.subscriptionTier === 'free'} className="w-full py-2 rounded-xl bg-white/10 text-white font-medium disabled:opacity-50">
-                                    {user?.subscriptionTier === 'free' ? 'Current Plan' : 'Select'}
-                                </button>
-                            </div>
-
-                            {/* PREMIUM */}
-                            <div className={`p-6 rounded-2xl border ${user?.subscriptionTier === 'premium' ? 'border-blue-500 bg-blue-500/10' : 'border-white/10 bg-white/5'}`}>
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-lg">Premium</h3>
-                                    <span className="text-[10px] bg-blue-500 px-2 py-0.5 rounded-full uppercase font-bold">Popular</span>
-                                </div>
-                                <p className="text-sm text-white/60 mb-4">Advanced AI features and analytics.</p>
-                                <p className="text-2xl font-bold mb-6">$9.99 <span className="text-sm font-normal text-white/40">/mo</span></p>
-                                <button className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors">
-                                    {user?.subscriptionTier === 'premium' ? 'Current Plan' : 'Upgrade'}
-                                </button>
-                            </div>
-
-                            {/* PRO */}
-                            <div className={`p-6 rounded-2xl border ${user?.subscriptionTier === 'pro' ? 'border-purple-500 bg-purple-500/10' : 'border-white/10 bg-white/5'}`}>
-                                <h3 className="font-bold text-lg mb-2">Pro</h3>
-                                <p className="text-sm text-white/60 mb-4">Unlimited everything + VIP support.</p>
-                                <p className="text-2xl font-bold mb-6">$19.99 <span className="text-sm font-normal text-white/40">/mo</span></p>
-                                <button className="w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-600 text-white font-medium transition-colors">
-                                    {user?.subscriptionTier === 'pro' ? 'Current Plan' : 'Go Pro'}
-                                </button>
-                            </div>
-                        </div>
+                        <PricingSection 
+                            currentTier={user?.subscriptionTier || 'free'} 
+                            compact={true}
+                        />
                     </div>
             </div>
         </>

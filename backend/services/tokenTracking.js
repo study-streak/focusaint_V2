@@ -3,8 +3,9 @@ import LLMTokenUsage from "../models/LLMTokenUsage.js"
 
 // Token limits by tier
 const TOKEN_LIMITS = {
-  free: 1000,
-  premium: 10000,
+  free: 5000,
+  premium: 20000,
+  pro: 100000,
 }
 
 /**

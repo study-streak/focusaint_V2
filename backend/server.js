@@ -45,7 +45,7 @@ import { metricsMiddleware } from "./services/metrics.js"
 import reminderScheduler from "./services/reminderScheduler.js"
 
 // Load environment variables
-dotenv.config("")
+dotenv.config()
 
 // Validate environment variables before starting the application
 validateEnvOrExit()
