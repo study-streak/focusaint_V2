@@ -458,29 +458,58 @@ export async function updateStreak(userId) {
       throw new Error("User not found for streak update")
     }
 
-    const streakRecord = (await StreakRecord.findOne({ userId })) || (await StreakRecord.create({ userId }))
+    let streakRecord = await StreakRecord.findOne({ userId })
+    if (!streakRecord) {
+      streakRecord = await StreakRecord.create({ 
+        userId,
+        currentStreak: user.currentStreak || 0,
+        longestStreak: user.longestStreak || 0,
+        totalSessions: user.totalSessions || 0
+      })
+    }
+
+    // Synchronize if they are out of sync (favoring User model as it might be the legacy source)
+    if (user.currentStreak > streakRecord.currentStreak) {
+      streakRecord.currentStreak = user.currentStreak
+    } else if (streakRecord.currentStreak > user.currentStreak) {
+      user.currentStreak = streakRecord.currentStreak
+    }
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
 
+    const todayString = today.toDateString()
+    const yesterdayString = yesterday.toDateString()
+
+    // Check if session completed today
     const todaySession = await HabitSession.findOne({
       userId,
       sessionDate: today,
       status: "completed",
     })
 
-    if (!todaySession) return
+    if (!todaySession) {
+      console.log(`[Streak] No completed session found for today (${todayString}) for user ${userId}`)
+      return
+    }
 
     const lastActiveDate = streakRecord.lastActiveDate
+    const lastActiveString = lastActiveDate ? lastActiveDate.toDateString() : null
 
-    if (!lastActiveDate || lastActiveDate.toDateString() === yesterday.toDateString()) {
+    if (!lastActiveDate || lastActiveString === yesterdayString) {
+      // First time or continued streak
       user.currentStreak += 1
       if (user.currentStreak > user.longestStreak) {
         user.longestStreak = user.currentStreak
       }
-    } else if (lastActiveDate.toDateString() !== today.toDateString()) {
+      console.log(`[Streak] Incrementing streak for user ${userId}: ${user.currentStreak - 1} -> ${user.currentStreak}`)
+    } else if (lastActiveString === todayString) {
+      // Already updated today
+      console.log(`[Streak] Already updated today for user ${userId}. Current streak: ${user.currentStreak}`)
+    } else {
+      // Missed a day, reset to 1
       if (streakRecord.currentStreak > 0) {
         streakRecord.streakHistory.push({
           startDate: streakRecord.lastActiveDate,
@@ -489,6 +518,7 @@ export async function updateStreak(userId) {
         })
       }
       user.currentStreak = 1
+      console.log(`[Streak] Resetting streak for user ${userId} (Last active: ${lastActiveString}, Today: ${todayString})`)
     }
 
     streakRecord.currentStreak = user.currentStreak
@@ -498,6 +528,8 @@ export async function updateStreak(userId) {
 
     await user.save()
     await streakRecord.save()
+    
+    return user.currentStreak
   } catch (error) {
     console.error("updateStreak helper error:", error)
     throw error

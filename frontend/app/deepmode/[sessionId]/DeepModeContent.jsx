@@ -329,14 +329,14 @@ export default function DeepModeContent() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-[var(--black)] text-white overflow-hidden font-sans">
+        <div className="flex flex-col h-screen bg-[var(--black)] text-[var(--white)] overflow-hidden font-sans">
             {/* Top Navigation HUD */}
-            <div className="relative z-10 flex items-center justify-between p-4 border-b border-white/5 bg-[var(--black)]/80 backdrop-blur-md">
+            <div className="relative z-10 flex items-center justify-between p-4 border-b border-[var(--line)] bg-[var(--black)]/80 backdrop-blur-md">
                 <div className="flex items-center gap-3">
                     <div className="w-3 h-3 rounded-full bg-[var(--accent)] animate-pulse" />
                     <span className="font-mono text-sm tracking-widest text-[var(--accent)] uppercase hidden sm:inline">Deep Mode</span>
                     {/* Live session time indicator */}
-                    <span className="text-[10px] sm:text-xs text-gray-500 font-mono ml-0 sm:ml-2">
+                    <span className="text-[10px] sm:text-xs text-[var(--muted)] font-mono ml-0 sm:ml-2">
                         {getElapsedFocusedTime()} focused
                     </span>
                 </div>
@@ -350,7 +350,7 @@ export default function DeepModeContent() {
                                     layoutId="watch-timer"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="font-mono text-base sm:text-xl font-medium tracking-wider text-white"
+                                    className="font-mono text-base sm:text-xl font-medium tracking-wider text-[var(--white)]"
                                 >
                                     {formatTime(timeRemaining)}
                                 </motion.div>
@@ -358,7 +358,7 @@ export default function DeepModeContent() {
                         </AnimatePresence>
                     </div>
 
-                    <div className="h-6 w-px bg-white/10 hidden sm:block" />
+                    <div className="h-6 w-px bg-[var(--line)] hidden sm:block" />
 
                     <button 
                         onClick={() => setIsAIOpen(!isAIOpen)}
@@ -381,7 +381,7 @@ export default function DeepModeContent() {
                     <button 
                         onClick={() => endSession(true)}
                         disabled={isEnding}
-                        className="flex items-center gap-2 p-2 rounded-full hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 transition-colors"
+                        className="flex items-center gap-2 p-2 rounded-full hover:bg-rose-500/20 text-[var(--muted)] hover:text-rose-400 transition-colors"
                         title="Exit Session"
                     >
                         <X className="w-5 h-5" />
@@ -398,12 +398,12 @@ export default function DeepModeContent() {
                         initial={{ opacity: 1 }}
                         exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
                         transition={{ duration: 0.8, ease: "easeInOut" }}
-                        className="absolute inset-0 z-50 flex items-center justify-center bg-[#020617]/90 backdrop-blur-xl"
+                        className="absolute inset-0 z-50 flex items-center justify-center bg-[var(--black)]/90 backdrop-blur-xl"
                     >
                         <div className="flex flex-col items-center">
                             <motion.div 
                                 layoutId="watch-timer"
-                                className="text-6xl sm:text-9xl font-light tracking-tight text-white font-mono shadow-[0_0_80px_rgba(200,64,42,0.2)] rounded-full p-8 sm:p-12 border border-[var(--accent)]/20"
+                                className="text-6xl sm:text-9xl font-light tracking-tight text-[var(--white)] font-mono shadow-[0_0_80px_rgba(200,64,42,0.2)] rounded-full p-8 sm:p-12 border border-[var(--accent)]/20"
                             >
                                 {formatTime(timeRemaining)}
                             </motion.div>
@@ -411,7 +411,7 @@ export default function DeepModeContent() {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.5 }}
-                                className="mt-8 text-indigo-400 tracking-widest uppercase text-sm"
+                                className="mt-8 text-[var(--accent)] tracking-widest uppercase text-sm"
                             >
                                 Immersive Focus Initializing...
                             </motion.p>
@@ -425,12 +425,12 @@ export default function DeepModeContent() {
                 {/* Content Container (Left) */}
                 <div className={`transition-all duration-500 flex flex-col ${isFullscreenContent ? 'w-full' : 'w-full md:w-[65%]'}`}>
                     <div className="flex-1 p-3 sm:p-6 relative min-h-[300px]">
-                        <div id="video-player-container" className="w-full h-full bg-black rounded-2xl border border-white/10 overflow-hidden relative group">
+                        <div id="video-player-container" className="w-full h-full bg-black rounded-2xl border border-[var(--line)] overflow-hidden relative group">
                             {/* Toolbar overlay */}
                             <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button 
                                     onClick={() => setIsFullscreenContent(!isFullscreenContent)}
-                                    className="p-2 bg-black/50 backdrop-blur border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+                                    className="p-2 bg-black/50 backdrop-blur border border-[var(--line)] rounded-lg hover:bg-white/10 transition-colors"
                                 >
                                     {isFullscreenContent ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
                                 </button>
@@ -444,7 +444,7 @@ export default function DeepModeContent() {
                                     allowFullScreen
                                 />
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-500">
+                                <div className="w-full h-full flex items-center justify-center text-[var(--muted)]">
                                     No material loaded
                                 </div>
                             )}
@@ -452,12 +452,12 @@ export default function DeepModeContent() {
                     </div>
                     
                     {/* Controls */}
-                    <div className="h-20 border-t border-white/5 flex items-center justify-center gap-6 bg-white/5">
+                    <div className="h-20 border-t border-[var(--line)] flex items-center justify-center gap-6 bg-[var(--surface)]">
                         <button 
                             onClick={() => setIsActive(!isActive)}
-                            className="w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                            className="w-12 h-12 flex items-center justify-center rounded-full bg-[var(--accent)]/10 hover:bg-[var(--accent)]/20 transition-colors"
                         >
-                            {isActive ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 ml-1 text-white" />}
+                            {isActive ? <Pause className="w-5 h-5 text-[var(--white)]" /> : <Play className="w-5 h-5 ml-1 text-[var(--white)]" />}
                         </button>
                     </div>
                 </div>
@@ -467,7 +467,7 @@ export default function DeepModeContent() {
                     <motion.div 
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="w-full md:w-[35%] h-[40%] md:h-full relative z-10 border-t md:border-t-0 md:border-l border-white/10"
+                        className="w-full md:w-[35%] h-[40%] md:h-full relative z-10 border-t md:border-t-0 md:border-l border-[var(--line)]"
                     >
                         <NotesSection 
                             goalTitle={taskData?.title || "Focus Goal"} 

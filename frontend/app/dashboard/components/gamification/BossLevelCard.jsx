@@ -79,7 +79,7 @@ export default function BossLevelCard({ data }) {
     return (
         <div
             className={`relative p-5 rounded-xl border ${difficultyStyles[difficulty]
-                } bg-[#020617] overflow-hidden`}
+                } bg-[var(--black)] overflow-hidden shadow-lg`}
         >
 
             {/* 🔥 INTENSE GLOW */}
@@ -96,10 +96,10 @@ export default function BossLevelCard({ data }) {
 
                 <div className="flex items-center gap-2">
                     <Skull className="text-red-400" />
-                    <p className="text-sm text-gray-300">Boss Challenge</p>
+                    <p className="text-sm text-[var(--muted)]">Boss Challenge</p>
                 </div>
 
-                <span className="text-[10px] text-gray-400 uppercase">
+                <span className="text-[10px] text-[var(--muted)] uppercase">
                     {difficulty}
                 </span>
             </div>
@@ -107,11 +107,11 @@ export default function BossLevelCard({ data }) {
             {/* CONTENT */}
             <div className="mb-4">
 
-                <p className="text-base font-semibold">
+                <p className="text-base font-semibold text-[var(--white)]">
                     {title}
                 </p>
 
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-[var(--muted)] mt-1">
                     {duration} min focus required
                 </p>
 
@@ -119,7 +119,7 @@ export default function BossLevelCard({ data }) {
 
             {/* STATE */}
             {!unlocked && (
-                <div className="flex items-center gap-2 text-gray-500 text-sm">
+                <div className="flex items-center gap-2 text-[var(--muted)] opacity-60 text-sm">
                     <Lock size={16} />
                     Locked — Complete more sessions
                 </div>

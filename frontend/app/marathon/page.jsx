@@ -2,15 +2,15 @@
 
 import dynamic from "next/dynamic"
 
-const GoalsContent = dynamic(() => import("./GoalsContent"), {
+const MarathonContent = dynamic(() => import("./MarathonContent"), {
     ssr: false,
     loading: () => (
         <div className="min-h-screen flex items-center justify-center text-[var(--white)] bg-[var(--black)]">
-            Loading...
+            Loading Marathon Challenge...
         </div>
     ),
 })
 
-export default function GoalsPage() {
-    return <GoalsContent />
+export default function MarathonPage() {
+    return <MarathonContent />
 }

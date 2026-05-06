@@ -16,37 +16,67 @@ import { SessionLimitError } from "../utils/errors.js"
 /**
  * Helper: Update streak when a task is completed on its assigned date
  */
+/**
+ * Helper: Update streak when a task is completed on its assigned date
+ */
 async function updateStreakFromTask(userId) {
   try {
+    await connectToMongo()
+
     const user = await User.findById(userId)
     if (!user) {
       throw new Error("User not found for task-based streak update")
     }
 
-    const streakRecord = (await StreakRecord.findOne({ userId })) || (await StreakRecord.create({ userId }))
+    let streakRecord = await StreakRecord.findOne({ userId })
+    if (!streakRecord) {
+      streakRecord = await StreakRecord.create({ 
+        userId,
+        currentStreak: user.currentStreak || 0,
+        longestStreak: user.longestStreak || 0,
+        totalSessions: user.totalSessions || 0
+      })
+    }
+
+    // Synchronize if they are out of sync
+    if (user.currentStreak > streakRecord.currentStreak) {
+      streakRecord.currentStreak = user.currentStreak
+    } else if (streakRecord.currentStreak > user.currentStreak) {
+      user.currentStreak = streakRecord.currentStreak
+    }
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     const yesterday = new Date(today)
     yesterday.setDate(yesterday.getDate() - 1)
 
-    const lastActiveDate = streakRecord.lastActiveDate
-    const todayString = today.toISOString().split("T")[0]
+    const todayString = today.toDateString()
+    const yesterdayString = yesterday.toDateString()
+    const todayISO = today.toISOString().split("T")[0]
 
     const completedTaskToday = await HabitTask.findOne({
       userId,
-      assignedDate: todayString,
+      assignedDate: todayISO,
       completed: true,
     })
 
-    if (!completedTaskToday) return
+    if (!completedTaskToday) {
+      console.log(`[StreakTask] No completed task found for today (${todayISO}) for user ${userId}`)
+      return
+    }
 
-    if (!lastActiveDate || lastActiveDate.toDateString() === yesterday.toDateString()) {
+    const lastActiveDate = streakRecord.lastActiveDate
+    const lastActiveString = lastActiveDate ? lastActiveDate.toDateString() : null
+
+    if (!lastActiveDate || lastActiveString === yesterdayString) {
       user.currentStreak += 1
       if (user.currentStreak > user.longestStreak) {
         user.longestStreak = user.currentStreak
       }
-    } else if (lastActiveDate.toDateString() !== today.toDateString()) {
+      console.log(`[StreakTask] Incrementing streak for user ${userId}: ${user.currentStreak - 1} -> ${user.currentStreak}`)
+    } else if (lastActiveString === todayString) {
+      console.log(`[StreakTask] Already updated today for user ${userId}. Current streak: ${user.currentStreak}`)
+    } else {
       if (streakRecord.currentStreak > 0) {
         streakRecord.streakHistory.push({
           startDate: streakRecord.lastActiveDate,
@@ -55,6 +85,7 @@ async function updateStreakFromTask(userId) {
         })
       }
       user.currentStreak = 1
+      console.log(`[StreakTask] Resetting streak for user ${userId} (Last active: ${lastActiveString}, Today: ${todayString})`)
     }
 
     streakRecord.currentStreak = user.currentStreak

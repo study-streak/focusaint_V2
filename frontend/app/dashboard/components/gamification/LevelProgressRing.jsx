@@ -63,7 +63,7 @@ export default function LevelProgressRing({ data }) {
         <div className="flex flex-col items-center justify-center p-6">
 
             {/* 🧠 TITLE */}
-            <p className="text-xs text-gray-400 mb-2">Level Progress</p>
+            <p className="text-xs text-[var(--muted)] mb-2">Level Progress</p>
 
             {/* 🔵 RING */}
             <div className="relative w-36 h-36">
@@ -75,8 +75,8 @@ export default function LevelProgressRing({ data }) {
                         cx="50%"
                         cy="50%"
                         r={radius}
-                        stroke="#1f2937"
-                        strokeWidth="10"
+                        stroke="var(--surface)"
+                        strokeWidth="12"
                         fill="transparent"
                     />
 
@@ -86,7 +86,7 @@ export default function LevelProgressRing({ data }) {
                         cy="50%"
                         r={radius}
                         stroke="var(--accent2)"
-                        strokeWidth="10"
+                        strokeWidth="12"
                         fill="transparent"
 
                         strokeDasharray={circumference}
@@ -108,12 +108,12 @@ export default function LevelProgressRing({ data }) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
 
-                        className="text-xl font-bold"
+                        className="text-2xl font-bold text-[var(--white)]"
                     >
                         Lv {level}
                     </motion.span>
 
-                    <span className="text-[10px] text-gray-400">
+                    <span className="text-[10px] text-[var(--muted)]">
                         {progress} XP
                     </span>
 

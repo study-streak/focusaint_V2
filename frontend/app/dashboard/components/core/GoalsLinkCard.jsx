@@ -10,7 +10,7 @@ export default function GoalsLinkCard({ data }) {
             <motion.div
                 whileHover={{ scale: 1.02, y: -4 }}
                 whileTap={{ scale: 0.98 }}
-                className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 p-6 flex flex-col justify-between h-full min-h-[160px] group transition-all duration-500"
+                className="relative overflow-hidden rounded-2xl bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] p-6 flex flex-col justify-between h-full min-h-[160px] group transition-all duration-500 shadow-sm"
             >
                 {/* Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/20 via-[var(--accent2)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -19,16 +19,16 @@ export default function GoalsLinkCard({ data }) {
                     <div className="p-3 bg-[var(--accent)]/20 rounded-xl">
                         <Target className="w-6 h-6 text-[var(--accent)]" />
                     </div>
-                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[var(--accent)]/20 transition-colors">
-                        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
+                    <div className="w-8 h-8 rounded-full bg-[var(--white)]/5 flex items-center justify-center group-hover:bg-[var(--accent)]/20 transition-colors">
+                        <ArrowRight className="w-4 h-4 text-[var(--muted)] group-hover:text-[var(--white)] transition-colors" />
                     </div>
                 </div>
 
                 <div className="relative z-10 mt-6">
-                    <h3 className="text-xl font-serif font-semibold text-white tracking-tight mb-1">
+                    <h3 className="text-xl font-serif font-semibold text-[var(--white)] tracking-tight mb-1">
                         My Goals
                     </h3>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-[var(--muted)]">
                         {data?.activeGoals || 0} active goals • View Planners
                     </p>
                 </div>

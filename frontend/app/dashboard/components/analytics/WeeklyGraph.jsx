@@ -63,10 +63,10 @@ export default function WeeklyGraph({ data }) {
     const max = Math.max(...weeklyData.map(d => d.minutes), 100)
 
     return (
-        <div className="bg-[#020617] border border-white/5 rounded-xl p-5">
+        <div className="bg-[var(--black)] border border-[var(--line)] rounded-xl p-5">
 
             {/* HEADER */}
-            <p className="text-sm text-gray-300 mb-4">
+            <p className="text-sm text-[var(--muted)] mb-4">
                 Weekly Focus
             </p>
 
@@ -89,12 +89,12 @@ export default function WeeklyGraph({ data }) {
                             />
 
                             {/* VALUE */}
-                            <span className="text-[10px] text-gray-400">
+                            <span className="text-[10px] text-[var(--muted)]">
                                 {d.minutes}
                             </span>
 
                             {/* LABEL */}
-                            <span className="text-[10px] text-gray-500">
+                            <span className="text-[10px] text-[var(--muted)] opacity-60">
                                 {d.day}
                             </span>
 
@@ -105,7 +105,7 @@ export default function WeeklyGraph({ data }) {
             </div>
 
             {/* FOOTER */}
-            <p className="text-xs text-gray-500 mt-4 text-center">
+            <p className="text-xs text-[var(--muted)] opacity-70 mt-4 text-center">
                 Track consistency over the week
             </p>
 

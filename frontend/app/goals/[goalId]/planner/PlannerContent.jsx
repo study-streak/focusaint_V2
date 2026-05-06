@@ -211,11 +211,11 @@ export default function PlannerContent() {
     }
 
     if (isLoading) {
-        return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center">Loading...</div>
+        return <div className="min-h-screen bg-[var(--black)] text-[var(--white)] flex items-center justify-center">Loading...</div>
     }
 
     if (!task) {
-        return <div className="min-h-screen bg-[#020617] text-white flex items-center justify-center">Goal not found</div>
+        return <div className="min-h-screen bg-[var(--black)] text-[var(--white)] flex items-center justify-center">Goal not found</div>
     }
 
     const totalDuration = task.proctoredSessions?.reduce((acc, curr) => acc + (curr.duration || 0), 0) || 0
@@ -225,14 +225,14 @@ export default function PlannerContent() {
             <div className="pb-24">
 
                 <div className="px-6 mt-8 mb-8">
-                    <Link href="/goals" className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors mb-4">
+                    <Link href="/goals" className="inline-flex items-center text-sm text-[var(--muted)] hover:text-[var(--white)] transition-colors mb-4">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Goals
                     </Link>
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div>
-                            <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight">{task.title}</h1>
-                            <p className="text-gray-400 mt-2 text-sm sm:text-base">
+                            <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight text-[var(--white)]">{task.title}</h1>
+                            <p className="text-[var(--muted)] mt-2 text-sm sm:text-base">
                                 Goal Planner • {task.deadline ? `Deadline: ${task.deadline}` : 'No deadline set'}
                             </p>
                         </div>
@@ -242,7 +242,7 @@ export default function PlannerContent() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => startDeepMode()}
                             disabled={isStarting || !task.attachments?.length}
-                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-semibold shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="bg-[var(--accent)] hover:opacity-90 text-white px-8 py-4 rounded-2xl font-semibold shadow-lg flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {isStarting ? (
                                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -261,44 +261,44 @@ export default function PlannerContent() {
                     <div className="md:col-span-2">
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h2 className="text-xl sm:text-2xl font-serif font-semibold bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">Learning Roadmap</h2>
-                                <p className="text-sm text-gray-400 mt-1">Master each level to reach your goal.</p>
+                                <h2 className="text-xl sm:text-2xl font-serif font-semibold bg-gradient-to-r from-[var(--white)] to-[var(--muted)] bg-clip-text text-transparent">Learning Roadmap</h2>
+                                <p className="text-sm text-[var(--muted)] mt-1">Master each level to reach your goal.</p>
                             </div>
                             <button
                                 onClick={() => setShowAddMaterial(!showAddMaterial)}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-[var(--accent)] hover:text-[var(--accent)] hover:bg-white/10 transition-all"
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl bg-[var(--card)] border border-[var(--line)] text-xs sm:text-sm text-[var(--accent)] hover:opacity-80 transition-all"
                             >
                                 <Plus className="w-4 h-4" /> Add Level
                             </button>
                         </div>
 
                         {showAddMaterial && (
-                            <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl mb-12 space-y-4 shadow-2xl">
+                            <div className="p-6 rounded-3xl bg-[var(--card)] border border-[var(--line)] backdrop-blur-xl mb-12 space-y-4 shadow-2xl">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Level Name</label>
+                                        <label className="text-xs font-mono tracking-widest uppercase text-[var(--muted)] mb-2 block">Level Name</label>
                                         <input
                                             type="text"
                                             value={customName}
                                             onChange={(e) => setCustomName(e.target.value)}
                                             placeholder="e.g. Core Concepts"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+                                            className="w-full bg-[var(--surface)] border border-[var(--line)] rounded-xl px-4 py-3 text-[var(--white)] focus:outline-none focus:border-[var(--accent)] transition-colors text-sm"
                                         />
                                     </div>
                                     <div>
-                                        <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Resource URL</label>
+                                        <label className="text-xs font-mono tracking-widest uppercase text-[var(--muted)] mb-2 block">Resource URL</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="url"
                                                 value={newLink}
                                                 onChange={(e) => setNewLink(e.target.value)}
                                                 placeholder="YouTube or Web link"
-                                                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors text-sm"
+                                                className="flex-1 bg-[var(--surface)] border border-[var(--line)] rounded-xl px-4 py-3 text-[var(--white)] focus:outline-none focus:border-[var(--accent)] transition-colors text-sm"
                                             />
                                             <button
                                                 onClick={handleAddLink}
                                                 disabled={isUploading || !newLink || playlistLoading}
-                                                className="px-6 py-3 bg-indigo-600 rounded-xl text-sm font-semibold disabled:opacity-50 transition-all hover:bg-indigo-500 hover:scale-[1.02] active:scale-[0.98]"
+                                                className="px-6 py-3 bg-[var(--accent)] text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
                                             >
                                                 {playlistLoading ? "..." : "Add"}
                                             </button>
@@ -306,13 +306,13 @@ export default function PlannerContent() {
                                     </div>
                                 </div>
                                 <div className="pt-2">
-                                    <label className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-2 block">Or Upload PDF</label>
-                                    <div className="flex gap-4 items-center p-3 rounded-2xl bg-white/5 border border-dashed border-white/10">
+                                    <label className="text-xs font-mono tracking-widest uppercase text-[var(--muted)] mb-2 block">Or Upload PDF</label>
+                                    <div className="flex gap-4 items-center p-3 rounded-2xl bg-[var(--surface)] border border-dashed border-[var(--line)]">
                                         <input
                                             type="file"
                                             accept=".pdf"
                                             onChange={(e) => setNewFile(e.target.files[0])}
-                                            className="flex-1 text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-500/10 file:text-indigo-400 hover:file:bg-indigo-500/20 cursor-pointer"
+                                            className="flex-1 text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--accent)]/10 file:text-[var(--accent)] hover:file:bg-[var(--accent)]/20 cursor-pointer"
                                         />
                                         {newFile && (
                                             <button
@@ -329,12 +329,12 @@ export default function PlannerContent() {
                         )}
 
                         {!task.attachments?.length ? (
-                            <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl bg-white/5">
-                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                    <Plus className="w-8 h-8 text-gray-600" />
+                            <div className="py-20 text-center border border-dashed border-[var(--line)] rounded-3xl bg-[var(--card)]">
+                                <div className="w-16 h-16 rounded-full bg-[var(--surface)] flex items-center justify-center mx-auto mb-4">
+                                    <Plus className="w-8 h-8 text-[var(--muted)]" />
                                 </div>
-                                <h3 className="text-lg font-medium text-gray-300">Your roadmap is empty</h3>
-                                <p className="text-gray-400 mt-2 text-sm">Add materials to start your learning quest.</p>
+                                <h3 className="text-lg font-medium text-[var(--muted)]">Your roadmap is empty</h3>
+                                <p className="text-[var(--muted)] mt-2 text-sm">Add materials to start your learning quest.</p>
                             </div>
                         ) : (
                             <div className="relative pt-10 pb-20 px-4">
@@ -361,9 +361,9 @@ export default function PlannerContent() {
                                                 {/* Content Card */}
                                                 <div className={`w-full md:w-[45%] md:${isOdd ? 'text-right' : 'text-left'} text-left`}>
                                                     <div className={`inline-block w-full p-4 sm:p-6 rounded-3xl backdrop-blur-xl border transition-all duration-500 group ${
-                                                        isCompleted ? 'bg-[#4a8a4a]/5 border-[#4a8a4a]/20 shadow-[0_0_50px_-12px_rgba(74,138,74,0.1)]' : 
-                                                        isNext ? 'bg-[var(--accent)]/10 border-[var(--accent)]/30 shadow-[0_0_50px_-12px_rgba(200,64,42,0.2)]' :
-                                                        'bg-white/5 border-white/10 opacity-60'
+                                                        isCompleted ? 'bg-[#4a8a4a]/5 border-[#4a8a4a]/20 shadow-lg' : 
+                                                        isNext ? 'bg-[var(--accent)]/10 border-[var(--accent)]/30 shadow-xl' :
+                                                        'bg-[var(--card)] border-[var(--line)] opacity-60'
                                                     }`}>
                                                         <div className={`flex items-center gap-3 mb-3 md:${isOdd ? 'flex-row-reverse' : 'flex-row'} flex-row`}>
                                                             {att.url?.includes('youtube') ? (
@@ -371,12 +371,12 @@ export default function PlannerContent() {
                                                             ) : att.type === 'file' ? (
                                                                 <FileText className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-blue-400'}`} />
                                                             ) : (
-                                                                <LinkIcon className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-[#4a8a4a]'}`} />
+                                                                <LinkIcon className={`w-5 h-5 ${isCompleted ? 'text-[#4a8a4a]' : 'text-[var(--accent)]'}`} />
                                                             )}
-                                                            <span className="text-[10px] font-mono tracking-widest uppercase text-gray-400">Level {index + 1}</span>
+                                                            <span className="text-[10px] font-mono tracking-widest uppercase text-[var(--muted)]">Level {index + 1}</span>
                                                         </div>
 
-                                                        <h4 className={`text-lg font-serif font-medium mb-2 ${isCompleted ? 'text-[#4a8a4a]/80 line-through decoration-[#4a8a4a]/40' : 'text-white'}`}>
+                                                        <h4 className={`text-lg font-serif font-medium mb-2 ${isCompleted ? 'text-[#4a8a4a]/80 line-through decoration-[#4a8a4a]/40' : 'text-[var(--white)]'}`}>
                                                             {att.name || 'Untitled Material'}
                                                         </h4>
 
@@ -392,8 +392,8 @@ export default function PlannerContent() {
                                                                 onClick={() => startDeepMode(att._id)}
                                                                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
                                                                     isCompleted ? 'bg-[#4a8a4a]/10 text-[#4a8a4a] border border-[#4a8a4a]/20 hover:bg-[#4a8a4a]/20' :
-                                                                    isNext ? 'bg-[var(--accent)] text-white shadow-lg hover:bg-[var(--accent)]/80 hover:scale-105' :
-                                                                    'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                                                                    isNext ? 'bg-[var(--accent)] text-white shadow-lg hover:opacity-90 hover:scale-105' :
+                                                                    'bg-[var(--surface)] text-[var(--muted)] border border-[var(--line)] hover:bg-[var(--card)]'
                                                                 }`}
                                                             >
                                                                 {isCompleted ? 'Review Level' : isNext ? 'Start Quest' : 'Locked'}
@@ -418,7 +418,7 @@ export default function PlannerContent() {
                                                         {isCompleted ? (
                                                             <CheckCircle2 className="w-5 h-5 md:w-6 md:h-6 text-white" />
                                                         ) : (
-                                                            <span className={`font-serif text-lg md:text-xl ${isNext ? 'text-white' : 'text-gray-600'}`}>{index + 1}</span>
+                                                            <span className={`font-serif text-lg md:text-xl ${isNext ? 'text-white' : 'text-[var(--muted)]'}`}>{index + 1}</span>
                                                         )}
                                                     </div>
                                                     {/* Orbiting Ring for Active Node */}
@@ -435,13 +435,13 @@ export default function PlannerContent() {
                                 <div className="mt-32 text-center relative">
                                     <div className="absolute top-0 left-1/2 -translate-x-1/2 h-20 w-px bg-gradient-to-b from-indigo-500/20 to-transparent -translate-y-full" />
                                     <div className={`w-20 h-20 rounded-3xl mx-auto flex items-center justify-center border transition-all duration-1000 ${
-                                        task.completed ? 'bg-[var(--accent)] border-[var(--accent)]/30 shadow-[0_0_100px_-10px_rgba(200,64,42,0.6)] scale-110' : 'bg-white/5 border-white/10'
+                                        task.completed ? 'bg-[var(--accent)] border-[var(--accent)]/30 shadow-xl scale-110' : 'bg-[var(--card)] border-[var(--line)]'
                                     }`}>
-                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className={task.completed ? 'text-white' : 'text-gray-700'}>
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className={task.completed ? 'text-white' : 'text-[var(--muted)]'}>
                                             <path d="M4 15V4M4 4H14.5L15.5 6H20V15H11.5L10.5 13H4M4 13V21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                         </svg>
                                     </div>
-                                    <h3 className={`mt-6 font-serif text-2xl ${task.completed ? 'text-white' : 'text-gray-400'}`}>
+                                    <h3 className={`mt-6 font-serif text-2xl ${task.completed ? 'text-[var(--white)]' : 'text-[var(--muted)]'}`}>
                                         {task.completed ? 'Goal Conquered!' : 'Reach the Peak'}
                                     </h3>
                                 </div>
@@ -451,12 +451,12 @@ export default function PlannerContent() {
 
                     {/* Stats Sidebar */}
                     <div className="space-y-6">
-                        <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-md">
+                        <div className="p-6 rounded-3xl bg-[var(--card)] border border-[var(--line)] backdrop-blur-md">
                             <div className="flex items-center gap-3 mb-4">
-                                <Calendar className="w-5 h-5 text-indigo-400" />
-                                <h3 className="font-medium">Goal Status</h3>
+                                <Calendar className="w-5 h-5 text-[var(--accent)]" />
+                                <h3 className="font-medium text-[var(--white)]">Goal Status</h3>
                             </div>
-                            <p className="text-sm text-gray-400 leading-relaxed">
+                            <p className="text-sm text-[var(--muted)] leading-relaxed">
                                 {task.completed ? "You have completed this goal." : `Consistency is key. You've completed ${task.attachments?.filter(a => a.completed).length || 0} out of ${task.attachments?.length || 0} materials.`}
                             </p>
                             <button
@@ -465,7 +465,7 @@ export default function PlannerContent() {
                                     else await APIClient.patch(`/api/plan/task/${goalId}/complete`);
                                     fetchTask();
                                 }}
-                                className="mt-6 w-full py-2.5 rounded-xl border border-white/10 text-sm hover:bg-white/5 transition-colors text-white"
+                                className="mt-6 w-full py-2.5 rounded-xl border border-[var(--line)] text-sm hover:bg-[var(--surface)] transition-colors text-[var(--white)]"
                             >
                                 Mark as {task.completed ? 'Incomplete' : 'Complete'}
                             </button>
@@ -473,20 +473,20 @@ export default function PlannerContent() {
                             {task.deadline && !task.completed && (
                                 <button
                                     onClick={handleAutoSchedule}
-                                    className="mt-3 w-full py-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 text-sm hover:bg-indigo-600/30 transition-colors"
+                                    className="mt-3 w-full py-2.5 rounded-xl bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20 text-sm hover:bg-[var(--accent)]/20 transition-colors"
                                 >
                                     Auto-Schedule Materials
                                 </button>
                             )}
                         </div>
 
-                        <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-500/10 to-purple-500/5 border border-white/10 backdrop-blur-md">
-                            <h3 className="font-medium mb-2">Deep Mode Impact</h3>
-                            <p className="text-sm text-gray-400 leading-relaxed mb-4">
+                        <div className="p-6 rounded-3xl bg-gradient-to-br from-[var(--accent)]/10 to-[var(--gold)]/5 border border-[var(--line)] backdrop-blur-md">
+                            <h3 className="font-medium mb-2 text-[var(--white)]">Deep Mode Impact</h3>
+                            <p className="text-sm text-[var(--muted)] leading-relaxed mb-4">
                                 Total time spent focusing on this goal.
                             </p>
-                            <div className="text-3xl font-light text-white">
-                                {Math.floor(totalDuration / 60)}h <span className="text-sm text-gray-500">{totalDuration % 60}m</span>
+                            <div className="text-3xl font-light text-[var(--white)]">
+                                {Math.floor(totalDuration / 60)}h <span className="text-sm text-[var(--muted)]">{totalDuration % 60}m</span>
                             </div>
                         </div>
                     </div>

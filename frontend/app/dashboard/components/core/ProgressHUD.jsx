@@ -40,13 +40,14 @@ const fallback = {
 }
 
 // 🔹 helper
-const getLevelFromXP = (xp) => Math.floor(xp / 100) || 1
+// 🔹 helper (match backend: 500 XP per level)
+const getLevelFromXP = (xp) => Math.floor(xp / 500) || 1
 
 export default function ProgressHUD({ data }) {
     // 🔹 dynamic + fallback
     const xp = data?.xp ?? fallback.xp
     const level = data?.level ?? getLevelFromXP(xp)
-    const energy = data?.energy ?? fallback.energy
+    const energy = Math.round(data?.energy ?? fallback.energy)
     
     // Handle both number and object formats for streak
     const streakObj = data?.streak;
@@ -71,13 +72,13 @@ export default function ProgressHUD({ data }) {
 
             {/* 🔥 STREAK CARD */}
             <motion.div
-                whileHover={{ scale: 1.06 }}
-                className="relative bg-gradient-to-br from-[var(--accent)]/20 to-transparent p-4 rounded-xl overflow-hidden border border-[var(--accent)]/10"
+                whileHover={{ scale: 1.06, y: -4 }}
+                className="relative bg-[var(--card)] bg-gradient-to-br from-[var(--accent)]/10 to-transparent p-4 rounded-xl overflow-hidden border border-[var(--line)] shadow-md hover:shadow-xl transition-all"
             >
                 <Flame className="text-[var(--accent)] mb-2" />
 
-                <p className="text-xs text-gray-400 font-mono tracking-wider">STREAK</p>
-                <p className="text-lg font-bold">{streak} days</p>
+                <p className="text-xs text-[var(--muted)] font-mono tracking-wider">STREAK</p>
+                <p className="text-lg font-bold text-[var(--white)]">{streak} days</p>
 
                 {/* glow */}
                 <motion.div
@@ -89,14 +90,14 @@ export default function ProgressHUD({ data }) {
 
             {/* ⚡ ENERGY CARD */}
             <motion.div
-                whileHover={{ scale: 1.06 }}
-                className="bg-gradient-to-br from-[var(--gold)]/20 to-transparent p-4 rounded-xl border border-[var(--gold)]/10"
+                whileHover={{ scale: 1.06, y: -4 }}
+                className="bg-[var(--card)] bg-gradient-to-br from-[var(--gold)]/10 to-transparent p-4 rounded-xl border border-[var(--line)] shadow-md hover:shadow-xl transition-all"
             >
                 <Zap className="text-[var(--gold)] mb-2" />
 
-                <p className="text-xs text-gray-400 font-mono tracking-wider">ENERGY</p>
+                <p className="text-xs text-[var(--muted)] font-mono tracking-wider">ENERGY</p>
 
-                <div className="w-full bg-gray-800 h-2 rounded-full mt-1">
+                <div className="w-full bg-[var(--surface)] h-2 rounded-full mt-1">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${energy}%` }}
@@ -105,25 +106,25 @@ export default function ProgressHUD({ data }) {
                     />
                 </div>
 
-                <p className="text-xs mt-1">{energy}%</p>
+                <p className="text-xs mt-1 text-[var(--white)]">{energy}%</p>
             </motion.div>
 
             {/* 🏆 XP + LEVEL CARD (MOST IMPORTANT) */}
             <motion.div
-                whileHover={{ scale: 1.06 }}
-                className="relative bg-gradient-to-br from-[var(--accent2)]/20 to-transparent p-4 rounded-xl col-span-2 border border-[var(--accent2)]/10"
+                whileHover={{ scale: 1.05, y: -4 }}
+                className="relative bg-[var(--card)] bg-gradient-to-br from-[var(--accent2)]/10 to-transparent p-4 rounded-xl col-span-2 border border-[var(--line)] shadow-md hover:shadow-xl transition-all"
             >
                 <div className="flex justify-between items-center mb-2">
                     <div>
-                        <p className="text-xs text-gray-400 font-mono tracking-wider">RANK</p>
-                        <p className="text-lg font-serif font-bold italic tracking-tight">{rank}</p>
+                        <p className="text-xs text-[var(--muted)] font-mono tracking-wider">RANK</p>
+                        <p className="text-lg font-serif font-bold italic tracking-tight text-[var(--white)]">{rank}</p>
                     </div>
 
                     <Trophy className="text-[var(--accent2)]" />
                 </div>
 
                 {/* XP BAR */}
-                <div className="w-full bg-gray-800 h-3 rounded-full overflow-hidden border border-white/5">
+                <div className="w-full bg-[var(--surface)] h-3 rounded-full overflow-hidden border border-[var(--line)]">
                     <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${xpProgress}%` }}
@@ -133,7 +134,7 @@ export default function ProgressHUD({ data }) {
                 </div>
 
                 {/* XP TEXT */}
-                <div className="flex justify-between text-xs mt-1 text-gray-400">
+                <div className="flex justify-between text-xs mt-1 text-[var(--muted)]">
                     <span>{xpProgress} / 100 XP</span>
                     <span>Total: {xp}</span>
                 </div>
@@ -157,13 +158,13 @@ export default function ProgressHUD({ data }) {
 
             {/* 🎯 SESSIONS CARD */}
             <motion.div
-                whileHover={{ scale: 1.06 }}
-                className="bg-gradient-to-br from-[var(--gold)]/20 to-transparent p-4 rounded-xl border border-[var(--gold)]/10"
+                whileHover={{ scale: 1.06, y: -4 }}
+                className="bg-[var(--card)] bg-gradient-to-br from-[var(--gold)]/10 to-transparent p-4 rounded-xl border border-[var(--line)] shadow-md hover:shadow-xl transition-all"
             >
                 <Target className="text-[var(--gold)] mb-2" />
 
-                <p className="text-xs text-gray-400 font-mono tracking-wider">SESSIONS</p>
-                <p className="text-lg font-bold">{sessions}</p>
+                <p className="text-xs text-[var(--muted)] font-mono tracking-wider">SESSIONS</p>
+                <p className="text-lg font-bold text-[var(--white)]">{sessions}</p>
             </motion.div>
 
         </div>

@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body suppressHydrationWarning>{children}</body>
+      <body className="bg-[var(--black)] text-[var(--white)] transition-colors duration-300" suppressHydrationWarning>{children}</body>
     </html>
   )
 }

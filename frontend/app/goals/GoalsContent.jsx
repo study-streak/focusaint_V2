@@ -59,12 +59,12 @@ export default function GoalsContent() {
         <>
             <div className="px-6 mt-8 mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                 <div>
-                    <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-400 hover:text-white transition-colors mb-4">
+                    <Link href="/dashboard" className="inline-flex items-center text-sm text-[var(--muted)] hover:text-[var(--white)] transition-colors mb-4">
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
                     </Link>
-                    <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight">Active Goals</h1>
-                    <p className="text-gray-400 mt-2 text-sm sm:text-base">Select a goal to enter its planner and start Deep Mode.</p>
+                    <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight text-[var(--white)]">Active Goals</h1>
+                    <p className="text-[var(--muted)] mt-2 text-sm sm:text-base">Select a goal to enter its planner and start Deep Mode.</p>
                 </div>
                 
                 <button 
@@ -77,14 +77,14 @@ export default function GoalsContent() {
             </div>
 
             {isLoading ? (
-                <div className="px-6 text-center text-gray-400 py-20">Loading goals...</div>
+                <div className="px-6 text-center text-[var(--muted)] py-20">Loading goals...</div>
             ) : goals.length === 0 ? (
                 <div className="px-6 text-center py-20">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
-                        <Target className="w-8 h-8 text-gray-400" />
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--card)] mb-4">
+                        <Target className="w-8 h-8 text-[var(--muted)]" />
                     </div>
-                    <h3 className="text-xl font-medium text-white mb-2">No active goals found</h3>
-                    <p className="text-gray-400">Click the button above to create your first learning goal.</p>
+                    <h3 className="text-xl font-medium text-[var(--white)] mb-2">No active goals found</h3>
+                    <p className="text-[var(--muted)]">Click the button above to create your first learning goal.</p>
                 </div>
             ) : (
                 <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
@@ -96,7 +96,7 @@ export default function GoalsContent() {
                                 transition={{ delay: idx * 0.1 }}
                                 whileHover={{ scale: 1.02, y: -4 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="relative overflow-hidden rounded-3xl bg-white/5 backdrop-blur-xl border border-white/10 p-8 h-[240px] flex flex-col justify-between group"
+                                className="relative overflow-hidden rounded-3xl bg-[var(--card)] backdrop-blur-xl border border-[var(--line)] p-8 h-[240px] flex flex-col justify-between group"
                             >
                                 <div className={`absolute inset-0 bg-gradient-to-br from-${goal.color}-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                                 
@@ -104,17 +104,17 @@ export default function GoalsContent() {
                                     <div className={`p-4 bg-${goal.color}-500/20 rounded-2xl`}>
                                         {goal.icon}
                                     </div>
-                                    <span className="text-xs font-medium text-gray-400 bg-white/5 px-3 py-1 rounded-full">
+                                    <span className="text-xs font-medium text-[var(--muted)] bg-[var(--line)] px-3 py-1 rounded-full">
                                         {goal.deadline}
                                     </span>
                                 </div>
 
                                 <div className="relative z-10">
-                                    <h3 className="text-2xl font-semibold text-white tracking-tight mb-4 truncate">
+                                    <h3 className="text-2xl font-semibold text-[var(--white)] tracking-tight mb-4 truncate">
                                         {goal.title}
                                     </h3>
                                     
-                                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                                    <div className="w-full h-2 bg-[var(--line)] rounded-full overflow-hidden">
                                         <motion.div 
                                             initial={{ width: 0 }}
                                             animate={{ width: `${goal.progress}%` }}
@@ -122,7 +122,7 @@ export default function GoalsContent() {
                                             className={`h-full bg-${goal.color}-500 rounded-full`} 
                                         />
                                     </div>
-                                    <div className="flex justify-between mt-2 text-sm text-gray-400">
+                                    <div className="flex justify-between mt-2 text-sm text-[var(--muted)]">
                                         <span>Progress</span>
                                         <span>{goal.progress}%</span>
                                     </div>

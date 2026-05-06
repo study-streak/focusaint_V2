@@ -84,7 +84,7 @@ export default function QuickActions({ data }) {
 
                 whileTap={{ scale: 0.9 }}
 
-                className="w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg"
+                className="w-12 h-12 rounded-full bg-[var(--accent)] flex items-center justify-center shadow-lg text-white"
             >
                 <Plus />
             </motion.button>
@@ -97,7 +97,7 @@ export default function QuickActions({ data }) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 10 }}
 
-                        className="absolute bottom-16 right-0 flex flex-col gap-2"
+                        className="absolute bottom-16 right-0 flex flex-col gap-2 min-w-[140px]"
                     >
 
                         {actions.map((a) => (
@@ -108,7 +108,7 @@ export default function QuickActions({ data }) {
 
                                 onClick={() => handleAction(a.type)}
 
-                                className="px-4 py-2 bg-[#020617] border border-white/10 rounded-lg text-sm shadow-md"
+                                className="px-4 py-3 bg-[var(--card)] border border-[var(--line)] rounded-xl text-sm shadow-xl text-[var(--white)] font-medium text-right backdrop-blur-md"
                             >
                                 {a.label}
                             </motion.button>

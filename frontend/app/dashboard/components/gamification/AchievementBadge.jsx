@@ -52,8 +52,7 @@ export default function AchievementBadge({ data }) {
     return (
         <motion.div
             whileHover={{ scale: 1.1 }}
-
-            className="relative flex flex-col items-center justify-center p-3 rounded-lg bg-white/5 border border-white/5 w-20 h-20"
+            className="relative flex flex-col items-center justify-center p-3 rounded-lg bg-[var(--surface)] border border-[var(--line)] w-20 h-20 shadow-sm"
         >
 
             {/* 🔓 UNLOCKED */}
@@ -77,10 +76,10 @@ export default function AchievementBadge({ data }) {
             ) : (
                 <>
                     {/* 🔒 LOCKED */}
-                    <Lock size={18} className="text-gray-500" />
+                    <Lock size={18} className="text-[var(--muted)] opacity-50" />
 
                     {/* 📊 PROGRESS BAR (only if locked) */}
-                    <div className="absolute bottom-1 left-1 right-1 h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <div className="absolute bottom-1 left-1 right-1 h-1 bg-[var(--surface)] rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
@@ -92,7 +91,7 @@ export default function AchievementBadge({ data }) {
             )}
 
             {/* LABEL */}
-            <p className="text-[10px] text-center mt-2 text-gray-400">
+            <p className="text-[10px] text-center mt-2 text-[var(--muted)]">
                 {title}
             </p>
 

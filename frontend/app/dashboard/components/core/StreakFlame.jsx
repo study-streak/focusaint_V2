@@ -95,18 +95,18 @@ export default function StreakFlame({ data }) {
             {/* 📊 INFO */}
             <div className="text-center mt-3">
 
-                <p className="text-xs text-gray-400">Current Streak</p>
+                <p className="text-xs text-[var(--muted)]">Current Streak</p>
 
                 <motion.p
                     key={current}
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="text-lg font-bold"
+                    className="text-2xl font-bold text-[var(--white)]"
                 >
                     {current} days
                 </motion.p>
 
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--muted)] mt-1">
                     Best: {longest} days
                 </p>
 
@@ -115,7 +115,7 @@ export default function StreakFlame({ data }) {
             {/* ⚡ STREAK STATUS BAR */}
             <div className="w-full mt-4">
 
-                <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-[var(--surface)] h-2 rounded-full overflow-hidden">
 
                     <motion.div
                         initial={{ width: 0 }}
@@ -126,7 +126,7 @@ export default function StreakFlame({ data }) {
 
                 </div>
 
-                <div className="flex justify-between text-[10px] mt-1 text-gray-500">
+                <div className="flex justify-between text-[10px] mt-1 text-[var(--muted)]">
                     <span>Start</span>
                     <span>Peak</span>
                 </div>

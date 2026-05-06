@@ -12,7 +12,7 @@ export default async function DashboardLayout({ children }) {
     }
 
     return (
-        <div className="relative min-h-screen text-white bg-[#020617] overflow-hidden">
+        <div className="relative min-h-screen text-[var(--white)] bg-[var(--black)] overflow-hidden transition-colors duration-500">
             <AmbientBackground />
             <div className="relative z-10 max-w-7xl mx-auto">
                 <div className="px-6 pt-6">

@@ -33,6 +33,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { useState } from "react"
 import { useDashboardData } from "../../../../hooks/useDashboardData"
+import ThemeToggle from "./ThemeToggle"
 
 export default function Navbar({ data: externalData }) {
     const { data: internalData } = useDashboardData()
@@ -55,13 +56,13 @@ export default function Navbar({ data: externalData }) {
     const notifications = data?.notifications ?? []
 
     return (
-        <div className="w-full flex items-center justify-between px-3 sm:px-6 py-4 bg-[var(--black)] border-b border-white/5 sticky top-0 z-[100] backdrop-blur-md bg-opacity-90">
+        <div className="w-full flex items-center justify-between px-3 sm:px-6 py-4 bg-[var(--black)] border-b border-[var(--line)] sticky top-0 z-[100] backdrop-blur-md bg-opacity-90">
 
             {/* 🧠 LEFT: BRAND */}
             <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-base sm:text-xl font-serif font-semibold tracking-tight text-white flex items-center gap-2"
+                className="text-base sm:text-xl font-serif font-semibold tracking-tight text-[var(--white)] flex items-center gap-2"
             >
                 <div className="w-6 h-6 rounded-md bg-[var(--accent)] flex items-center justify-center">
                     <svg width="70%" height="70%" viewBox="0 0 12 12" fill="none">
@@ -69,14 +70,13 @@ export default function Navbar({ data: externalData }) {
                         <path d="M3 5.5L1.5 11H10.5L9 5.5H3Z" fill="white" opacity=".65"/>
                     </svg>
                 </div>
-                Focusaint
+                <span className="hidden sm:block">Focusaint</span>
             </motion.div>
 
-            {/* 🔥 CENTER: STREAK HUD */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="relative flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20"
+                className="relative hidden sm:flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20"
             >
                 <Flame className="text-[var(--accent)] shrink-0" size={18} />
 
@@ -96,6 +96,8 @@ export default function Navbar({ data: externalData }) {
 
             {/* ⚡ RIGHT: NOTIFICATION + USER */}
             <div className="flex items-center gap-3 sm:gap-5">
+
+                <ThemeToggle />
 
                 {/* 🔔 Notification Bell */}
                 <div className="relative">
@@ -117,15 +119,15 @@ export default function Navbar({ data: externalData }) {
                         <motion.div
                             initial={{ opacity: 0, y: -10, scale: 0.95 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            className="absolute right-0 mt-3 w-72 bg-[#0f172a] text-white rounded-xl shadow-lg p-4 z-50 border border-white/10"
+                            className="absolute right-0 mt-3 w-72 bg-[var(--card)] text-[var(--white)] rounded-xl shadow-lg p-4 z-50 border border-[var(--line)]"
                         >
-                            <p className="text-xs text-gray-400 mb-2">Notifications</p>
+                            <p className="text-xs text-[var(--muted)] mb-2">Notifications</p>
                             {notifications.length === 0 ? (
                                 <p className="text-sm text-gray-500 text-center py-4">No notifications</p>
                             ) : (
                                 <div className="flex flex-col gap-2 max-h-60 overflow-y-auto">
                                     {notifications.map((n) => (
-                                        <div key={n.id} className="text-sm p-2 rounded-md bg-white/5 border border-white/5">
+                                        <div key={n.id} className="text-sm p-2 rounded-md bg-[var(--surface)] border border-[var(--line)]">
                                             {n.text}
                                         </div>
                                     ))}
@@ -137,7 +139,7 @@ export default function Navbar({ data: externalData }) {
 
                 {/* 👤 USER */}
                 <div className="flex items-center gap-3">
-                    <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer text-gray-400 hover:text-white transition-colors">
+                    <Link href="/dashboard/profile" className="flex items-center gap-2 cursor-pointer text-[var(--muted)] hover:text-[var(--white)] transition-colors">
                         <User size={20} />
                         <span className="text-sm hidden sm:inline">
                             {user.name}
@@ -150,7 +152,7 @@ export default function Navbar({ data: externalData }) {
                             document.cookie = "focusaint_token=; Path=/; Max-Age=0; SameSite=Lax";
                             window.location.href = "/auth/login";
                         }}
-                        className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                        className="p-2 text-[var(--muted)] hover:text-red-400 transition-colors"
                         title="Logout"
                     >
                         <LogOut size={20} />

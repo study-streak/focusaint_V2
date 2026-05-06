@@ -54,13 +54,13 @@ export default function ComboStreakBar({ data }) {
     const progress = Math.min(combo * 20, 100)
 
     return (
-        <div className="bg-[#020617] border border-white/5 rounded-xl p-4">
+        <div className="bg-[var(--black)] border border-[var(--line)] rounded-xl p-4 shadow-sm">
 
             {/* HEADER */}
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                     <Zap className="text-yellow-400" />
-                    <p className="text-sm text-gray-300">Combo Streak</p>
+                    <p className="text-sm text-[var(--muted)]">Combo Streak</p>
                 </div>
 
                 <motion.span
@@ -74,7 +74,7 @@ export default function ComboStreakBar({ data }) {
             </div>
 
             {/* BAR */}
-            <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+            <div className="w-full bg-[var(--surface)] h-2 rounded-full overflow-hidden">
                 <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
@@ -85,7 +85,7 @@ export default function ComboStreakBar({ data }) {
             </div>
 
             {/* INFO */}
-            <div className="flex justify-between text-[10px] text-gray-500 mt-2">
+            <div className="flex justify-between text-[10px] text-[var(--muted)] mt-2">
                 <span>{combo} chain</span>
                 <span>Max Boost</span>
             </div>

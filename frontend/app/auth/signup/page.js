@@ -100,7 +100,7 @@ function SignupContent() {
         {/* Grid bg */}
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
           maskImage: 'radial-gradient(ellipse 100% 100% at 0% 0%, black 20%, transparent 80%)',
         }}/>
@@ -122,7 +122,7 @@ function SignupContent() {
             { q: '"Got my first dev job after 41 days on Focusaint."', name: 'Daniel O.', streak: 41 },
           ].map((t, i) => (
             <div key={i} style={{ padding: '16px', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: 6 }}>
-              <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'rgba(245,242,238,0.7)', lineHeight: 1.65, marginBottom: 10 }}>{t.q}</p>
+              <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--muted)', lineHeight: 1.65, marginBottom: 10 }}>{t.q}</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: 'var(--font-sans)', fontSize: 12, color: 'var(--muted)' }}>{t.name}</span>
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: 'var(--gold)' }}>🔥 {t.streak}d</span>

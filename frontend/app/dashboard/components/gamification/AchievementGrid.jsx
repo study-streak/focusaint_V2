@@ -65,12 +65,12 @@ export default function AchievementGrid({ data }) {
         data?.achievements ?? fallbackAchievements
 
     return (
-        <div className="bg-[var(--black)] border border-white/5 rounded-xl p-5">
+        <div className="bg-[var(--black)] border border-[var(--line)] rounded-xl p-5 shadow-lg">
 
             {/* 🧠 HEADER */}
             <div className="flex items-center gap-2 mb-4">
                 <Trophy className="text-[var(--gold)]" />
-                <p className="text-sm text-gray-300 font-mono tracking-wider">ACHIEVEMENTS</p>
+                <p className="text-sm text-[var(--muted)] font-mono tracking-wider">ACHIEVEMENTS</p>
             </div>
 
             {/* 🎮 GRID */}
@@ -90,7 +90,7 @@ export default function AchievementGrid({ data }) {
             </div>
 
             {/* FOOTER */}
-            <div className="mt-4 text-xs text-gray-500 text-center">
+            <div className="mt-4 text-xs text-[var(--muted)] text-center">
                 Unlock achievements by staying consistent
             </div>
 

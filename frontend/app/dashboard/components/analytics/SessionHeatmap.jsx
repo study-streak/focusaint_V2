@@ -39,20 +39,53 @@
 import { motion } from "framer-motion"
 
 const getColor = (count) => {
-    if (count === 0) return "bg-gray-800"
-    if (count <= 1) return "bg-indigo-900/60"
-    if (count <= 2) return "bg-indigo-700/80"
-    if (count <= 4) return "bg-indigo-500"
-    return "bg-indigo-400"
+    if (count === 0) return "bg-[var(--surface)]"
+    if (count <= 1) return "bg-emerald-500/20"
+    if (count <= 2) return "bg-emerald-500/40"
+    if (count <= 4) return "bg-emerald-500/70"
+    return "bg-emerald-500"
 }
 
 export default function SessionHeatmap({ data }) {
     const heatmap = data?.heatmap ?? []
 
-    // 🔹 GRID FORMAT (Chunking into weeks)
-    const weeks = []
-    for (let i = 0; i < heatmap.length; i += 7) {
-        weeks.push(heatmap.slice(i, i + 7))
+    // 🔹 GROUP DATA BY MONTH (Proper Distribution)
+    const monthBlocks = []
+    let currentMonthDays = []
+    let lastMonth = -1
+
+    heatmap.forEach((day) => {
+        const d = new Date(day.date)
+        const m = d.getMonth()
+        if (m !== lastMonth && lastMonth !== -1) {
+            monthBlocks.push(currentMonthDays)
+            currentMonthDays = []
+        }
+        currentMonthDays.push(day)
+        lastMonth = m
+    })
+    if (currentMonthDays.length > 0) monthBlocks.push(currentMonthDays)
+
+    // Helper to chunk month days into columns of 7 with proper weekday padding
+    const getMonthWeeks = (days) => {
+        if (days.length === 0) return []
+        const firstDay = new Date(days[0].date).getDay() // 0 = Sun
+        const weeks = []
+        let currentWeek = new Array(7).fill(null)
+
+        // Pad first week and fill
+        let dayIdx = firstDay
+        for (let i = 0; i < days.length; i++) {
+            currentWeek[dayIdx] = days[i]
+            dayIdx++
+            if (dayIdx === 7) {
+                weeks.push(currentWeek)
+                currentWeek = new Array(7).fill(null)
+                dayIdx = 0
+            }
+        }
+        if (dayIdx > 0) weeks.push(currentWeek)
+        return weeks
     }
 
     if (heatmap.length === 0) {
@@ -65,43 +98,63 @@ export default function SessionHeatmap({ data }) {
 
     return (
         <div className="h-full flex flex-col">
-            <h3 className="text-sm font-medium text-gray-400 mb-6">Activity Heatmap</h3>
+            <h3 className="text-sm font-medium text-[var(--muted)] mb-6">Activity Heatmap</h3>
 
-            <div className="flex-1 flex items-center justify-center">
-                <div className="flex gap-1.5 p-2 bg-white/5 rounded-xl border border-white/5">
-                    {weeks.map((week, wi) => (
-                        <div key={wi} className="flex flex-col gap-1.5">
-                            {week.map((day, di) => (
-                                <motion.div
-                                    key={day.date}
-                                    initial={{ scale: 0 }}
-                                    animate={{ scale: 1 }}
-                                    transition={{ delay: (wi * 0.05) + (di * 0.01) }}
-                                    whileHover={{ scale: 1.3, zIndex: 10 }}
-                                    className={`w-4 h-4 md:w-5 md:h-5 rounded-sm ${getColor(day.count)} cursor-help group relative`}
-                                >
-                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 text-[10px] bg-gray-900 border border-white/10 text-white px-2 py-1 rounded shadow-xl whitespace-nowrap z-50">
-                                        <p className="font-bold">{day.count} sessions</p>
-                                        <p className="text-gray-400">{new Date(day.date).toLocaleDateString()}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ))}
+            <div className="flex-1 overflow-x-auto pb-4 scrollbar-thin">
+                <div className="flex gap-4 p-2 rounded-xl border border-[var(--line)] w-fit mx-2">
+                    {monthBlocks.map((monthDays, mi) => {
+                        const monthWeeks = getMonthWeeks(monthDays);
+                        const monthLabel = new Date(monthDays[0].date).toLocaleString('default', { month: 'short' });
+
+                        return (
+                            <div key={mi} className="flex flex-col">
+                                {/* Month Label */}
+                                <span className="text-[10px] text-[var(--muted)] mb-2 ml-0.5">
+                                    {monthLabel}
+                                </span>
+
+                                {/* Week Grid for this Month */}
+                                <div className="flex gap-1.5">
+                                    {monthWeeks.map((week, wi) => (
+                                        <div key={wi} className="flex flex-col gap-1.5">
+                                            {week.map((day, di) => {
+                                                if (!day) return <div key={`empty-${di}`} className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-sm opacity-0" />;
+                                                return (
+                                                    <motion.div
+                                                        key={day.date}
+                                                        initial={{ scale: 0 }}
+                                                        animate={{ scale: 1 }}
+                                                        transition={{ delay: Math.min((mi * 0.05) + (wi * 0.01), 0.5) }}
+                                                        whileHover={{ scale: 1.3, zIndex: 10 }}
+                                                        className={`w-3 h-3 md:w-3.5 md:h-3.5 rounded-sm ${getColor(day.count)} border border-[var(--line)]/10 cursor-help group relative`}
+                                                    >
+                                                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 pointer-events-none transition-all duration-200 text-[10px] bg-[var(--card)] border border-[var(--line)] text-[var(--white)] px-2 py-1 rounded shadow-xl whitespace-nowrap z-50">
+                                                            <p className="font-bold">{day.count} sessions</p>
+                                                            <p className="text-[var(--muted)]">{new Date(day.date).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            })}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
-            <div className="flex items-center justify-between mt-6 text-[10px] text-gray-500 font-medium px-2">
+            <div className="flex items-center justify-between mt-6 text-[10px] text-[var(--muted)] font-medium px-2">
                 <span>Less</span>
                 <div className="flex gap-1">
-                    <div className="w-2.5 h-2.5 bg-gray-800 rounded-sm" />
-                    <div className="w-2.5 h-2.5 bg-indigo-900/60 rounded-sm" />
-                    <div className="w-2.5 h-2.5 bg-indigo-700/80 rounded-sm" />
-                    <div className="w-2.5 h-2.5 bg-indigo-500 rounded-sm" />
-                    <div className="w-2.5 h-2.5 bg-indigo-400 rounded-sm" />
+                    <div className="w-2.5 h-2.5 bg-[var(--surface)] rounded-sm border border-[var(--line)]/10" />
+                    <div className="w-2.5 h-2.5 bg-emerald-500/20 rounded-sm border border-[var(--line)]/10" />
+                    <div className="w-2.5 h-2.5 bg-emerald-500/40 rounded-sm border border-[var(--line)]/10" />
+                    <div className="w-2.5 h-2.5 bg-emerald-500/70 rounded-sm border border-[var(--line)]/10" />
+                    <div className="w-2.5 h-2.5 bg-emerald-500 rounded-sm border border-[var(--line)]/10" />
                 </div>
                 <span>More</span>
             </div>
         </div>
     )
-}
+}

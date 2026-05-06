@@ -42,9 +42,9 @@ export default function LevelNode({ level, index }) {
             ring: "border-indigo-400",
         },
         locked: {
-            bg: "bg-gray-600",
+            bg: "bg-[var(--muted)]/20",
             glow: "bg-transparent",
-            ring: "border-gray-500",
+            ring: "border-[var(--line)]",
         },
     }
 

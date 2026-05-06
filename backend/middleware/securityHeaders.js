@@ -117,6 +117,7 @@ export const corsOptions = {
       "http://www.focusaint.com",
       "https://focusaint.com",
       "http://focusaint.com",
+      "http://192.168.0.101:3000"
     ].filter(Boolean) // Remove undefined values
 
     // Check if origin is in allowed list

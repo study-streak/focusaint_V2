@@ -59,7 +59,7 @@ export default function JourneyMap({ data }) {
         <div className="relative w-full px-6 py-10 overflow-x-auto">
 
             {/* 🌌 BACKGROUND DEPTH LAYER */}
-            <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#6366f1,_transparent)]" />
+            <div className="absolute inset-0 opacity-10 dark:opacity-10 bg-[radial-gradient(circle_at_center,_var(--accent),_transparent)]" />
 
             {/* 🛣️ PATH CONTAINER */}
             <div className="relative min-w-[1200px] h-[220px]">
@@ -111,7 +111,7 @@ export default function JourneyMap({ data }) {
                             <LevelNode level={level} index={index} />
 
                             {/* 🔹 LABEL */}
-                            <div className="text-center mt-2 text-xs text-gray-400">
+                            <div className="text-center mt-2 text-xs text-[var(--muted)]">
                                 Stage {level.id}
                             </div>
                         </motion.div>

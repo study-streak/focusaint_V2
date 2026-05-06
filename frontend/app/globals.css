@@ -8,32 +8,33 @@
   --font-mono:  'DM Mono', monospace;
 
   /* Dark Theme (Default) */
-  --black:   #080808;
-  --surface: #0f0f0f;
-  --card:    #141414;
-  --line:    rgba(255,255,255,0.06);
-  --white:   #f5f2ee;
-  --muted:   #94a3b8; /* Increased brightness for better contrast */
-  --accent:  #c8402a;
-  --accent2: #e05a3a;
-  --gold:    #c4963a;
+  --black:   #020617; /* Deep Slate Blue */
+  --surface: #0f172a;
+  --card:    #1e293b;
+  --line:    rgba(255,255,255,0.1);
+  --white:   #ffffff;
+  --muted:   #94a3b8;
+  --accent:  #ff5e00; /* Indigo */
+  --accent2: #ff4300; /* Violet */
+  --gold:    #f59e0b;
 }
 
 /* Light Theme */
 html[data-theme="light"],
 html.light {
-  --black:   #ffffff;
-  --surface: #f8f6f4;
-  --card:    #f0ede9;
-  --line:    rgba(0,0,0,0.08);
-  --white:   #1a1a1a;
-  --muted:   #3a3530;
+  --black:   #ffffff; /* Pure white background */
+  --surface: #e2e8f0; /* Darkened slightly for better ring visibility */
+  --card:    #ffffff;
+  --line:    rgba(0,0,0,0.12); /* More distinct borders */
+  --white:   #000000; /* Pure black text */
+  --muted:   #334155; /* Darker muted text for strong contrast */
   --accent:  #c8402a;
   --accent2: #e05a3a;
-  --gold:    #c4963a;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.06);
+  --gold:    #b3862b;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-md: 0 8px 16px -2px rgba(0,0,0,0.08), 0 4px 8px -2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  --shadow-premium: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

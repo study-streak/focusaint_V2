@@ -10,6 +10,7 @@ import FocusMeter from "./components/core/FocusMeter"
 import StreakFlame from "./components/core/StreakFlame"
 import ProgressHUD from "./components/core/ProgressHUD"
 import GoalsLinkCard from "./components/core/GoalsLinkCard"
+import MarathonLinkCard from "./components/core/MarathonLinkCard"
 
 // GAMIFICATION
 import AchievementGrid from "./components/gamification/AchievementGrid"
@@ -48,12 +49,12 @@ export default function DashboardContent() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const result = await APIClient.get("/api/user/dashboard")
-                setData(result)
+                const [dashData] = await Promise.all([
+                    APIClient.get("/api/user/dashboard")
+                ])
+                setData(dashData)
             } catch (err) {
                 console.error("Dashboard data fetch failed:", err)
-                // If it's not an auth error (which is handled by APIClient), 
-                // it might be a server-down error.
             }
         }
 
@@ -72,26 +73,32 @@ export default function DashboardContent() {
                 
                 {/* TOP ROW - HERO METRICS */}
                 <div className="md:col-span-4 h-full">
-                    <GlowLayer className="h-full">
-                        <FocusMeter data={data} />
-                    </GlowLayer>
+                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
+                        <GlowLayer className="h-full">
+                            <FocusMeter data={data} />
+                        </GlowLayer>
+                    </div>
                 </div>
 
                 <div className="md:col-span-4 h-full">
-                    <GlowLayer className="h-full">
-                        <LevelProgressRing data={data} />
-                    </GlowLayer>
+                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
+                        <GlowLayer className="h-full">
+                            <LevelProgressRing data={data} />
+                        </GlowLayer>
+                    </div>
                 </div>
 
                 <div className="md:col-span-4 h-full">
-                    <ParallaxContainer className="h-full">
-                        <StreakFlame data={data} />
-                    </ParallaxContainer>
+                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
+                        <ParallaxContainer className="h-full">
+                            <StreakFlame data={data} />
+                        </ParallaxContainer>
+                    </div>
                 </div>
 
                 {/* MIDDLE ROW - JOURNEY & ACTIONS */}
                 <div className="md:col-span-8 md:row-span-2">
-                    <div className="h-full rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+                    <div className="h-full rounded-3xl overflow-hidden border border-[var(--line)] bg-[var(--card)] backdrop-blur-xl shadow-2xl">
                         <JourneyMap data={data} />
                     </div>
                 </div>
@@ -106,25 +113,31 @@ export default function DashboardContent() {
 
                 {/* BOTTOM ROW - GAMIFICATION & ANALYTICS */}
                 <div className="md:col-span-6 h-full">
-                    <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-1">
+                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-1 shadow-md">
                         <QuestCard data={data} />
                     </div>
                 </div>
 
                 <div className="md:col-span-6 h-full">
-                    <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-1">
+                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-1 shadow-md">
                         <BossLevelCard data={data} />
                     </div>
                 </div>
 
                 <div className="md:col-span-12">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
+                    <MarathonLinkCard />
+                </div>
+                
+                {/* Achievements */}
+
+                <div className="md:col-span-12">
+                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
                         <AchievementGrid data={data} />
                     </div>
                 </div>
 
                 <div className="md:col-span-12">
-                    <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
+                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
                         <SessionHeatmap data={data} />
                     </div>
                 </div>
@@ -134,7 +147,7 @@ export default function DashboardContent() {
                 </div>
 
                 <div className="md:col-span-8">
-                    <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
+                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
                         <WeeklyGraph data={data} />
                     </div>
                 </div>

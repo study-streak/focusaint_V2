@@ -78,21 +78,21 @@ export default function PricingSection({ showTitle = true, compact = false, curr
     <div className={`w-full ${compact ? '' : 'py-12'}`}>
       {showTitle && (
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-white mb-4">Choose Your Plan</h2>
-          <p className="text-muted max-w-2xl mx-auto">Select the plan that best fits your learning goals and team needs.</p>
+          <h2 className="text-3xl md:text-4xl font-serif font-light text-[var(--white)] mb-4">Choose Your Plan</h2>
+          <p className="text-[var(--muted)] max-w-2xl mx-auto">Select the plan that best fits your learning goals and team needs.</p>
           
           {/* Billing Toggle */}
           <div className="flex items-center justify-center mt-8 gap-4">
-            <span className={`text-sm ${billingPeriod === 'monthly' ? 'text-white' : 'text-muted'}`}>Monthly</span>
+            <span className={`text-sm ${billingPeriod === 'monthly' ? 'text-[var(--white)]' : 'text-[var(--muted)]'}`}>Monthly</span>
             <button 
               onClick={() => setBillingPeriod(prev => prev === 'monthly' ? 'yearly' : 'monthly')}
-              className="w-12 h-6 bg-white/10 rounded-full relative p-1 transition-colors hover:bg-white/20"
+              className="w-12 h-6 bg-[var(--line)] border border-[var(--line)] rounded-full relative p-1 transition-colors hover:bg-[var(--line)]/80"
             >
               <div className={`w-4 h-4 bg-accent rounded-full transition-transform duration-300 ${billingPeriod === 'yearly' ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>
             <div className="flex items-center gap-2">
-              <span className={`text-sm ${billingPeriod === 'yearly' ? 'text-white' : 'text-muted'}`}>Yearly</span>
-              <span className="text-[10px] font-bold bg-accent/20 text-accent px-2 py-0.5 rounded-full border border-accent/30 uppercase">Save 20%</span>
+              <span className={`text-sm ${billingPeriod === 'yearly' ? 'text-[var(--white)]' : 'text-[var(--muted)]'}`}>Yearly</span>
+              <span className="text-[10px] font-bold bg-[var(--accent)]/20 text-[var(--accent)] px-2 py-0.5 rounded-full border border-[var(--accent)]/30 uppercase">Save 20%</span>
             </div>
           </div>
         </div>
@@ -109,40 +109,40 @@ export default function PricingSection({ showTitle = true, compact = false, curr
                   ? 'border-accent bg-accent/10' 
                   : plan.popular 
                     ? 'bg-accent/5 border-accent/40 shadow-[0_0_40px_-15px_rgba(200,64,42,0.3)] hover:border-accent/60' 
-                    : 'bg-white/5 border-white/10 hover:border-white/20'
+                    : 'bg-[var(--surface)] border-[var(--line)] hover:border-accent/40'
               }`}
             >
               {plan.popular && !isCurrent && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-white/20 shadow-xl">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--accent)] text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-white/20 shadow-xl">
                   Most Popular
                 </div>
               )}
               {isCurrent && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-white/20 shadow-xl backdrop-blur-md">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[var(--line)] text-[var(--white)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border border-[var(--line)] shadow-xl backdrop-blur-md">
                   Current Plan
                 </div>
               )}
 
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-white/5 text-accent">
+                <div className="p-2 rounded-lg bg-[var(--line)] text-[var(--accent)]">
                   {plan.icon}
                 </div>
-                <h3 className="text-xl font-medium text-white">{plan.name}</h3>
+                <h3 className="text-xl font-medium text-[var(--white)]">{plan.name}</h3>
               </div>
 
-              <p className="text-sm text-muted mb-6 leading-relaxed">
+              <p className="text-sm text-[var(--muted)] mb-6 leading-relaxed">
                 {plan.description}
               </p>
 
               <div className="mb-8">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-serif font-bold text-white">
+                  <span className="text-4xl font-serif font-bold text-[var(--white)]">
                     ₹{billingPeriod === 'monthly' ? plan.price.monthly : Math.round(plan.price.yearly / 12)}
                   </span>
-                  <span className="text-muted text-sm uppercase">/ month</span>
+                  <span className="text-[var(--muted)] text-sm uppercase">/ month</span>
                 </div>
                 {billingPeriod === 'yearly' && plan.price.yearly > 0 && (
-                  <p className="text-[10px] text-accent font-medium mt-1">Billed ₹{plan.price.yearly} annually</p>
+                  <p className="text-[10px] text-[var(--accent)] font-medium mt-1">Billed ₹{plan.price.yearly} annually</p>
                 )}
               </div>
 
@@ -150,26 +150,26 @@ export default function PricingSection({ showTitle = true, compact = false, curr
                 disabled={isCurrent}
                 className={`w-full py-3 rounded-xl text-center font-semibold text-sm transition-all duration-300 ${
                   isCurrent
-                    ? 'bg-white/5 text-white/40 cursor-default'
+                    ? 'bg-[var(--line)] text-[var(--muted)] cursor-default'
                     : plan.popular 
-                      ? 'bg-accent text-white shadow-lg shadow-accent/20 hover:shadow-accent/40 hover:-translate-y-0.5' 
-                      : 'bg-white/10 text-white hover:bg-white/20'
+                      ? 'bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/20 hover:shadow-[var(--accent)]/40 hover:-translate-y-0.5' 
+                      : 'bg-[var(--white)] text-[var(--black)] hover:opacity-90'
                 }`}
               >
                 {isCurrent ? 'Active Plan' : plan.cta}
               </button>
 
             <div className="mt-8 space-y-4 flex-grow">
-              <p className="text-[10px] font-bold text-muted uppercase tracking-wider">Features included:</p>
+              <p className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-wider">Features included:</p>
               <ul className="space-y-3">
                 {plan.features.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     {feature.included ? (
-                      <Check className="w-4 h-4 text-accent mt-0.5 shrink-0" />
+                      <Check className="w-4 h-4 text-[var(--accent)] mt-0.5 shrink-0" />
                     ) : (
-                      <X className="w-4 h-4 text-white/20 mt-0.5 shrink-0" />
+                      <X className="w-4 h-4 text-[var(--line)] mt-0.5 shrink-0" />
                     )}
-                    <span className={`text-sm ${feature.included ? 'text-white/80' : 'text-white/20 line-through'}`}>
+                    <span className={`text-sm ${feature.included ? 'text-[var(--white)]' : 'text-[var(--muted)] line-through opacity-50'}`}>
                       {feature.name}
                     </span>
                   </li>
@@ -183,7 +183,7 @@ export default function PricingSection({ showTitle = true, compact = false, curr
 
       {!showTitle && (
         <div className="mt-12 text-center">
-          <Link href="/pricing" className="text-sm text-muted hover:text-accent transition-colors flex items-center justify-center gap-2">
+          <Link href="/pricing" className="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors flex items-center justify-center gap-2">
             View full feature comparison <ChevronRight className="w-4 h-4" />
           </Link>
         </div>

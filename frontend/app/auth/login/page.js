@@ -186,14 +186,14 @@ function LoginContent() {
       }} className="hidden lg:flex">
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)',
+          backgroundImage: 'linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
           maskImage: 'radial-gradient(ellipse 100% 100% at 0% 100%, black 20%, transparent 80%)',
         }}/>
 
         {/* Large stat */}
         <div>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: 72, fontWeight: 400, color: 'rgba(255,255,255,0.06)', lineHeight: 1, marginBottom: 8 }}>94%</div>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: 72, fontWeight: 400, color: 'var(--line)', lineHeight: 1, marginBottom: 8 }}>94%</div>
           <p style={{ fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 400, color: 'var(--white)', lineHeight: 1.3, letterSpacing: '-0.01em', marginBottom: 12 }}>
             Proven recall rate.<br />Not just satisfied learners.
           </p>

@@ -3,11 +3,16 @@ import StreakRecord from "../models/StreakRecord.js"
 import HabitSession from "../models/HabitSession.js"
 import LearningPath from "../models/LearningPath.js"
 import SpacedReview from "../models/SpacedReview.js"
+import HabitTask from "../models/HabitTask.js"
+import { calculateFocusScore } from "../services/focusScore.js"
 import { connectToMongo } from "../utils/db.js"
 
 async function getUserDashboard(req, res){
   try {
     await connectToMongo()
+
+    // Calculate/Update Focus Score on the fly for latest data
+    const scoreData = await calculateFocusScore(req.user.userId)
 
     const user = await User.findById(req.user.userId).select(
       "name email currentStreak longestStreak totalSessions lastSessionDate focusScore focusScoreHistory",
@@ -29,11 +34,11 @@ async function getUserDashboard(req, res){
     const weeklySessionsCount = recentSessions.filter(s => s.sessionDate >= oneWeekAgo).length
     const totalMinutes = recentSessions.reduce((sum, s) => sum + (s.duration || 0), 0)
 
-    // Generate Heatmap Data (Last 30 days)
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    // Generate Heatmap Data (Last 365 days)
+    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
     const heatmapSessions = await HabitSession.find({
       userId: req.user.userId,
-      sessionDate: { $gte: thirtyDaysAgo },
+      sessionDate: { $gte: threeSixtyFiveDaysAgo },
       status: "completed"
     })
 
@@ -43,9 +48,9 @@ async function getUserDashboard(req, res){
       heatmapMap[dateKey] = (heatmapMap[dateKey] || 0) + 1
     })
 
-    const heatmap = Array.from({ length: 30 }).map((_, i) => {
+    const heatmap = Array.from({ length: 365 }).map((_, i) => {
       const d = new Date()
-      d.setDate(d.getDate() - (29 - i))
+      d.setDate(d.getDate() - (364 - i))
       const dateKey = d.toISOString().split('T')[0]
       return {
         date: dateKey,
@@ -63,12 +68,19 @@ async function getUserDashboard(req, res){
       return { name: "Novice", color: "text-gray-400", level: 1 }
     }
 
-    const rankInfo = getRank(user.focusScore || 0)
+    const rankInfo = getRank(scoreData.total)
 
     // Derived stats for frontend HUD
     const xp = totalMinutes * 10 // Example: 10 XP per minute
     const level = Math.floor(xp / 500) || 1
-    const energy = Math.min(100, (weeklySessionsCount / 7) * 100)
+    const energy = Math.min(100, Math.round((weeklySessionsCount / 7) * 100))
+
+    // Fetch today's tasks (Quests)
+    const today = new Date().toISOString().split('T')[0]
+    const tasks = await HabitTask.find({
+      userId: req.user.userId,
+      assignedDate: today
+    })
 
     const learningPaths = await LearningPath.find({ userId: req.user.userId })
     const reviewsDue = await SpacedReview.find({ 
@@ -79,7 +91,10 @@ async function getUserDashboard(req, res){
 
     res.json({
       user,
-      streak: streakRecord,
+      streak: {
+        currentStreak: Math.max(user.currentStreak || 0, streakRecord?.currentStreak || 0),
+        longestStreak: Math.max(user.longestStreak || 0, streakRecord?.longestStreak || 0)
+      },
       weeklySessions: weeklySessionsCount,
       totalDuration: totalMinutes,
       xp,
@@ -93,7 +108,8 @@ async function getUserDashboard(req, res){
       recentSessions: recentSessions.slice(0, 5), // Return last 5 for tracking
       heatmap,
       learningPaths,
-      reviewsDue
+      reviewsDue,
+      tasks
     })
   } catch (error) {
     console.error("Dashboard error:", error)

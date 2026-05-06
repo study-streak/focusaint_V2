@@ -58,7 +58,7 @@ export default function FocusMeter({ data }) {
         <div className="flex flex-col items-center justify-center p-6">
 
             {/* TITLE */}
-            <p className="text-sm text-gray-400 mb-2">Focus Skill</p>
+            <p className="text-sm text-[var(--muted)] mb-2">Focus Skill</p>
 
             {/* METER */}
             <div className="relative w-32 h-32">
@@ -70,8 +70,8 @@ export default function FocusMeter({ data }) {
                         cx="50%"
                         cy="50%"
                         r={radius}
-                        stroke="#1f2937"
-                        strokeWidth="10"
+                        stroke="var(--surface)"
+                        strokeWidth="12"
                         fill="transparent"
                     />
 
@@ -81,7 +81,7 @@ export default function FocusMeter({ data }) {
                         cy="50%"
                         r={radius}
                         stroke="var(--accent)"
-                        strokeWidth="10"
+                        strokeWidth="12"
                         fill="transparent"
                         strokeDasharray={circumference}
                         strokeDashoffset={circumference - progress}
@@ -98,7 +98,7 @@ export default function FocusMeter({ data }) {
                     <motion.span
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
-                        className="text-xl font-bold"
+                        className="text-2xl font-bold text-[var(--white)]"
                     >
                         {score}%
                     </motion.span>

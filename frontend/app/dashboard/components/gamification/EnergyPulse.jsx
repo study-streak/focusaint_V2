@@ -47,7 +47,7 @@ export default function EnergyPulse({ data }) {
     */
 
     // 🔹 AUTO SWITCH LOGIC
-    const energy = data?.energy ?? fallback.energy
+    const energy = Math.round(data?.energy ?? fallback.energy)
 
     // 🔹 STATE LOGIC
     const getState = () => {
@@ -89,7 +89,7 @@ export default function EnergyPulse({ data }) {
                 className={`w-16 h-16 rounded-full ${colors[state]} flex items-center justify-center`}
             >
                 <span className="text-black font-bold text-sm">
-                    {energy}%
+                    {Math.round(energy)}%
                 </span>
             </motion.div>
 

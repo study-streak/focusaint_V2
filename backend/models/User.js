@@ -111,6 +111,26 @@ const userSchema = new mongoose.Schema(
         default: null,
       },
     },
+    marathonChallenges: [{
+      challengeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "MarathonChallenge"
+      },
+      status: {
+        type: String,
+        enum: ["accepted", "completed"],
+        default: "accepted"
+      },
+      progress: {
+        type: Number,
+        default: 0
+      },
+      acceptedAt: {
+        type: Date,
+        default: Date.now
+      },
+      completedAt: Date
+    }],
     createdAt: {
       type: Date,
       default: Date.now,
