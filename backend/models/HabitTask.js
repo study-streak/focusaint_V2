@@ -66,6 +66,7 @@ const habitTaskSchema = new mongoose.Schema(
         },
         name: String, // Filename or link title
         url: String, // S3 URL or external link
+        s3Key: String, // Key for S3 object (for deletion)
         fileSize: Number, // In bytes (for files)
         mimeType: String, // e.g., "application/pdf"
         uploadedAt: {

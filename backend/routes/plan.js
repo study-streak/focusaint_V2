@@ -4,6 +4,7 @@ import path from "path"
 import fs from "fs"
 import { fileURLToPath } from "url"
 import { authenticateToken } from "../middleware/auth.js"
+import { fileUploadLimiter } from "../middleware/rateLimit.js"
 import {
   markAttachmentComplete,
   unmarkAttachmentComplete,
@@ -28,34 +29,12 @@ import {
 
 const router = express.Router()
 
-// Multer configuration for file uploads
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const isVercel = Boolean(process.env.VERCEL)
-const uploadsDir = isVercel ? path.join("/tmp", "uploads") : path.join(__dirname, "..", "uploads")
-
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
-}
-
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, uploadsDir)
-  },
-  filename: (_req, file, cb) => {
-    const safeBase = path
-      .parse(file.originalname)
-      .name.replace(/[^a-zA-Z0-9-_]/g, "-")
-      .toLowerCase()
-    const ext = path.extname(file.originalname) || ""
-    cb(null, `${Date.now()}-${safeBase}${ext}`)
-  },
-})
+const storage = multer.memoryStorage()
 
 const upload = multer({
   storage,
   limits: {
-    fileSize: 4 * 1024 * 1024,
+    fileSize: 10 * 1024 * 1024, // Increased to 10MB
   },
 })
 
@@ -77,7 +56,7 @@ router.post("/bulk", authenticateToken, bulkCreateTasks)
 
 // Attachment routes
 router.post("/task/:taskId/attachment", authenticateToken, addAttachment)
-router.post("/task/:taskId/attachment/upload", authenticateToken, upload.single("file"), uploadAttachment)
+router.post("/task/:taskId/attachment/upload", authenticateToken, fileUploadLimiter, upload.single("file"), uploadAttachment)
 router.post("/task/:taskId/attachment/playlist", authenticateToken, addPlaylistAsAttachments)
 router.delete("/task/:taskId/attachment/:attachmentId", authenticateToken, removeAttachment)
 

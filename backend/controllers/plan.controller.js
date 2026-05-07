@@ -12,6 +12,7 @@ import {
 import { checkSessionLimit, incrementSessionCounter } from "../utils/sessionCounter.js"
 import { checkFeatureAccess } from "../utils/featureAvailability.js"
 import { SessionLimitError } from "../utils/errors.js"
+import * as storageService from "../services/storageService.js"
 
 /**
  * Helper: Update streak when a task is completed on its assigned date
@@ -561,11 +562,16 @@ export const uploadAttachment = async (req, res) => {
       return res.status(404).json({ error: "Task not found" })
     }
 
+    // Upload to S3
+    const folder = `user-${req.user.userId}/tasks/${taskId}`
+    const uploadResult = await storageService.uploadFile(uploadedFile, folder)
+
     const attachment = {
       _id: new mongoose.Types.ObjectId(),
       type: "file",
       name: customName || uploadedFile.originalname,
-      url: `/uploads/${uploadedFile.filename}`,
+      url: uploadResult.url,
+      s3Key: uploadResult.key, // Store the key for deletion later
       fileSize: uploadedFile.size,
       mimeType: uploadedFile.mimetype,
       uploadedAt: new Date(),
@@ -576,13 +582,13 @@ export const uploadAttachment = async (req, res) => {
     await task.save()
 
     res.status(201).json({
-      message: "File uploaded and attached",
+      message: "File uploaded to S3 and attached",
       attachment,
       task,
     })
   } catch (error) {
     console.error("Upload attachment error:", error)
-    res.status(500).json({ error: "Failed to upload attachment" })
+    res.status(500).json({ error: "Failed to upload attachment to S3" })
   }
 }
 
@@ -598,6 +604,16 @@ export const removeAttachment = async (req, res) => {
     const task = await HabitTask.findOne({ _id: taskId, userId: req.user.userId })
     if (!task) {
       return res.status(404).json({ error: "Task not found" })
+    }
+
+    const attachment = task.attachments.id(attachmentId)
+    if (attachment && attachment.s3Key) {
+      try {
+        await storageService.deleteFile(attachment.s3Key)
+      } catch (s3Error) {
+        console.error("Failed to delete file from S3:", s3Error)
+        // Continue even if S3 deletion fails to keep DB in sync
+      }
     }
 
     task.attachments = task.attachments.filter((a) => a._id.toString() !== attachmentId)

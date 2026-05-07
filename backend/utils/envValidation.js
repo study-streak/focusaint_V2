@@ -122,6 +122,29 @@ const ENV_SCHEMA = {
     required: false,
     type: 'string',
     description: 'Sentry DSN for error tracking'
+  },
+
+  // AWS & S3 Configuration
+  AWS_REGION: {
+    required: true,
+    type: 'string',
+    default: 'us-east-1',
+    description: 'AWS region for S3 and other services'
+  },
+  AWS_ACCESS_KEY_ID: {
+    required: true,
+    type: 'string',
+    description: 'AWS access key ID'
+  },
+  AWS_SECRET_ACCESS_KEY: {
+    required: true,
+    type: 'string',
+    description: 'AWS secret access key'
+  },
+  S3_BUCKET_NAME: {
+    required: true,
+    type: 'string',
+    description: 'AWS S3 bucket name for file uploads'
   }
 }
 
@@ -312,6 +335,7 @@ export function validateEnvOrExit() {
     result.errors.forEach(error => {
       console.error(`   ✗ ${error}`)
     })
+    console.error('\nFull list of failed variables:', result.errors.map(e => e.split(' ')[0]).join(', '))
     console.error('\nPlease check your .env file and ensure all required variables are set.')
     console.error('Refer to .env.example for the complete list of required variables.\n')
     process.exit(1)

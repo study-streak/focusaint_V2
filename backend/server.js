@@ -40,6 +40,7 @@ import reminderRoutes from "./routes/reminder.js"
 import quizRoutes from "./routes/quiz.js"
 import learnRoutes from "./routes/learn.js"
 import marathonRoutes from "./routes/marathon.js"
+import uploadRoutes from "./routes/uploadRoutes.js"
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js"
 import { initializeCronJobs } from "./services/cronJobs.js"
 import { metricsMiddleware } from "./services/metrics.js"
@@ -157,6 +158,7 @@ apiRouter.use("/reminders", reminderRoutes);
 apiRouter.use("/quiz", quizRoutes);
 apiRouter.use("/learn", learnRoutes);
 apiRouter.use("/marathon", marathonRoutes);
+apiRouter.use("/upload", fileUploadLimiter, uploadRoutes);
 
 // Mount the API Router at both /api and root to handle prefix-stripping proxies
 app.use("/api", apiRouter);

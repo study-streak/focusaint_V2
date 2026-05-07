@@ -183,13 +183,14 @@ export default function PlannerContent() {
         try {
             const formData = new FormData()
             formData.append("file", newFile)
-            const token = document.cookie.split('; ').find(row => row.startsWith('focusaint_token='))?.split('=')[1]
-            await fetch(`/api/plan/task/${goalId}/attachment/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-            })
+            if (customName) {
+                formData.append("name", customName)
+            }
+            
+            await APIClient.upload(`/api/plan/task/${goalId}/attachment/upload`, formData)
+            
             setNewFile(null)
+            setCustomName("")
             setShowAddMaterial(false)
             fetchTask()
         } catch (e) {

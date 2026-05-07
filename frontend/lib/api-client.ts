@@ -190,4 +190,47 @@ export class APIClient {
       body: JSON.stringify(body),
     })
   }
+
+  /**
+   * Dedicated method for file uploads using FormData
+   */
+  static async upload<T>(endpoint: string, formData: FormData): Promise<T> {
+    // For file uploads, we must NOT set the Content-Type header
+    // so the browser can automatically set it with the correct boundary
+    const token = this.getToken()
+    const headers: Record<string, string> = {
+      ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+    }
+
+    const csrfToken = await this.ensureCsrfToken()
+    if (csrfToken) {
+      headers["X-CSRF-Token"] = csrfToken
+    }
+
+    const finalEndpoint = endpoint.startsWith("/api") ? endpoint : `/api${endpoint.startsWith("/") ? "" : "/"}${endpoint}`
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
+        method: "POST",
+        body: formData,
+        headers,
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        let error: any = {}
+        try {
+          error = await response.json()
+        } catch (e) {
+          error = { message: "Upload failed" }
+        }
+        throw new APIError(error.message || "Upload failed", response.status, error)
+      }
+
+      return response.json()
+    } catch (error) {
+      captureException(error as Error, { endpoint, method: "POST", type: "upload" })
+      throw error
+    }
+  }
 }
