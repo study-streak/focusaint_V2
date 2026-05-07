@@ -5,6 +5,7 @@ This document describes all backend API endpoints implemented in the Express ser
 
 - Runtime: Node.js + Express
 - Base API prefix: `/api`
+- Routes are also mounted at `/` for proxy setups that strip the prefix
 - Content type: `application/json` unless stated otherwise
 - Auth: JWT Bearer token for protected routes
 
@@ -25,6 +26,7 @@ JWT is issued by:
 
 - `POST /api/auth/login`
 - `POST /api/auth/verify-otp`
+- `POST /api/auth/google`
 
 ## CSRF
 CSRF flow exists in middleware with token endpoint:
@@ -33,8 +35,8 @@ CSRF flow exists in middleware with token endpoint:
 
 Current behavior in code:
 
-- CSRF validation middleware is temporarily bypassed (always passes).
-- Token cookie/header pattern is present and may be re-enabled later.
+- CSRF validation middleware currently returns `next()` immediately, so validation is bypassed.
+- The token cookie/header flow is still implemented and can be re-enabled later.
 
 ## Rate Limiting
 Global and route-level rate limiting is enabled.
@@ -95,6 +97,8 @@ Two patterns are currently in use.
 }
 ```
 
+The standardized envelope is the default for uncaught errors and middleware-generated errors, but several controllers still return the legacy simple shape on handled validation failures.
+
 ## Common Data Models (API-facing)
 
 ### User (partial)
@@ -105,7 +109,7 @@ Two patterns are currently in use.
 - `currentStreak`
 - `longestStreak`
 - `totalSessions`
-- `subscriptionTier` (`free` | `premium`)
+- `subscriptionTier` (`free` | `premium` | `pro`)
 
 ### Habit Session
 - `_id`
@@ -114,7 +118,7 @@ Two patterns are currently in use.
 - `endTime`
 - `duration` (minutes)
 - `sessionDate`
-- `status` (`active` | `completed` | `abandoned`)
+- `status` (`active` | `completed` | `abandoned` | `awaiting_quiz`)
 
 ### Habit Task
 - `_id`
@@ -291,6 +295,39 @@ Success:
 }
 ```
 
+### POST /api/auth/google
+Google OAuth login or signup using either a Google ID token or access token.
+
+Body (one of):
+```json
+{
+  "token": "<google-id-token>"
+}
+```
+
+or
+
+```json
+{
+  "accessToken": "<google-access-token>"
+}
+```
+
+Success:
+```json
+{
+  "message": "Google login successful",
+  "token": "<jwt>",
+  "user": {
+    "id": "...",
+    "email": "user@example.com",
+    "name": "User Name",
+    "currentStreak": 0,
+    "profileImage": "..."
+  }
+}
+```
+
 ---
 
 ## 3. User API (`/api/user`)
@@ -318,9 +355,34 @@ Returns dashboard aggregate payload:
 - `user`
 - `streak`
 - `weeklySessions`
+- `totalDuration`
+- `xp`
+- `level`
+- `energy`
+- `score`
+- `rank`
+- `rankColor`
+- `rankLevel`
+- `sessions`
+- `recentSessions`
+- `heatmap`
+- `learningPaths`
+- `reviewsDue`
+- `tasks`
 
 ### GET /api/user/notification-preferences
 Returns notification preference object.
+
+Response shape:
+```json
+{
+  "preferences": {
+    "browserPermission": "default",
+    "enabled": false,
+    "lastPromptedAt": null
+  }
+}
+```
 
 ### PUT /api/user/notification-preferences
 Body (any subset):
@@ -349,6 +411,9 @@ Body (optional):
 ```
 
 Success (201): includes `session` and `sessionLimit`.
+
+### POST /api/habit/:sessionId/finalize
+Fallback endpoint to finalize a session when the normal end flow is not used.
 
 ### POST /api/habit/:sessionId/end
 End an active session by id.
@@ -459,6 +524,7 @@ Body:
 ### Attachments
 - `POST /api/plan/task/:taskId/attachment`
 - `POST /api/plan/task/:taskId/attachment/upload` (multipart/form-data, field: `file`)
+- `POST /api/plan/task/:taskId/attachment/playlist`
 - `DELETE /api/plan/task/:taskId/attachment/:attachmentId`
 
 #### Add attachment body
@@ -475,6 +541,13 @@ Body:
 #### Upload attachment notes
 - File size limit: 4 MB
 - Saved to `/uploads` (or `/tmp/uploads` on Vercel)
+
+#### Playlist attachment body
+```json
+{
+  "url": "https://www.youtube.com/playlist?list=..."
+}
+```
 
 ### Deadline and distribution
 - `POST /api/plan/task/:taskId/deadline`
@@ -702,7 +775,15 @@ Body:
 }
 ```
 
-Response includes score summary and per-question correctness.
+Response includes:
+- `quizId`
+- `score`
+- `correctAnswers`
+- `totalQuestions`
+- `questions`
+- `sessionStatus` when `sessionId` is provided
+
+If `sessionId` points to an awaiting quiz session, the controller marks it completed and increments user stats.
 
 ### GET /api/quiz/analytics?days=30
 Returns analytics aggregate for selected period.
@@ -712,7 +793,77 @@ Returns paginated quiz history.
 
 ---
 
-## 8. Focus Score API (`/api/focus-score`)
+## 8. Learn API (`/api/learn`)
+
+All endpoints require auth.
+
+### POST /api/learn/generate-path
+Generate a learning path and persist the path plus lessons.
+
+Body:
+```json
+{
+  "topic": "Machine Learning",
+  "difficulty": "beginner",
+  "duration": 30
+}
+```
+
+### GET /api/learn/dashboard
+Returns learning paths and due spaced reviews.
+
+### GET /api/learn/lesson/:pathId/:dayNumber
+Returns a lesson and the current user progress for that lesson.
+
+### POST /api/learn/submit-reflection
+Body:
+```json
+{
+  "lessonId": "...",
+  "reflection": "...",
+  "quizScore": 85
+}
+```
+
+Success:
+```json
+{
+  "success": true,
+  "progress": "...",
+  "nextDay": 2
+}
+```
+
+---
+
+## 9. Marathon API (`/api/marathon`)
+
+All endpoints require auth.
+
+### GET /api/marathon/leaderboard
+Returns the top users ranked by focus score.
+
+### GET /api/marathon/challenges
+Returns active challenges. If none exist, the controller seeds a default challenge set and returns that payload.
+
+### POST /api/marathon/accept
+Body:
+```json
+{
+  "challengeId": "..."
+}
+```
+
+Success:
+```json
+{
+  "message": "Challenge accepted successfully"
+}
+```
+
+---
+
+## 10. Focus Score API (`/api/focus-score`)
 
 All endpoints require auth.
 
@@ -729,7 +880,7 @@ Triggers recalculation and returns updated score data.
 
 ---
 
-## 9. Reminders API (`/api/reminders`)
+## 11. Reminders API (`/api/reminders`)
 
 All endpoints require auth and request validation.
 
@@ -777,6 +928,15 @@ Success (201):
 }
 ```
 
+### Get reminder
+`GET /api/reminders/:id`
+
+### Update reminder
+`PUT /api/reminders/:id`
+
+### Delete reminder
+`DELETE /api/reminders/:id`
+
 ### List reminders
 `GET /api/reminders/?status=active&upcoming=true`
 
@@ -816,7 +976,7 @@ For recurring reminders, this reschedules next occurrence.
 
 ---
 
-## 10. Subscription API (`/api/subscription`)
+## 12. Subscription API (`/api/subscription`)
 
 ### Public webhook
 - `POST /api/subscription/webhook/dodo`
@@ -840,20 +1000,49 @@ Body:
 Allowed plan values in controller:
 - `premium_monthly`
 - `premium_yearly`
+- `pro_monthly`
+- `pro_yearly`
 - `free`
 
 Possible response behaviors:
 - Free plan: creates local subscription and returns success payload
-- Premium plan: returns `checkout_url` for Dodo checkout redirect
+- Premium and pro plans: return `checkout_url` for Dodo checkout redirect
 
 ### GET /api/subscription/status
 Returns whether user has subscription and status metadata.
 
+Response example:
+```json
+{
+  "hasSubscription": true,
+  "tier": "premium",
+  "plan": "premium_monthly",
+  "status": "active",
+  "currentPeriodEnd": "2026-04-30T00:00:00.000Z",
+  "cancelAtPeriodEnd": false
+}
+```
+
 ### POST /api/subscription/cancel
 Cancels active subscription at period end.
 
+Success:
+```json
+{
+  "message": "Subscription will be canceled at the end of the billing period",
+  "currentPeriodEnd": "..."
+}
+```
+
 ### POST /api/subscription/reactivate
 Reactivates pending cancellation.
+
+Success:
+```json
+{
+  "message": "Subscription reactivated successfully"
+}
+```
 
 ### POST /api/subscription/change-plan
 Body:
@@ -863,9 +1052,37 @@ Body:
 }
 ```
 
+Allowed values:
+- `premium_monthly`
+- `premium_yearly`
+
+Success:
+```json
+{
+  "message": "Subscription upgraded successfully",
+  "subscription": {
+    "id": "...",
+    "plan": "premium_yearly",
+    "status": "active",
+    "currentPeriodStart": "...",
+    "currentPeriodEnd": "..."
+  }
+}
+```
+
+### POST /api/subscription/webhook/dodo
+Public webhook for Dodo Payments subscription events.
+
+Success:
+```json
+{
+  "received": true
+}
+```
+
 ---
 
-## 11. Health / Monitoring API (`/api/health`)
+## 13. Health / Monitoring API (`/api/health`)
 
 Public endpoints:
 
@@ -875,6 +1092,7 @@ Public endpoints:
 - `GET /api/health/ready`
 - `GET /api/health/live`
 - `GET /api/health/dashboard`
+- `GET /api/health/metrics`
 
 Legacy endpoint:
 
@@ -883,8 +1101,18 @@ Legacy endpoint:
 ### GET /api/health/
 Returns app + DB health.
 
+Response includes `status`, `timestamp`, `uptime`, and `database`.
+
 ### GET /api/health/detailed
 Adds system/process metrics.
+
+Response also includes `system`, `process`, and `environment` sections.
+
+### GET /api/health/metrics
+Returns the metrics snapshot collected by the in-process metrics service.
+
+### GET /api/health/dashboard
+Returns an operational dashboard payload with uptime, performance, system health, business metrics, and recent activity.
 
 ### GET /api/health/ready
 Readiness probe:
@@ -897,9 +1125,12 @@ Liveness probe:
 { "alive": true }
 ```
 
+### GET /api/health-legacy
+Legacy health endpoint returning `status`, `timestamp`, and `database`.
+
 ---
 
-## 12. Request Examples
+## 14. Request Examples
 
 ### Authenticated request example
 ```bash
@@ -918,16 +1149,18 @@ curl -X POST "http://localhost:5000/api/plan/task/<taskId>/attachment/upload" \
 
 ---
 
-## 13. Implementation Notes
+## 15. Implementation Notes
 
-- Some controllers use `req.user.userId`; others use `req.user.id`. JWT payload consistency should be validated in integration tests.
-- Error response structure is mixed (standardized and legacy). Consumers should handle both patterns.
-- CSRF middleware currently bypasses validation intentionally.
+- Some controllers use `req.user.userId`; others use `req.user.id`. The auth middleware adds `id` as an alias for `userId`.
+- Error response structure is mixed. The standardized error envelope is the default, but some controllers still return a simple `{ error: "..." }` payload.
+- CSRF middleware currently bypasses validation intentionally, but token generation and header/cookie plumbing still exist.
+- The Express app mounts the same API router at both `/api` and `/`, so both prefixed and prefix-stripped deployments are supported.
 - `backend/routes/webhooks.js` exists but is empty.
+- The plan controller also exposes `POST /api/plan/task/:taskId/finalize` and `POST /api/plan/task/:taskId/attachment/playlist`, which are easy to miss if you only scan the CRUD routes.
 
 ---
 
-## 14. Suggested Next Improvements
+## 16. Suggested Next Improvements
 
 1. Publish OpenAPI 3.1 schema from this source document.
 2. Add endpoint-level request/response validation tests.

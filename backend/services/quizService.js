@@ -1,4 +1,5 @@
 import QuizResult from "../models/QuizResult.js"
+import { callLLM } from "./llmLayer.js"
 
 /**
  * Generate quiz questions with multiple choice options from study materials
@@ -10,9 +11,6 @@ import QuizResult from "../models/QuizResult.js"
  * @returns {Promise<Array>} Array of quiz questions with options
  */
 export async function generateQuizQuestions({ apiKey, videoUrl, metadata, questionCount = 5 }) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"
-  const baseUrl = process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta"
-
   const systemPrompt = `You are an expert quiz creator. Generate multiple choice quiz questions based on study materials.
 Return strict JSON only with this schema:
 {
@@ -37,42 +35,16 @@ Create ${questionCount} questions that test understanding, not just memorization
     "Ensure options are plausible but only one is clearly correct.",
   ].join("\n")
 
-  const response = await fetch(
-    `${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: userPrompt }],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.4,
-          responseMimeType: "application/json",
-        },
-      }),
-    }
-  )
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`Quiz generation failed: ${response.status} ${text}`)
-  }
-
-  const data = await response.json()
-  const content = extractGeminiText(data)
+  const result = await callLLM({
+    apiKey,
+    expectJson: true,
+    systemPrompt,
+    userPrompt,
+  })
 
   try {
-    const parsed = JSON.parse(content)
-    return normalizeQuizQuestions(parsed.questions || [], questionCount)
+    const questions = result?.questions || []
+    return normalizeQuizQuestions(questions, questionCount)
   } catch (error) {
     console.error("Failed to parse quiz questions:", error)
     return generateFallbackQuestions(questionCount)
@@ -254,15 +226,4 @@ export async function getQuizAnalytics(userId, days = 30) {
   }
 }
 
-/**
- * Extract text from Gemini API response
- */
-function extractGeminiText(data) {
-  const parts = data?.candidates?.[0]?.content?.parts
-  if (!Array.isArray(parts)) return ""
 
-  return parts
-    .map((part) => (typeof part?.text === "string" ? part.text : ""))
-    .join("\n")
-    .trim()
-}

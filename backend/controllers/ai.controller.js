@@ -4,6 +4,7 @@ import {
   estimateTokenCount,
   getTokenUsageStats,
 } from "../services/tokenTracking.js"
+import { callLLM } from "../services/llmLayer.js"
 
 /**
  * Get token usage information
@@ -56,13 +57,16 @@ export const studyAssistant = async (req, res) => {
       return res.status(400).json({ error: "videoUrl is required" })
     }
 
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
+    const isBedrockConfigured = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+    const isGeminiConfigured = !!process.env.GEMINI_API_KEY
+
+    if (!isBedrockConfigured && !isGeminiConfigured) {
       return res.status(503).json({
-        error: "AI backend is not configured. Set GEMINI_API_KEY in backend environment.",
+        error: "AI backend is not configured. Set AWS Bedrock or GEMINI_API_KEY in backend environment.",
       })
     }
 
+    const apiKey = process.env.GEMINI_API_KEY || "BEDROCK" // Placeholder for Gemini compat
     const metadata = await fetchYouTubeMetadata(videoUrl)
 
     if (mode === "chat") {
@@ -72,6 +76,7 @@ export const studyAssistant = async (req, res) => {
         message,
         summary,
         metadata,
+        userId: req.user.id
       })
 
       // Track token usage
@@ -85,6 +90,7 @@ export const studyAssistant = async (req, res) => {
       apiKey,
       videoUrl,
       metadata,
+      userId: req.user.id
     })
 
     // Track token usage for study pack generation
@@ -93,6 +99,9 @@ export const studyAssistant = async (req, res) => {
 
     return res.json(studyPack)
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI study-assistant error:", error)
     return res.status(500).json({ error: "Failed to generate AI response" })
   }
@@ -103,31 +112,15 @@ export const studyAssistant = async (req, res) => {
  */
 export const generateStudyPackEndpoint = async (req, res) => {
   try {
-    // Check token limit
-    const tokenCheck = await checkTokenLimit(req.user.id)
-    if (!tokenCheck.allowed) {
-      return res.status(403).json({
-        error: "TOKEN_LIMIT_EXCEEDED",
-        message: "Daily LLM token limit exceeded. Resets at midnight UTC.",
-        details: {
-          used: tokenCheck.limit - tokenCheck.remaining,
-          limit: tokenCheck.limit,
-          resetAt: tokenCheck.resetAt,
-        },
-      })
-    }
-
     const base = await getBaseRequestContext(req, res)
     if (!base) return
 
     const studyPack = await generateStudyPack(base)
-
-    // Track token usage
-    const tokensUsed = estimateTokenCount(JSON.stringify(studyPack))
-    await trackTokenUsage(req.user.id, tokensUsed, "quiz_generation")
-
     return res.json(studyPack)
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI study-pack error:", error)
     return res.status(500).json({ error: "Failed to generate study pack" })
   }
@@ -163,6 +156,9 @@ export const generateSummary = async (req, res) => {
 
     return res.json({ summary: studyPack.summary })
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI summary error:", error)
     return res.status(500).json({ error: "Failed to generate summary" })
   }
@@ -198,6 +194,9 @@ export const generateQuiz = async (req, res) => {
 
     return res.json({ quiz: studyPack.quiz })
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI quiz error:", error)
     return res.status(500).json({ error: "Failed to generate quiz" })
   }
@@ -233,6 +232,9 @@ export const generateFlashcards = async (req, res) => {
 
     return res.json({ flashcards: studyPack.flashcards })
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI flashcards error:", error)
     return res.status(500).json({ error: "Failed to generate flashcards" })
   }
@@ -268,6 +270,9 @@ export const generateInfographics = async (req, res) => {
 
     return res.json({ infographics: studyPack.infographics })
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI infographics error:", error)
     return res.status(500).json({ error: "Failed to generate infographics" })
   }
@@ -300,6 +305,7 @@ export const chat = async (req, res) => {
       ...base,
       message,
       summary,
+      userId: req.user.id
     })
 
     // Track token usage
@@ -308,6 +314,9 @@ export const chat = async (req, res) => {
 
     return res.json({ reply })
   } catch (error) {
+    if (error.message && error.message.includes("TOKEN_LIMIT_EXCEEDED")) {
+      return res.status(403).json({ error: "TOKEN_LIMIT_EXCEEDED", message: error.message })
+    }
     console.error("AI chat error:", error)
     return res.status(500).json({ error: "Failed to generate chat response" })
   }
@@ -323,16 +332,19 @@ async function getBaseRequestContext(req, res) {
     return null
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
+  const isBedrockConfigured = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+  const isGeminiConfigured = !!process.env.GEMINI_API_KEY
+
+  if (!isBedrockConfigured && !isGeminiConfigured) {
     res.status(503).json({
-      error: "AI backend is not configured. Set GEMINI_API_KEY in backend environment.",
+      error: "AI backend is not configured. Set AWS Bedrock or GEMINI_API_KEY in backend environment.",
     })
     return null
   }
 
+  const apiKey = process.env.GEMINI_API_KEY || "BEDROCK"
   const metadata = await fetchYouTubeMetadata(videoUrl)
-  return { apiKey, videoUrl, metadata }
+  return { apiKey, videoUrl, metadata, userId: req.user.id }
 }
 
 async function fetchYouTubeMetadata(videoUrl) {
@@ -354,10 +366,12 @@ async function fetchYouTubeMetadata(videoUrl) {
   }
 }
 
-async function generateStudyPack({ apiKey, videoUrl, metadata }) {
+async function generateStudyPack({ apiKey, videoUrl, metadata, userId }) {
   const result = await callLLM({
     apiKey,
+    userId,
     expectJson: true,
+    taskType: "quiz_generation",
     systemPrompt:
       "You are an expert study assistant. Return strict JSON only with this schema: {summary: string[3..6], quiz: string[3..6], flashcards: {front:string,back:string}[3..6], infographics: string[2..4]}. Be concise and practical.",
     userPrompt: [
@@ -372,14 +386,30 @@ async function generateStudyPack({ apiKey, videoUrl, metadata }) {
   return normalizeStudyPack(result)
 }
 
-async function generateChatReply({ apiKey, videoUrl, message, summary, metadata }) {
+async function generateChatReply({ apiKey, videoUrl, message, summary, metadata, userId }) {
   if (!message || typeof message !== "string") {
     return "Please ask a question about this study session."
   }
 
+  // 🧠 Intelligent Context Compression
+  let compressedSummary = JSON.stringify(Array.isArray(summary) ? summary : [])
+  if (compressedSummary.length > 3000) {
+    console.log("[AI] Compressing large summary context to save tokens...")
+    const compressed = await callLLM({
+      apiKey,
+      expectJson: false,
+      systemPrompt: "Summarize this study context into a high-density conceptual map. Keep only the most important technical terms and concepts. Output as a short bulleted list.",
+      userPrompt: compressedSummary,
+      userId
+    })
+    compressedSummary = compressed
+  }
+
   const result = await callLLM({
     apiKey,
+    userId,
     expectJson: false,
+    taskType: "chat",
     systemPrompt:
       "You are a concise learning coach. Answer in 2-6 lines. Use bullet points only when useful.",
     userPrompt: [
@@ -387,67 +417,12 @@ async function generateChatReply({ apiKey, videoUrl, message, summary, metadata 
       `Video URL: ${videoUrl}`,
       `Video title: ${metadata.title}`,
       `Creator: ${metadata.authorName}`,
-      `Current summary context: ${JSON.stringify(Array.isArray(summary) ? summary : [])}`,
+      `Current summary context: ${compressedSummary}`,
       `User question: ${message}`,
     ].join("\n"),
   })
 
   return typeof result === "string" ? result : "I can help break this down—ask me about concepts, examples, or revision strategy."
-}
-
-export async function callLLM({ apiKey, expectJson, systemPrompt, userPrompt }) {
-  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"
-  const baseUrl = process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta"
-
-  const response = await fetch(`${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      systemInstruction: {
-        parts: [{ text: systemPrompt }],
-      },
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: userPrompt }],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.3,
-        responseMimeType: expectJson ? "application/json" : "text/plain",
-      },
-    }),
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`LLM call failed: ${response.status} ${text}`)
-  }
-
-  const data = await response.json()
-  const content = extractGeminiText(data)
-
-  if (!expectJson) {
-    return content
-  }
-
-  try {
-    return JSON.parse(content)
-  } catch {
-    return {}
-  }
-}
-
-function extractGeminiText(data) {
-  const parts = data?.candidates?.[0]?.content?.parts
-  if (!Array.isArray(parts)) return ""
-
-  return parts
-    .map((part) => (typeof part?.text === "string" ? part.text : ""))
-    .join("\n")
-    .trim()
 }
 
 function normalizeStudyPack(input) {

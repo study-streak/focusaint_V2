@@ -71,7 +71,7 @@ const development = {
 
   // Feature flags
   features: {
-    aiEnabled: Boolean(process.env.GEMINI_API_KEY),
+    aiEnabled: Boolean(process.env.GEMINI_API_KEY) || Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY),
     paymentsEnabled: Boolean(process.env.DODO_PAYMENTS_API_KEY),
     sentryEnabled: Boolean(process.env.SENTRY_DSN),
     cacheEnabled: true
@@ -88,8 +88,13 @@ const development = {
   services: {
     gemini: {
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'gemini-pro',
+      model: process.env.GEMINI_MODEL || 'gemini-pro',
       maxTokens: 1000
+    },
+    bedrock: {
+      region: process.env.AWS_REGION || 'us-east-1',
+      modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      maxTokens: 4096
     },
     dodoPayments: {
       apiKey: process.env.DODO_PAYMENTS_API_KEY,
@@ -171,7 +176,7 @@ const staging = {
 
   // Feature flags
   features: {
-    aiEnabled: Boolean(process.env.GEMINI_API_KEY),
+    aiEnabled: Boolean(process.env.GEMINI_API_KEY) || Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY),
     paymentsEnabled: Boolean(process.env.DODO_PAYMENTS_API_KEY),
     sentryEnabled: Boolean(process.env.SENTRY_DSN),
     cacheEnabled: true
@@ -188,8 +193,13 @@ const staging = {
   services: {
     gemini: {
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'gemini-pro',
+      model: process.env.GEMINI_MODEL || 'gemini-pro',
       maxTokens: 1000
+    },
+    bedrock: {
+      region: process.env.AWS_REGION || 'us-east-1',
+      modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      maxTokens: 4096
     },
     dodoPayments: {
       apiKey: process.env.DODO_PAYMENTS_API_KEY,
@@ -273,7 +283,7 @@ const production = {
 
   // Feature flags
   features: {
-    aiEnabled: Boolean(process.env.GEMINI_API_KEY),
+    aiEnabled: Boolean(process.env.GEMINI_API_KEY) || Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY),
     paymentsEnabled: Boolean(process.env.DODO_PAYMENTS_API_KEY),
     sentryEnabled: Boolean(process.env.SENTRY_DSN),
     cacheEnabled: true
@@ -290,8 +300,13 @@ const production = {
   services: {
     gemini: {
       apiKey: process.env.GEMINI_API_KEY,
-      model: 'gemini-pro',
+      model: process.env.GEMINI_MODEL || 'gemini-pro',
       maxTokens: 1000
+    },
+    bedrock: {
+      region: process.env.AWS_REGION || 'us-east-1',
+      modelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20240620-v1:0',
+      maxTokens: 4096
     },
     dodoPayments: {
       apiKey: process.env.DODO_PAYMENTS_API_KEY,

@@ -88,7 +88,7 @@ export const authLoginLimiter = createRateLimiter({
 
 export const authSignupLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 signups per hour per IP
+  max: 10, // Increased for testing and high growth
   message: 'Too many signup attempts. Please try again in 1 hour.'
 });
 
@@ -107,7 +107,7 @@ export const authOTPLimiter = createRateLimiter({
 // AI endpoints - token-aware limits
 export const aiChatLimiter = createRateLimiter({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 20, // 20 AI requests per hour
+  max: 100, // Increased for Deep Mode support
   message: 'AI request limit exceeded. Please try again later.',
   keyGenerator: (req) => {
     // Use user ID if authenticated, otherwise use default IP handling

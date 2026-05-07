@@ -2,7 +2,7 @@ import LearningPath from '../models/LearningPath.js';
 import Lesson from '../models/Lesson.js';
 import LessonProgress from '../models/LessonProgress.js';
 import SpacedReview from '../models/SpacedReview.js';
-import { callLLM } from './ai.controller.js'; // Assuming this exists or I'll create/find it
+import { callLLM } from '../services/llmLayer.js';
 
 export const generateLearningPath = async (req, res) => {
   try {
@@ -31,13 +31,12 @@ Return as JSON:
   ]
 }`;
 
-    // Note: I'm assuming callLLM or similar is available. 
-    // In ai.controller.js I saw generateStudyPack, etc.
-    // Let me check ai.controller.js to see how to call LLM properly.
-    
-    // For now, I'll use a placeholder or check ai.controller.js
-    const aiResponse = await callLLM(prompt); 
-    const pathData = JSON.parse(aiResponse);
+    const aiResponse = await callLLM({
+      expectJson: true,
+      systemPrompt: "You are an expert curriculum designer. Return strict JSON.",
+      userPrompt: prompt
+    }); 
+    const pathData = typeof aiResponse === 'string' ? JSON.parse(aiResponse) : aiResponse;
 
     const learningPath = await LearningPath.create({
       userId,

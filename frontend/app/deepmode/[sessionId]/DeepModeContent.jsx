@@ -375,7 +375,7 @@ export default function DeepModeContent() {
                         className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-[#4a8a4a]/10 text-[#4a8a4a] hover:bg-[#4a8a4a]/20 transition-colors text-xs sm:text-sm font-medium"
                         title="Finish & take quiz"
                     >
-                        <span className="hidden xs:inline">Finish</span> Session
+                        <span className="">Finish</span>
                     </button>
 
                     <button 

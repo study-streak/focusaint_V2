@@ -37,12 +37,16 @@ export const generateQuiz = async (req, res) => {
       return res.status(400).json({ error: "videoUrl is required" })
     }
 
-    const apiKey = process.env.GEMINI_API_KEY
-    if (!apiKey) {
+    const isBedrockConfigured = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+    const isGeminiConfigured = !!process.env.GEMINI_API_KEY
+
+    if (!isBedrockConfigured && !isGeminiConfigured) {
       return res.status(503).json({
-        error: "AI backend is not configured. Set GEMINI_API_KEY in backend environment.",
+        error: "AI backend is not configured. Set AWS Bedrock or GEMINI_API_KEY in backend environment.",
       })
     }
+
+    const apiKey = process.env.GEMINI_API_KEY || "BEDROCK"
 
     // Fetch video metadata
     const metadata = await fetchYouTubeMetadata(videoUrl)

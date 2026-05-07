@@ -23,7 +23,7 @@ const llmTokenUsageSchema = new mongoose.Schema(
     },
     feature: {
       type: String,
-      enum: ["study_coach", "quiz_generation", "note_summary", "recommendations"],
+      enum: ["study_coach", "quiz_generation", "note_summary", "recommendations", "chat"],
       required: true,
     },
     createdAt: {
