@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 // Track whether Sentry is initialized
 let isSentryInitialized = false;
@@ -35,10 +34,8 @@ export function initSentry(app) {
       Sentry.httpIntegration({ tracing: true }),
       
       // Enable Express.js middleware tracing
+      // Enable Express.js middleware tracing
       Sentry.expressIntegration({ app }),
-      
-      // Enable profiling
-      nodeProfilingIntegration(),
     ],
     
     // Filter out sensitive data

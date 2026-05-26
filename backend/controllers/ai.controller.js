@@ -422,7 +422,7 @@ async function generateChatReply({ apiKey, videoUrl, message, summary, metadata,
     ].join("\n"),
   })
 
-  return typeof result === "string" ? result : "I can help break this down—ask me about concepts, examples, or revision strategy."
+  return (typeof result === "string" && result.trim().length > 0) ? result : "I can help break this down—ask me about concepts, examples, or revision strategy."
 }
 
 function normalizeStudyPack(input) {

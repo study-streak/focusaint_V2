@@ -111,6 +111,10 @@ const userSchema = new mongoose.Schema(
         default: null,
       },
     },
+    spacedReviewIntervals: {
+      type: [Number],
+      default: [1, 3, 7]
+    },
     marathonChallenges: [{
       challengeId: {
         type: mongoose.Schema.Types.ObjectId,

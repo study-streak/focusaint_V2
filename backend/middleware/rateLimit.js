@@ -80,7 +80,8 @@ function createRateLimiter(options) {
 
 // Authentication endpoints - strict limits
 export const authLoginLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 1 * 60 * 1000, // 15 minutes
+  // windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 attempts per 15 minutes
   message: 'Too many login attempts. Please try again in 15 minutes.'
   // Remove custom keyGenerator to use default (which handles IPv6 correctly)

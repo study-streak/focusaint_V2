@@ -110,7 +110,7 @@ export default function Hero() {
           </p>
 
           <div className="fade-up d4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
-            <Link href="/auth/signup" className="btn-accent">
+            <Link href="/signup" className="btn-accent">
               Begin your learning
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/>

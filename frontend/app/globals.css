@@ -22,18 +22,18 @@
 /* Light Theme */
 html[data-theme="light"],
 html.light {
-  --black:   #ffffff;
-  --surface: #f8f6f4;
-  --card:    #f0ede9;
-  --line:    rgba(0,0,0,0.08);
-  --white:   #1a1a1a;
-  --muted:   #3a3530;
+  --black:   #f3f4f6; /* App background - slightly gray to contrast with cards */
+  --surface: #ffffff; /* Inner surfaces */
+  --card:    #ffffff; /* Card containers - pure white */
+  --line:    rgba(200, 64, 42, 0.25); /* Colored borders using accent color */
+  --white:   #000000; /* Pure black text */
+  --muted:   #4b5563; /* Dark gray muted text */
   --accent:  #c8402a;
   --accent2: #e05a3a;
   --gold:    #c4963a;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,0.1), 0 3px 8px rgba(0,0,0,0.06);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

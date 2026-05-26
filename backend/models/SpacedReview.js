@@ -9,7 +9,28 @@ const spacedReviewSchema = new mongoose.Schema({
   lessonId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lesson',
-    required: true
+    required: false
+  },
+  taskId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'HabitTask',
+    required: false
+  },
+  attachmentId: {
+    type: String,
+    required: false
+  },
+  contentUrl: {
+    type: String,
+    required: false
+  },
+  materialName: {
+    type: String,
+    required: false
+  },
+  originalSummary: {
+    type: String,
+    required: false
   },
   reviewNumber: {
     type: Number, // 1, 2, 3... (e.g., 1-day, 3-day, 7-day)

@@ -124,8 +124,15 @@ export default function SessionCompleteFlow({
         try {
             // Mark attachment complete
             await APIClient.patch(`/api/plan/task/${sessionId}/attachment/${attachmentId}/complete`)
+            
+            // Schedule spaced reviews
+            await APIClient.post(`/api/plan/task/${sessionId}/attachment/${attachmentId}/spaced-review`, {
+                contentUrl: contentUrl,
+                materialName: materialName,
+                reflectionText: reflection
+            })
         } catch (err) {
-            console.warn("Failed to mark attachment complete:", err)
+            console.warn("Failed to complete task or schedule review:", err)
         }
         
         setIsSubmitting(false)
@@ -137,9 +144,9 @@ export default function SessionCompleteFlow({
     }
 
     return (
-        <div className="fixed inset-0 bg-[#020617] z-[200] flex items-center justify-center overflow-y-auto">
+        <div className="fixed inset-0 bg-[var(--black)] z-[200] flex items-center justify-center overflow-y-auto transition-colors duration-500">
             {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/10 via-black to-black" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-[var(--black)] to-[var(--black)]" />
             
             <div className="relative z-10 w-full max-w-2xl mx-auto p-6">
                 
@@ -160,7 +167,7 @@ export default function SessionCompleteFlow({
                                 <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                                     isDone ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" :
                                     isActive ? "bg-indigo-500/20 text-indigo-400 border border-indigo-500/30" : 
-                                    "bg-white/5 text-gray-500 border border-white/10"
+                                    "bg-[var(--card)] text-[var(--muted)] border border-[var(--line)]"
                                 }`}>
                                     {isDone ? <CheckCircle size={16} /> : <step.icon size={16} />}
                                     {step.label}
@@ -174,8 +181,8 @@ export default function SessionCompleteFlow({
                 {/* Material Info */}
                 <div className="text-center mb-8">
                     <p className="text-xs text-indigo-400 uppercase tracking-widest mb-2">Session Complete</p>
-                    <h2 className="text-xl font-bold text-white">{goalTitle || "Focus Session"}</h2>
-                    <p className="text-sm text-gray-400 mt-1">{materialName || "Study Material"}</p>
+                    <h2 className="text-xl font-bold text-[var(--white)]">{goalTitle || "Focus Session"}</h2>
+                    <p className="text-sm text-[var(--muted)] mt-1">{materialName || "Study Material"}</p>
                     {focusedTime && (
                         <p className="text-xs text-emerald-400 mt-2 font-mono">⏱ {focusedTime} of focused study</p>
                     )}
@@ -212,8 +219,8 @@ export default function SessionCompleteFlow({
                             </div>
 
                             {/* Question */}
-                            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-                                <p className="text-lg font-medium text-white mb-6">
+                            <div className="bg-[var(--card)] border border-[var(--line)] rounded-2xl p-6 shadow-xl">
+                                <p className="text-lg font-medium text-[var(--white)] mb-6">
                                     {questions[currentQ]?.question}
                                 </p>
 
@@ -226,8 +233,8 @@ export default function SessionCompleteFlow({
                                             onClick={() => selectAnswer(currentQ, optIdx)}
                                             className={`w-full text-left p-4 rounded-xl border transition-all ${
                                                 answers[currentQ] === optIdx
-                                                    ? "bg-indigo-500/20 border-indigo-500/50 text-white"
-                                                    : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10"
+                                                    ? "bg-indigo-500/10 border-indigo-500/50 text-indigo-500"
+                                                    : "bg-[var(--surface)] border-[var(--line)] text-[var(--white)] hover:bg-[var(--white)]/5"
                                             }`}
                                         >
                                             <span className="text-sm font-medium mr-3 text-indigo-400">
@@ -304,10 +311,10 @@ export default function SessionCompleteFlow({
                             </div>
 
                             <div>
-                                <h3 className="text-xl font-bold text-white">
+                                <h3 className="text-xl font-bold text-[var(--white)]">
                                     {quizResult.score >= 80 ? "Great Job!" : "Keep Practicing!"}
                                 </h3>
-                                <p className="text-gray-400 text-sm mt-2">
+                                <p className="text-[var(--muted)] text-sm mt-2">
                                     You got {quizResult.correctAnswers} out of {quizResult.totalQuestions} correct
                                 </p>
                             </div>
@@ -357,7 +364,7 @@ export default function SessionCompleteFlow({
                                         setError(null)
                                     }}
                                     placeholder="What did you learn? What concepts stood out? How would you explain this to someone else?"
-                                    className="w-full h-48 bg-black/30 border border-white/10 rounded-xl p-4 text-white placeholder-gray-500 resize-none focus:outline-none focus:border-indigo-500/50 transition-colors text-sm leading-relaxed"
+                                    className="w-full h-48 bg-[var(--surface)] border border-[var(--line)] rounded-xl p-4 text-[var(--white)] placeholder:text-[var(--muted)]/50 resize-none focus:outline-none focus:border-indigo-500/50 transition-colors text-sm leading-relaxed"
                                 />
 
                                 <div className="flex items-center justify-between mt-4">
@@ -406,8 +413,8 @@ export default function SessionCompleteFlow({
                             </motion.div>
 
                             <div>
-                                <h3 className="text-2xl font-bold text-white mb-2">Material Complete!</h3>
-                                <p className="text-gray-400 text-sm">
+                                <h3 className="text-2xl font-bold text-[var(--white)] mb-2">Material Complete!</h3>
+                                <p className="text-[var(--muted)] text-sm">
                                     You've finished studying, passed the quiz, and reflected on your learning.
                                 </p>
                                 {focusedTime && (

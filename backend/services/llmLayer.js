@@ -42,7 +42,7 @@ export async function callLLM({
 
   // 2. Switching & Routing Logic (based on taskType)
   // Logic from AI_ARCHITECTURE.md
-  let selectedProvider = 'groq'
+  let selectedProvider = 'bedrock'
   let modelOverride = null
 
   if (taskType === 'technical') {
@@ -99,7 +99,7 @@ async function getSemanticKey(prompt) {
  * Executes the LLM call with automated failover
  */
 async function executeWithFailover(params) {
-  const providers = ['groq', 'bedrock', 'gemini']
+  const providers = ['bedrock', 'groq', 'gemini']
   const startIndex = providers.indexOf(params.selectedProvider)
   
   let lastError = null

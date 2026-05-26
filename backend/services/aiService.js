@@ -7,34 +7,61 @@ import path from "path"
 import os from "os"
 import AIJob from "../models/AIJob.js"
 
-// Initialize Clients
-const bedrockRuntime = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
+// Initialize Clients lazily or conditionally
+let _bedrockRuntime = null
+function getBedrockRuntime() {
+  if (!_bedrockRuntime) {
+    _bedrockRuntime = new BedrockRuntimeClient({
+      region: process.env.AWS_REGION || "us-east-1",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  }
+  return _bedrockRuntime
+}
 
-const bedrockControl = new BedrockClient({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
+let _bedrockControl = null
+function getBedrockControl() {
+  if (!_bedrockControl) {
+    _bedrockControl = new BedrockClient({
+      region: process.env.AWS_REGION || "us-east-1",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  }
+  return _bedrockControl
+}
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
+let _s3Client = null
+function getS3Client() {
+  if (!_s3Client) {
+    _s3Client = new S3Client({
+      region: process.env.AWS_REGION || "us-east-1",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  }
+  return _s3Client
+}
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-})
+let _groq = null
+function getGroq() {
+  if (!process.env.GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY is not configured.")
+  }
+  if (!_groq) {
+    _groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    })
+  }
+  return _groq
+}
 
 export async function callLLM({ 
   apiKey, 
@@ -56,25 +83,44 @@ export async function callLLM({
   const isBedrockConfigured = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
   const isGroqConfigured = !!process.env.GROQ_API_KEY
   
-  const provider = providerOverride || (isGroqConfigured ? 'groq' : isBedrockConfigured ? 'bedrock' : 'gemini')
+  const provider = providerOverride || (isBedrockConfigured ? 'bedrock' : isGroqConfigured ? 'groq' : 'gemini')
   
   if (isBatch && isBedrockConfigured) {
     return await callBedrockBatch({ systemPrompt, userPrompt: finalUserPrompt, userId })
   }
 
-  if (provider === 'groq' && isGroqConfigured) {
-    return await callGroq({ expectJson, systemPrompt, userPrompt: finalUserPrompt })
+  if (provider === 'bedrock') {
+    if (!isBedrockConfigured) {
+      if (providerOverride) throw new Error("Bedrock provider requested but not configured (missing AWS keys).")
+    } else {
+      return await callBedrock({ expectJson, systemPrompt, userPrompt: finalUserPrompt })
+    }
   }
 
-  if (provider === 'bedrock' && isBedrockConfigured) {
-    return await callBedrock({ expectJson, systemPrompt, userPrompt: finalUserPrompt })
+  if (provider === 'groq') {
+    if (!isGroqConfigured) {
+      if (providerOverride) throw new Error("Groq provider requested but not configured (missing GROQ_API_KEY).")
+    } else {
+      return await callGroq({ expectJson, systemPrompt, userPrompt: finalUserPrompt })
+    }
   }
 
   // Fallback to Gemini
+  let geminiKey = apiKey || process.env.GEMINI_API_KEY
+  
+  // Clean up placeholder values
+  if (geminiKey === "BEDROCK" || !geminiKey || geminiKey === "undefined") {
+    geminiKey = process.env.GEMINI_API_KEY
+  }
+
+  if (!geminiKey || geminiKey === "BEDROCK" || geminiKey === "undefined") {
+    throw new Error("No valid AI provider configured. Bedrock, Groq, and Gemini are all unavailable or missing/invalid API keys.")
+  }
+
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"
   const baseUrl = process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta"
 
-  const response = await fetch(`${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`, {
+  const response = await fetch(`${baseUrl}/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -124,7 +170,7 @@ async function callBedrock({ expectJson, systemPrompt, userPrompt }) {
   // Prepare payload based on model provider (defaults to Anthropic structure)
   let payload = {}
   
-  if (modelId.startsWith("anthropic.")) {
+  if (modelId.includes("anthropic")) {
     payload = {
       anthropic_version: "bedrock-2023-05-31",
       max_tokens: 4096,
@@ -135,13 +181,25 @@ async function callBedrock({ expectJson, systemPrompt, userPrompt }) {
           content: userPrompt,
         },
       ],
-      temperature: 0.3,
+      temperature: 0.9,
     }
-  } else if (modelId.startsWith("meta.llama3")) {
+  } else if (modelId.includes("llama3")) {
     payload = {
       prompt: `System: ${systemPrompt}\nUser: ${userPrompt}\nAssistant:`,
       max_gen_len: 2048,
-      temperature: 0.3,
+      temperature: 0.9,
+    }
+  } else {
+    // Default to messages format as most modern Bedrock models use it
+    payload = {
+      messages: [
+        {
+          role: "user",
+          content: `System: ${systemPrompt}\n\n${userPrompt}`,
+        },
+      ],
+      max_tokens: 2048,
+      temperature: 0.9,
     }
   }
 
@@ -153,14 +211,18 @@ async function callBedrock({ expectJson, systemPrompt, userPrompt }) {
   })
 
   try {
-    const response = await bedrockRuntime.send(command)
+    const response = await getBedrockRuntime().send(command)
     const result = JSON.parse(new TextDecoder().decode(response.body))
     
     let content = ""
-    if (modelId.startsWith("anthropic.")) {
+    if (modelId.includes("anthropic")) {
       content = result.content[0].text
-    } else if (modelId.startsWith("meta.llama3")) {
-      content = result.generation
+    } else if (modelId.includes("llama3")) {
+      content = result.generation || result.content?.[0]?.text || ""
+    } else if (modelId.includes("qwen")) {
+      content = result.output?.message?.content?.[0]?.text || result.output?.text || result.generation || ""
+    } else {
+      content = result.output?.message?.content?.[0]?.text || result.content?.[0]?.text || result.generation || result.output?.text || ""
     }
 
     if (!expectJson) return content.trim()
@@ -186,7 +248,7 @@ async function callGroq({ expectJson, systemPrompt, userPrompt }) {
   const model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile"
   
   try {
-    const chatCompletion = await groq.chat.completions.create({
+    const chatCompletion = await getGroq().chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt }
@@ -241,7 +303,7 @@ async function callBedrockBatch({ systemPrompt, userPrompt, userId }) {
 
   // 2. Upload to S3
   const s3Key = `batch-input/${requestId}.jsonl`
-  await s3Client.send(new PutObjectCommand({
+  await getS3Client().send(new PutObjectCommand({
     Bucket: s3Bucket,
     Key: s3Key,
     Body: fs.createReadStream(tempFile)
@@ -257,7 +319,7 @@ async function callBedrockBatch({ systemPrompt, userPrompt, userId }) {
   })
 
   try {
-    const job = await bedrockControl.send(command)
+    const job = await getBedrockControl().send(command)
     
     // 4. Save to DB for tracking
     if (userId) {
@@ -291,7 +353,7 @@ export async function pollBatchJobs() {
   for (const job of activeJobs) {
     try {
       const command = new GetModelInvocationJobCommand({ jobIdentifier: job.jobArn })
-      const result = await bedrockControl.send(command)
+      const result = await getBedrockControl().send(command)
       
       if (result.status !== job.status) {
         job.status = result.status // e.g. COMPLETED, FAILED

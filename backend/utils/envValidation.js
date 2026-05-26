@@ -112,11 +112,16 @@ const ENV_SCHEMA = {
     description: 'Use TLS for SMTP connection'
   },
 
-  // Optional: External Services (for future features)
+  // AI & External Services
   GEMINI_API_KEY: {
     required: false,
     type: 'string',
     description: 'Google Gemini API key for AI features'
+  },
+  GROQ_API_KEY: {
+    required: false,
+    type: 'string',
+    description: 'Groq API key for high-speed inference'
   },
   SENTRY_DSN: {
     required: false,

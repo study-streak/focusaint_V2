@@ -37,7 +37,8 @@
 */
 
 import { motion } from "framer-motion"
-import { CheckCircle, Circle, Target } from "lucide-react"
+import { CheckCircle, Circle, Target, BookOpen } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // 🔹 DEFAULT EMPTY STATE
 const fallbackTasks = []
@@ -49,19 +50,28 @@ export default function QuestCard({ data }) {
       data.tasks[]
     */
 
-    // 🔹 AUTO SWITCH LOGIC
+    const router = useRouter()
+    
     const tasks = data?.tasks ?? fallbackTasks
+    const reviews = data?.reviewsDue ?? []
 
     const completedCount = tasks.filter(t => t.completed).length
-    const total = tasks.length
+    const total = tasks.length + reviews.length
     const progress = total > 0 ? (completedCount / total) * 100 : 0
+
+    const combinedList = [
+        ...tasks.map(t => ({ ...t, type: 'task' })),
+        ...reviews.map(r => ({ ...r, type: 'review' }))
+    ]
 
     if (total === 0) {
         return (
-            <div className="bg-[var(--black)] border border-[var(--line)] rounded-xl p-5 flex flex-col items-center justify-center text-center min-h-[160px] shadow-sm">
-                <Target className="text-[var(--white)]/20 mb-3" size={32} />
-                <p className="text-sm text-[var(--white)]/40">No quests yet</p>
-                <p className="text-xs text-[var(--white)]/30 mt-1">Complete sessions to earn quests</p>
+            <div className="h-full flex flex-col items-center justify-center text-center min-h-[160px] p-6">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4">
+                    <CheckCircle size={24} />
+                </div>
+                <h3 className="text-[var(--white)] font-bold text-lg">You're all caught up!</h3>
+                <p className="text-[var(--muted)] text-sm mt-2">No tasks or spaced reviews due right now. Keep up the good work!</p>
             </div>
         )
     }
@@ -94,53 +104,53 @@ export default function QuestCard({ data }) {
             {/* 🎯 TASK LIST */}
             <div className="flex flex-col gap-6">
 
-                {/* ACTIVE QUESTS */}
-                {tasks.filter(t => !t.completed).length > 0 && (
+                {/* ALL QUESTS (Merged List) */}
+                {combinedList.length > 0 && (
                     <div className="space-y-3">
-                        <p className="text-[10px] font-mono tracking-widest uppercase text-indigo-400/60 ml-1">Active Quests</p>
-                        {tasks.filter(t => !t.completed).map((task, i) => (
-                            <motion.div
-                                key={task._id || task.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                whileHover={{ scale: 1.02 }}
-                                className="flex items-center justify-between p-3 rounded-xl bg-[var(--surface)] border border-[var(--line)] hover:border-indigo-500/30 transition-all shadow-sm"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <Circle className="text-[var(--muted)] opacity-40" size={18} />
-                                    <div>
-                                        <p className="text-sm font-medium text-[var(--white)]">{task.title}</p>
-                                        <p className="text-xs text-[var(--muted)]">{task.duration} min</p>
+                        <p className="text-[10px] font-mono tracking-widest uppercase text-[var(--muted)] ml-1">Today's Tasks</p>
+                        {combinedList.map((item, i) => {
+                            const isTask = item.type === 'task';
+                            const isCompleted = isTask ? item.completed : false;
+                            
+                            return (
+                                <motion.div
+                                    key={item._id || item.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    whileHover={{ scale: 1.02 }}
+                                    onClick={() => !isTask && router.push(`/review/${item._id}`)}
+                                    className={`flex items-center justify-between p-3 rounded-xl border transition-all shadow-sm ${
+                                        !isTask ? 'cursor-pointer' : ''
+                                    } ${
+                                        isCompleted 
+                                            ? 'bg-emerald-500/10 border-emerald-500/20 opacity-80' 
+                                            : 'bg-[var(--surface)] border-[var(--line)] hover:border-indigo-500/30'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        {isCompleted ? (
+                                            <CheckCircle className="text-emerald-500" size={18} />
+                                        ) : !isTask ? (
+                                            <BookOpen className="text-orange-400 opacity-80" size={18} />
+                                        ) : (
+                                            <Circle className="text-[var(--muted)] opacity-40" size={18} />
+                                        )}
+                                        <div>
+                                            <p className={`text-sm font-medium ${isCompleted ? 'text-[var(--white)] line-through decoration-emerald-500/30' : 'text-[var(--white)]'}`}>
+                                                {isTask ? item.title : (item.materialName || item.lessonId?.title || "Study Material")}
+                                            </p>
+                                            <p className={`text-xs ${isCompleted ? 'text-emerald-500/60 font-medium' : 'text-[var(--muted)]'}`}>
+                                                {isCompleted ? 'Level Complete' : isTask ? `${item.duration} min` : `Spaced Review #${item.reviewNumber}`}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <span className="text-xs text-indigo-400 opacity-60">+10 XP</span>
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-
-                {/* COMPLETED QUESTS */}
-                {tasks.filter(t => t.completed).length > 0 && (
-                    <div className="space-y-3">
-                        <p className="text-[10px] font-mono tracking-widest uppercase text-emerald-400/60 ml-1">Conquered</p>
-                        {tasks.filter(t => t.completed).map((task, i) => (
-                            <motion.div
-                                key={task._id || task.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 opacity-80 shadow-sm"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <CheckCircle className="text-emerald-500" size={18} />
-                                    <div>
-                                        <p className="text-sm line-through decoration-emerald-500/30 text-[var(--white)]">{task.title}</p>
-                                        <p className="text-xs text-emerald-500/60 font-medium">Level Complete</p>
-                                    </div>
-                                </div>
-                                <span className="text-xs text-emerald-500 font-bold">XP AWARDED</span>
-                            </motion.div>
-                        ))}
+                                    <span className={`text-xs font-bold ${isCompleted ? 'text-emerald-500' : isTask ? 'text-indigo-400 opacity-60' : 'text-orange-400 opacity-80'}`}>
+                                        {isCompleted ? 'XP AWARDED' : isTask ? '+10 XP' : 'START REVIEW'}
+                                    </span>
+                                </motion.div>
+                            )
+                        })}
                     </div>
                 )}
 

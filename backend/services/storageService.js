@@ -3,13 +3,22 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 import crypto from "crypto"
 import path from "path"
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-})
+let _s3Client = null
+function getS3Client() {
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error("AWS credentials are not configured.")
+  }
+  if (!_s3Client) {
+    _s3Client = new S3Client({
+      region: process.env.AWS_REGION || "us-east-1",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      },
+    })
+  }
+  return _s3Client
+}
 
 const BUCKET_NAME = process.env.S3_BUCKET_NAME || process.env.S3_BATCH_BUCKET
 
@@ -24,6 +33,10 @@ export async function uploadFile(file, folder = "uploads") {
   const fileName = `${crypto.randomBytes(16).toString("hex")}${fileExtension}`
   const key = `${folder}/${fileName}`
 
+  if (!BUCKET_NAME) {
+    throw new Error("S3_BUCKET_NAME is not configured.")
+  }
+
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
@@ -31,7 +44,7 @@ export async function uploadFile(file, folder = "uploads") {
     ContentType: file.mimetype,
   })
 
-  await s3Client.send(command)
+  await getS3Client().send(command)
 
   return {
     url: `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || "us-east-1"}.amazonaws.com/${key}`,
@@ -48,12 +61,16 @@ export async function uploadFile(file, folder = "uploads") {
  * @returns {Promise<void>}
  */
 export async function deleteFile(key) {
+  if (!BUCKET_NAME) {
+    throw new Error("S3_BUCKET_NAME is not configured.")
+  }
+
   const command = new DeleteObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
   })
 
-  await s3Client.send(command)
+  await getS3Client().send(command)
 }
 
 /**
@@ -63,10 +80,14 @@ export async function deleteFile(key) {
  * @returns {Promise<string>} - Presigned URL
  */
 export async function getPresignedUrl(key, expiresIn = 3600) {
+  if (!BUCKET_NAME) {
+    throw new Error("S3_BUCKET_NAME is not configured.")
+  }
+
   const command = new GetObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
   })
 
-  return await getSignedUrl(s3Client, command, { expiresIn })
+  return await getSignedUrl(getS3Client(), command, { expiresIn })
 }

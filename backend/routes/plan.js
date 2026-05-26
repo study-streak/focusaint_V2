@@ -25,6 +25,9 @@ import {
   startProctoredSession,
   endProctoredSession,
   addPlaylistAsAttachments,
+  scheduleSpacedReview,
+  completeSpacedReview,
+  getSpacedReview,
 } from "../controllers/plan.controller.js"
 
 const router = express.Router()
@@ -68,5 +71,10 @@ router.post("/task/:taskId/distribute", authenticateToken, distributeTask)
 router.get("/task/:taskId/proctored", authenticateToken, getProctoredTask)
 router.post("/task/:taskId/proctored/start", authenticateToken, startProctoredSession)
 router.post("/task/:taskId/proctored/end", authenticateToken, endProctoredSession)
+
+// Spaced Review routes
+router.post("/task/:taskId/attachment/:attachmentId/spaced-review", authenticateToken, scheduleSpacedReview)
+router.get("/review/:reviewId", authenticateToken, getSpacedReview)
+router.patch("/review/:reviewId/complete", authenticateToken, completeSpacedReview)
 
 export default router;

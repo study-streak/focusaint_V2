@@ -3,6 +3,7 @@ import HabitTask from "../models/HabitTask.js"
 import User from "../models/User.js"
 import StreakRecord from "../models/StreakRecord.js"
 import HabitSession from "../models/HabitSession.js"
+import SpacedReview from "../models/SpacedReview.js"
 import { connectToMongo } from "../utils/db.js"
 import {
   inferProctoredPreset,
@@ -68,6 +69,22 @@ async function updateStreakFromTask(userId) {
 
     const lastActiveDate = streakRecord.lastActiveDate
     const lastActiveString = lastActiveDate ? lastActiveDate.toDateString() : null
+
+    // Check for overdue spaced reviews (e.g. past due by 24h)
+    const overdueTime = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const overdueReviews = await SpacedReview.find({
+      userId,
+      isCompleted: false,
+      scheduledFor: { $lte: overdueTime }
+    })
+
+    if (overdueReviews.length > 0) {
+      console.log(`[StreakTask] Streak blocked for user ${userId} due to ${overdueReviews.length} overdue spaced reviews.`)
+      // Block streak increment but update lastActiveDate so it doesn't break if they do it tomorrow
+      streakRecord.lastActiveDate = new Date()
+      await streakRecord.save()
+      return
+    }
 
     if (!lastActiveDate || lastActiveString === yesterdayString) {
       user.currentStreak += 1
@@ -160,6 +177,85 @@ export const markAttachmentComplete = async (req, res) => {
   } catch (error) {
     console.error("Mark attachment complete error:", error)
     res.status(500).json({ error: "Failed to mark attachment complete" })
+  }
+}
+
+/**
+ * Schedule Spaced Reviews for an attachment (Deep Mode)
+ */
+export const scheduleSpacedReview = async (req, res) => {
+  try {
+    await connectToMongo()
+    const { taskId, attachmentId } = req.params
+    const { contentUrl, materialName, reflectionText } = req.body
+
+    const user = await User.findById(req.user.userId)
+    if (!user) return res.status(404).json({ error: "User not found" })
+
+    const intervals = user.spacedReviewIntervals && user.spacedReviewIntervals.length > 0 
+      ? user.spacedReviewIntervals 
+      : [1, 3, 7]
+
+    const reviews = intervals.map((days, index) => ({
+      userId: req.user.userId,
+      taskId,
+      attachmentId,
+      contentUrl,
+      materialName,
+      originalSummary: reflectionText,
+      reviewNumber: index + 1,
+      scheduledFor: new Date(Date.now() + days * 24 * 60 * 60 * 1000)
+    }))
+
+    await SpacedReview.insertMany(reviews)
+
+    res.json({ success: true, reviewsCreated: reviews.length })
+  } catch (error) {
+    console.error("Schedule spaced review error:", error)
+    res.status(500).json({ error: "Failed to schedule spaced review" })
+  }
+}
+
+/**
+ * Complete a Spaced Review
+ */
+export const completeSpacedReview = async (req, res) => {
+  try {
+    await connectToMongo()
+    const { reviewId } = req.params
+    const { score } = req.body
+
+    const review = await SpacedReview.findOne({ _id: reviewId, userId: req.user.userId })
+    if (!review) return res.status(404).json({ error: "Review not found" })
+
+    review.isCompleted = true
+    review.completedAt = new Date()
+    review.recallScore = score
+
+    await review.save()
+
+    res.json({ success: true, review })
+  } catch (error) {
+    console.error("Complete spaced review error:", error)
+    res.status(500).json({ error: "Failed to complete spaced review" })
+  }
+}
+
+/**
+ * Get a specific Spaced Review
+ */
+export const getSpacedReview = async (req, res) => {
+  try {
+    await connectToMongo()
+    const { reviewId } = req.params
+
+    const review = await SpacedReview.findOne({ _id: reviewId, userId: req.user.userId })
+    if (!review) return res.status(404).json({ error: "Review not found" })
+
+    res.json(review)
+  } catch (error) {
+    console.error("Get spaced review error:", error)
+    res.status(500).json({ error: "Failed to get spaced review" })
   }
 }
 

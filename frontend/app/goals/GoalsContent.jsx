@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { Target, BookOpen, ArrowLeft, Plus } from "lucide-react"
+import { Target, BookOpen, ArrowLeft, Plus, Layers, Lock, PlayCircle, CheckCircle } from "lucide-react"
 import CreateGoalModal from "./components/CreateGoalModal"
 import { APIClient } from "../../lib/api-client"
 
@@ -20,20 +20,26 @@ export default function GoalsContent() {
             const response = await APIClient.get(`/api/plan/monthly?month=${monthStr}`)
             
             if (response.tasks) {
-                // Map backend tasks to goal representation
                 const mappedGoals = response.tasks.map(task => {
-                    const isPdf = task.attachments?.some(a => a.mimeType?.includes('pdf') || a.type === 'file')
-                    const completedCount = task.attachments?.filter(a => a.completed).length || 0
-                    const totalCount = task.attachments?.length || 0
-                    const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : (task.completed ? 100 : 0)
+                    const completedLevels = task.attachments?.filter(a => a.completed).length || 0
+                    const totalLevels = task.attachments?.length || 0
+                    const progress = totalLevels > 0
+                        ? Math.round((completedLevels / totalLevels) * 100)
+                        : (task.completed ? 100 : 0)
+                    const hasLevels = totalLevels > 0
+                    const hasVideo = task.attachments?.some(a => a.url?.includes('youtube') || a.url?.includes('youtu.be'))
                     
                     return {
                         id: task._id,
                         title: task.title,
-                        progress: progress,
-                        icon: isPdf ? <BookOpen className="w-6 h-6 text-blue-400" /> : <Target className="w-6 h-6 text-indigo-400" />,
-                        deadline: task.deadline ? `by ${task.deadline}` : `Assigned ${task.assignedDate}`,
-                        color: isPdf ? 'blue' : 'indigo',
+                        progress,
+                        totalLevels,
+                        completedLevels,
+                        hasLevels,
+                        hasVideo,
+                        deadline: task.deadline,
+                        assignedDate: task.assignedDate,
+                        completed: task.completed,
                         duration: task.duration
                     }
                 })
@@ -51,7 +57,6 @@ export default function GoalsContent() {
     }, [])
 
     const handleCreateGoal = () => {
-        // Refresh goals after creation
         fetchGoals()
     }
 
@@ -64,7 +69,7 @@ export default function GoalsContent() {
                         Back to Dashboard
                     </Link>
                     <h1 className="text-3xl sm:text-4xl font-serif font-semibold tracking-tight text-[var(--white)]">Active Goals</h1>
-                    <p className="text-[var(--muted)] mt-2 text-sm sm:text-base">Select a goal to enter its planner and start Deep Mode.</p>
+                    <p className="text-[var(--muted)] mt-2 text-sm sm:text-base">Each goal contains levels (video lectures, PDFs). Click to open its planner.</p>
                 </div>
                 
                 <button 
@@ -96,34 +101,56 @@ export default function GoalsContent() {
                                 transition={{ delay: idx * 0.1 }}
                                 whileHover={{ scale: 1.02, y: -4 }}
                                 whileTap={{ scale: 0.98 }}
-                                className="relative overflow-hidden rounded-3xl bg-[var(--card)] backdrop-blur-xl border border-[var(--line)] p-8 h-[240px] flex flex-col justify-between group"
+                                className={`relative overflow-hidden rounded-3xl bg-[var(--card)] backdrop-blur-xl border p-8 h-[260px] flex flex-col justify-between group transition-all ${
+                                    goal.completed
+                                        ? 'border-emerald-500/30'
+                                        : 'border-[var(--line)] hover:border-[var(--accent)]/30'
+                                }`}
                             >
-                                <div className={`absolute inset-0 bg-gradient-to-br from-${goal.color}-500/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                                {/* Hover gradient */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent)]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                                 
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div className={`p-4 bg-${goal.color}-500/20 rounded-2xl`}>
-                                        {goal.icon}
+                                {/* Completed badge */}
+                                {goal.completed && (
+                                    <div className="absolute top-4 right-4 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+                                        <CheckCircle className="w-3 h-3" /> Done
                                     </div>
-                                    <span className="text-xs font-medium text-[var(--muted)] bg-[var(--line)] px-3 py-1 rounded-full">
-                                        {goal.deadline}
-                                    </span>
+                                )}
+
+                                <div className="flex justify-between items-start relative z-10">
+                                    {/* Goal icon */}
+                                    <div className={`p-3 rounded-2xl ${goal.hasVideo ? 'bg-red-500/10' : 'bg-indigo-500/10'}`}>
+                                        {goal.hasVideo
+                                            ? <PlayCircle className="w-6 h-6 text-red-400" />
+                                            : <BookOpen className="w-6 h-6 text-indigo-400" />
+                                        }
+                                    </div>
+
+                                    {/* Levels badge */}
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface)] border border-[var(--line)] text-[10px] font-bold uppercase tracking-wider text-[var(--muted)]">
+                                        <Layers className="w-3 h-3" />
+                                        {goal.hasLevels ? `${goal.totalLevels} Level${goal.totalLevels !== 1 ? 's' : ''}` : 'No levels yet'}
+                                    </div>
                                 </div>
 
                                 <div className="relative z-10">
-                                    <h3 className="text-2xl font-semibold text-[var(--white)] tracking-tight mb-4 truncate">
+                                    <h3 className="text-xl font-semibold text-[var(--white)] tracking-tight mb-1 truncate">
                                         {goal.title}
                                     </h3>
+                                    <p className="text-xs text-[var(--muted)] mb-4">
+                                        {goal.deadline ? `Deadline: ${goal.deadline}` : `Assigned ${goal.assignedDate}`}
+                                    </p>
                                     
-                                    <div className="w-full h-2 bg-[var(--line)] rounded-full overflow-hidden">
+                                    <div className="w-full h-1.5 bg-[var(--line)] rounded-full overflow-hidden">
                                         <motion.div 
                                             initial={{ width: 0 }}
                                             animate={{ width: `${goal.progress}%` }}
                                             transition={{ delay: 0.5, duration: 1 }}
-                                            className={`h-full bg-${goal.color}-500 rounded-full`} 
+                                            className={`h-full rounded-full ${goal.completed ? 'bg-emerald-500' : 'bg-[var(--accent)]'}`}
                                         />
                                     </div>
-                                    <div className="flex justify-between mt-2 text-sm text-[var(--muted)]">
-                                        <span>Progress</span>
+                                    <div className="flex justify-between mt-1.5 text-xs text-[var(--muted)]">
+                                        <span>{goal.hasLevels ? `${goal.completedLevels}/${goal.totalLevels} levels done` : 'Add levels in planner'}</span>
                                         <span>{goal.progress}%</span>
                                     </div>
                                 </div>

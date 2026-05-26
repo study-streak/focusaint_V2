@@ -6,27 +6,23 @@ import { APIClient } from "../../lib/api-client"
 
 // CORE
 import Navbar from "./components/core/Navbar"
-import FocusMeter from "./components/core/FocusMeter"
-import StreakFlame from "./components/core/StreakFlame"
 import ProgressHUD from "./components/core/ProgressHUD"
 import GoalsLinkCard from "./components/core/GoalsLinkCard"
 import MarathonLinkCard from "./components/core/MarathonLinkCard"
+import LockedMarathonLinkCard from "./components/core/LockedMarathonLinkCard"
+import { Trophy, Flame, Clock, Zap } from "lucide-react"
 
 // GAMIFICATION
-import AchievementGrid from "./components/gamification/AchievementGrid"
-import BossLevelCard from "./components/gamification/BossLevelCard"
-import ComboStreakBar from "./components/gamification/ComboStreakBar"
-import LevelProgressRing from "./components/gamification/LevelProgressRing"
 import QuestCard from "./components/gamification/QuestCard"
 import RewardsPopup from "./components/core/RewardsPopup"
 import UnlockAnimation from "./components/gamification/UnlockAnimation"
 import XPToast from "./components/gamification/XPToast"
 
 // ANALYTICS
-import JourneyMap from "./components/core/JourneyMap"
-import SessionHeatmap from "./components/analytics/SessionHeatmap"
 import WeeklyGraph from "./components/analytics/WeeklyGraph"
-import RecentSessions from "./components/analytics/RecentSessions"
+
+// GAMIFICATION
+import AchievementGrid from "./components/gamification/AchievementGrid"
 
 // OVERLAYS
 import NotificationPanel from "./components/overlays/NotificationPanel"
@@ -61,9 +57,14 @@ export default function DashboardContent() {
         fetchData()
     }, [])
 
+    const isMarathonUnlocked = (data?.streak?.currentStreak >= 7 && data?.totalDuration >= 210)
+    const user = data?.user
+    const streak = data?.streak?.currentStreak || 0
+    const totalDuration = data?.totalDuration || 0
+
     return (
         <>
-            <div className="px-6 mt-2 mb-8">
+            <div className="px-6 mt-2 mb-8 space-y-8">
                 {/* HUD */}
                 <ProgressHUD data={data} />
             </div>
@@ -71,47 +72,7 @@ export default function DashboardContent() {
             {/* MAIN BENTO GRID */}
             <div className="px-6 grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)] pb-24">
                 
-                {/* TOP ROW - HERO METRICS */}
-                <div className="md:col-span-4 h-full">
-                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
-                        <GlowLayer className="h-full">
-                            <FocusMeter data={data} />
-                        </GlowLayer>
-                    </div>
-                </div>
-
-                <div className="md:col-span-4 h-full">
-                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
-                        <GlowLayer className="h-full">
-                            <LevelProgressRing data={data} />
-                        </GlowLayer>
-                    </div>
-                </div>
-
-                <div className="md:col-span-4 h-full">
-                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md overflow-hidden relative shadow-xl group-hover:shadow-2xl">
-                        <ParallaxContainer className="h-full">
-                            <StreakFlame data={data} />
-                        </ParallaxContainer>
-                    </div>
-                </div>
-
-                {/* MIDDLE ROW - JOURNEY & ACTIONS */}
-                <div className="md:col-span-8 md:row-span-2">
-                    <div className="h-full rounded-3xl overflow-hidden border border-[var(--line)] bg-[var(--card)] backdrop-blur-xl shadow-2xl">
-                        <JourneyMap data={data} />
-                    </div>
-                </div>
-
-                <div className="md:col-span-4 h-full">
-                    <GoalsLinkCard data={data} />
-                </div>
-
-                <div className="md:col-span-4 h-full">
-                    <ComboStreakBar data={data} />
-                </div>
-
-                {/* BOTTOM ROW - GAMIFICATION & ANALYTICS */}
+                {/* TOP ROW - TASKS & GOALS */}
                 <div className="md:col-span-6 h-full">
                     <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-1 shadow-md">
                         <QuestCard data={data} />
@@ -119,36 +80,44 @@ export default function DashboardContent() {
                 </div>
 
                 <div className="md:col-span-6 h-full">
-                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-1 shadow-md">
-                        <BossLevelCard data={data} />
-                    </div>
+                    <GoalsLinkCard data={data} />
                 </div>
 
-                <div className="md:col-span-12">
-                    <MarathonLinkCard />
-                </div>
-                
-                {/* Achievements */}
-
-                <div className="md:col-span-12">
-                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                        <AchievementGrid data={data} />
-                    </div>
-                </div>
-
-                <div className="md:col-span-12">
-                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
-                        <SessionHeatmap data={data} />
-                    </div>
-                </div>
-
-                <div className="md:col-span-4">
-                    <RecentSessions data={data} />
-                </div>
-
+                {/* MIDDLE ROW - WEEKLY FOCUS (Moved to Stage Chart position) */}
                 <div className="md:col-span-8">
-                    <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-6 shadow-xl hover:shadow-2xl transition-shadow duration-300">
+                    <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-xl shadow-2xl p-8 flex flex-col">
                         <WeeklyGraph data={data} />
+                    </div>
+                </div>
+
+
+
+                <div className="md:col-span-4 h-full">
+                    {/* Conditional Marathon Card */}
+                    {isMarathonUnlocked ? (
+                        <MarathonLinkCard />
+                    ) : (
+                        <LockedMarathonLinkCard 
+                            currentStreak={streak}
+                            currentMinutes={totalDuration}
+                        />
+                    )}
+                </div>
+
+                
+                 {/* ACHIEVEMENTS SECTION (Moved below Hero Metrics) */}
+                <div className="md:col-span-12">
+                    <div className="p-8 bg-[var(--card)] border border-[var(--line)] rounded-3xl shadow-xl">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500">
+                                <Trophy size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-black tracking-tight text-[var(--white)]">Recent Achievements</h2>
+                                <p className="text-[10px] text-[var(--muted)] font-bold uppercase tracking-widest">Your Milestones</p>
+                            </div>
+                        </div>
+                        <AchievementGrid data={data} />
                     </div>
                 </div>
 

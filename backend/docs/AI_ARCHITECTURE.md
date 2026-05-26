@@ -20,19 +20,19 @@ The platform is standardized on the **Llama 3.3 70B** architecture, ensuring con
 
 ## 3. Provider Infrastructure (The Routing Logic)
 
-FocusAInt uses a **"Groq-First"** failover strategy implemented in `backend/services/aiService.js`.
+FocusAInt uses a **"Bedrock-First"** failover strategy implemented in `backend/services/llmLayer.js`.
 
-### **Phase 1: Real-time High Speed (Groq)**
+### **Phase 1: High Reliability & Intelligence (AWS Bedrock)**
+*   **Target**: Llama 3.3 70B Instruct / Claude 3.5 Sonnet
+*   **Performance**: ~30-50 TPS
+*   **Cost**: $0.72 (Input) / $0.72 (Output) per 1M tokens.
+*   **Usage**: Primary choice for all complex reasoning and standard chat.
+
+### **Phase 2: High Speed Overflow (Groq)**
 *   **Target**: Llama 3.3 70B Versatile
 *   **Performance**: ~280 Tokens Per Second (TPS)
 *   **Cost**: $0.59 (Input) / $0.79 (Output) per 1M tokens.
-*   **Usage**: All interactive user chats and "Instant" study pack generation.
-
-### **Phase 2: High Reliability / Overflow (AWS Bedrock)**
-*   **Target**: Llama 3.3 70B Instruct
-*   **Performance**: ~30-50 TPS
-*   **Cost**: $0.72 (Input) / $0.72 (Output) per 1M tokens.
-*   **Usage**: Triggered automatically if Groq is rate-limited or unavailable.
+*   **Usage**: Triggered if Bedrock is slow or unavailable; or for low-priority high-speed tasks.
 
 ### **Phase 3: Cost-Saving Batch (AWS Bedrock)**
 *   **Target**: Llama 3.3 70B (Batch Mode)
@@ -45,8 +45,8 @@ FocusAInt uses a **"Groq-First"** failover strategy implemented in `backend/serv
 
 ### **Centralized AI Service (`aiService.js`)**
 The `callLLM` function handles all provider logic, error catching, and failover:
-1.  **Groq Call**: Best-effort high speed.
-2.  **Bedrock Fallback**: Seamless transition if Groq fails.
+1.  **Bedrock Call**: Primary high-reliability inference.
+2.  **Groq Fallback**: Secondary high-speed failover.
 3.  **Gemini Emergency**: Final fallback for context window issues (>128k tokens).
 
 ### **Token Management**

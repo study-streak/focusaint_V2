@@ -99,7 +99,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                 summary: studyPack?.summary || [] // Pass summary for context if available
             })
             
-            const replyText = response.reply || response.data?.reply || "I am here to help you study!"
+            const replyText = response.reply ?? response.data?.reply ?? "I'm sorry, I couldn't generate a response. Please try rephrasing your question."
             setMessages(prev => [...prev, { id: Date.now(), sender: "ai", text: replyText }])
         } catch (error) {
             console.error("AI chat error:", error)
@@ -128,39 +128,39 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                     animate={{ opacity: 1, x: 0, scale: 1 }}
                     exit={{ opacity: 0, x: 20, scale: 0.95 }}
                     transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-                    className="absolute top-20 right-6 w-[400px] bg-[#0f172a]/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5),0_0_20px_rgba(79,70,229,0.2)] overflow-hidden z-50 flex flex-col h-[600px]"
+                    className="absolute top-20 right-6 w-[400px] bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--line)] rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.3),0_0_20px_rgba(79,70,229,0.1)] overflow-hidden z-50 flex flex-col h-[600px]"
                 >
                     {/* Header */}
-                    <div className="p-4 border-b border-white/10 flex items-center justify-between bg-gradient-to-r from-indigo-500/20 to-purple-500/10">
+                    <div className="p-4 border-b border-[var(--line)] flex items-center justify-between bg-gradient-to-r from-indigo-500/10 to-purple-500/5">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                <Bot className="w-5 h-5 text-indigo-400" />
+                                <Bot className="w-5 h-5 text-indigo-500" />
                             </div>
                             <div>
-                                <h3 className="font-semibold text-white text-sm">Study Assistant</h3>
+                                <h3 className="font-semibold text-[var(--white)] text-sm">Study Assistant</h3>
                                 <div className="flex items-center gap-2">
                                     <div className={`w-1.5 h-1.5 rounded-full ${isAnalyzing ? 'bg-amber-400 animate-pulse' : 'bg-emerald-400'}`} />
-                                    <p className="text-[10px] text-indigo-300 font-medium uppercase tracking-wider">
+                                    <p className="text-[10px] text-indigo-500 font-medium uppercase tracking-wider">
                                         {isAnalyzing ? 'Analyzing Material...' : 'System Active'}
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <button onClick={onClose} className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-all">
+                        <button onClick={onClose} className="p-2 text-[var(--muted)] hover:text-[var(--white)] hover:bg-[var(--white)]/5 rounded-full transition-all">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
 
                     {/* Tabs */}
-                    <div className="flex p-1 bg-white/5 border-b border-white/10">
+                    <div className="flex p-1 bg-[var(--white)]/5 border-b border-[var(--line)]">
                         {Object.values(TABS).map(tab => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-widest rounded-md transition-all ${
                                     activeTab === tab 
-                                        ? 'bg-indigo-500/20 text-indigo-400 shadow-sm' 
-                                        : 'text-gray-500 hover:text-gray-300'
+                                        ? 'bg-indigo-500/10 text-indigo-500 shadow-sm' 
+                                        : 'text-[var(--muted)] hover:text-[var(--white)]'
                                 }`}
                             >
                                 {tab}
@@ -182,13 +182,13 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                     {messages.map(msg => (
                                         <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                                             <div className={`flex gap-3 max-w-[85%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
-                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.sender === 'user' ? 'bg-indigo-600' : 'bg-slate-800 border border-white/10'}`}>
-                                                    {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-indigo-400" />}
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg ${msg.sender === 'user' ? 'bg-indigo-600' : 'bg-[var(--card)] border border-[var(--line)]'}`}>
+                                                    {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-indigo-500" />}
                                                 </div>
-                                                <div className={`p-3 rounded-2xl text-sm leading-relaxed prose prose-invert prose-p:leading-relaxed prose-pre:bg-slate-900/50 prose-pre:border prose-pre:border-white/10 ${
+                                                <div className={`p-3 rounded-2xl text-sm leading-relaxed markdown-content ${
                                                     msg.sender === 'user' 
                                                         ? 'bg-indigo-600 text-white rounded-tr-none' 
-                                                        : 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-none shadow-inner'
+                                                        : 'bg-[var(--white)]/5 border border-[var(--line)] text-[var(--white)] rounded-tl-none shadow-inner'
                                                 }`}>
                                                     {msg.sender === 'ai' ? (
                                                         <ReactMarkdown>{msg.text}</ReactMarkdown>
@@ -202,10 +202,10 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                     {isLoading && (
                                         <div className="flex justify-start">
                                             <div className="flex gap-3 max-w-[85%] flex-row">
-                                                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-slate-800 border border-white/10">
-                                                    <Bot className="w-4 h-4 text-indigo-400" />
+                                                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 bg-[var(--card)] border border-[var(--line)]">
+                                                    <Bot className="w-4 h-4 text-indigo-500" />
                                                 </div>
-                                                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 rounded-tl-none flex items-center gap-1.5">
+                                                <div className="p-4 rounded-2xl bg-[var(--white)]/5 border border-[var(--line)] rounded-tl-none flex items-center gap-1.5">
                                                     <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                                                     <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
                                                     <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
@@ -227,8 +227,8 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                 >
                                     {isAnalyzing && !studyPack && (
                                         <div className="flex flex-col items-center justify-center h-full space-y-4">
-                                            <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-                                            <p className="text-sm text-gray-400">Analyzing study material...</p>
+                                            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+                                            <p className="text-sm text-[var(--muted)]">Analyzing study material...</p>
                                         </div>
                                     )}
                                     
@@ -244,12 +244,12 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: i * 0.1 }}
                                                     key={i} 
-                                                    className="flex gap-3 p-3 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 transition-colors group"
+                                                    className="flex gap-3 p-3 bg-[var(--white)]/5 border border-[var(--line)] rounded-xl hover:bg-[var(--white)]/10 transition-colors group"
                                                 >
                                                     <div className="w-5 h-5 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-indigo-500/20 transition-colors">
                                                         <span className="text-[10px] font-bold text-indigo-400">{i + 1}</span>
                                                     </div>
-                                                    <div className="text-sm text-gray-300 leading-relaxed prose prose-invert prose-sm">
+                                                    <div className="text-sm text-[var(--white)]/80 leading-relaxed markdown-content">
                                                         <ReactMarkdown>{point}</ReactMarkdown>
                                                     </div>
                                                 </motion.div>
@@ -262,7 +262,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                                         <h4 className="text-xs font-bold uppercase tracking-widest">Visual Structure</h4>
                                                     </div>
                                                     {studyPack.infographics.map((info, i) => (
-                                                        <div key={i} className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl mb-2 text-sm text-indigo-200 prose prose-invert prose-sm">
+                                                        <div key={i} className="p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl mb-2 text-sm text-indigo-400 markdown-content">
                                                             <ReactMarkdown>{info}</ReactMarkdown>
                                                         </div>
                                                     ))}
@@ -271,8 +271,8 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                         </div>
                                     ) : !isAnalyzing && (
                                         <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                                            <BookOpen className="w-12 h-12 text-gray-700 mb-4" />
-                                            <p className="text-gray-500 text-sm">No analysis available for this content.</p>
+                                            <BookOpen className="w-12 h-12 text-[var(--muted)]/30 mb-4" />
+                                            <p className="text-[var(--muted)] text-sm">No analysis available for this content.</p>
                                             <button 
                                                 onClick={analyzeContent}
                                                 className="mt-4 px-4 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg text-xs font-bold hover:bg-indigo-500/20 transition-all"
@@ -304,8 +304,8 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                                            <Brain className="w-12 h-12 text-gray-700 mb-4" />
-                                            <p className="text-gray-500 text-sm">Flashcards will appear once the material is analyzed.</p>
+                                            <Brain className="w-12 h-12 text-[var(--muted)]/30 mb-4" />
+                                            <p className="text-[var(--muted)] text-sm">Flashcards will appear once the material is analyzed.</p>
                                         </div>
                                     )}
                                 </motion.div>
@@ -315,7 +315,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
 
                     {/* Input Area (Only for Chat) */}
                     {activeTab === TABS.CHAT && (
-                        <div className="p-4 border-t border-white/10 bg-white/5">
+                        <div className="p-4 border-t border-[var(--line)] bg-[var(--white)]/5">
                             {isLimitReached ? (
                                 <motion.div 
                                     initial={{ opacity: 0, y: 10 }}
@@ -326,13 +326,13 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                         <Sparkles className="w-5 h-5 text-indigo-400" />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold text-sm">Daily AI Limit Reached</h4>
-                                        <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                                        <h4 className="text-[var(--white)] font-bold text-sm">Daily AI Limit Reached</h4>
+                                        <p className="text-[11px] text-[var(--muted)] mt-1 leading-relaxed">
                                             Upgrade to **FocusAInt Pro** for unlimited chat, high-fidelity analysis, and advanced study features.
                                         </p>
                                     </div>
                                     <button 
-                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-slate-50 rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
                                         onClick={() => window.open('/pricing', '_blank')}
                                     >
                                         Upgrade to Pro
@@ -347,7 +347,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                             onChange={(e) => setInput(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Ask a question about this session..."
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pr-12 text-sm text-white focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
+                                            className="w-full bg-[var(--black)] border border-[var(--line)] rounded-xl px-4 py-3 pr-12 text-sm text-[var(--white)] focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner"
                                         />
                                         <button 
                                             onClick={handleSend}
@@ -357,7 +357,7 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                                             <Send className="w-4 h-4" />
                                         </button>
                                     </div>
-                                    <p className="text-[10px] text-gray-500 mt-3 text-center">
+                                    <p className="text-[10px] text-[var(--muted)] mt-3 text-center">
                                         Focused on the current material context.
                                     </p>
                                 </>
@@ -387,17 +387,17 @@ function Flashcard({ card, index }) {
                 className="w-full h-full relative flip-inner"
             >
                 {/* Front */}
-                <div className="absolute inset-0 flip-front bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col justify-center items-center text-center shadow-lg group-hover:bg-white/10 transition-colors">
+                <div className="absolute inset-0 flip-front bg-[var(--card)] border border-[var(--line)] rounded-xl p-4 flex flex-col justify-center items-center text-center shadow-lg group-hover:bg-[var(--surface)] transition-colors">
                     <span className="text-[10px] text-indigo-400 font-bold uppercase tracking-tighter mb-2 opacity-50">Concept</span>
-                    <div className="text-sm text-white font-medium prose prose-invert prose-sm">
+                    <div className="text-sm text-[var(--white)] font-medium markdown-content">
                         <ReactMarkdown>{card.front}</ReactMarkdown>
                     </div>
                 </div>
                 
                 {/* Back */}
                 <div className="absolute inset-0 flip-back bg-indigo-600 rounded-xl p-4 flex flex-col justify-center items-center text-center shadow-xl">
-                    <span className="text-[10px] text-indigo-200 font-bold uppercase tracking-tighter mb-2 opacity-80">Definition</span>
-                    <div className="text-sm text-white leading-relaxed prose prose-invert prose-sm">
+                    <span className="text-[10px] text-indigo-100 font-bold uppercase tracking-tighter mb-2 opacity-80">Definition</span>
+                    <div className="text-sm text-white leading-relaxed markdown-content">
                         <ReactMarkdown>{card.back}</ReactMarkdown>
                     </div>
                 </div>

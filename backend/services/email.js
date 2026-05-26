@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer"
 import { getOTPEmailTemplate } from "../templates/otpEmail.js"
+import { spacedReviewReminderEmail } from "../templates/spacedRevision.js";
 
 const getResetEmailTemplate = (name, code, token) => {
   const frontendBase = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -56,7 +57,7 @@ const getResetEmailTemplate = (name, code, token) => {
 </html>
 `;
 }
-import { param } from "framer-motion/client"
+
 
 // Create transporter - Configure with your email service
 const createTransporter = () => {
@@ -133,3 +134,30 @@ export const sendOTP = async (email, otp, name = "", isReset = false, resetToken
   }
 }
 
+export const sendSpacedReviewReminderEmail = async (email, name, reviewsCount) => {
+  const isConfigured = 
+    (process.env.EMAIL_SERVICE === "gmail" && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) ||
+    (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+
+  if (!isConfigured) {
+    console.log("Email service not configured. Skipping spaced review reminder email.")
+    return true
+  }
+
+  const transporter = createTransporter()
+
+  const htmlContent = spacedReviewReminderEmail(name,reviewsCount)
+
+  try {
+    await transporter.sendMail({
+      from: `"focusaint" <${process.env.SMTP_USER || process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "It's time for your spaced reviews! 🧠",
+      html: htmlContent,
+    })
+    return true
+  } catch (error) {
+    console.error("Failed to send spaced review reminder email:", error)
+    return false
+  }
+}

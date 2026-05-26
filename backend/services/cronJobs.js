@@ -1,8 +1,10 @@
 import cron from "node-cron"
 import User from "../models/User.js"
+import SpacedReview from "../models/SpacedReview.js"
 import { connectToMongo } from "../utils/db.js"
 import { updateUserFocusScore } from "./focusScore.js"
 import reminderScheduler from "./reminderScheduler.js"
+import { sendSpacedReviewReminderEmail } from "./email.js"
 
 /**
  * Reset daily session counters for all users at UTC midnight
@@ -149,6 +151,56 @@ export function scheduleDailyReminderCleanup() {
 }
 
 /**
+ * Send email reminders for spaced reviews due today
+ * Runs daily at 08:00 UTC
+ */
+export function scheduleReviewReminders() {
+  cron.schedule("0 8 * * *", async () => {
+    try {
+      await connectToMongo()
+      
+      const now = new Date()
+      console.log(`[CRON] Running spaced review reminders at ${now.toISOString()}`)
+      
+      // Find due reviews grouped by user
+      const dueReviews = await SpacedReview.find({
+        isCompleted: false,
+        scheduledFor: { $lte: new Date() }
+      }).populate('userId', 'email name')
+      
+      const userReviewMap = {}
+      dueReviews.forEach(review => {
+        if (!review.userId || !review.userId.email) return
+        const email = review.userId.email
+        if (!userReviewMap[email]) {
+          userReviewMap[email] = {
+            name: review.userId.name,
+            count: 0
+          }
+        }
+        userReviewMap[email].count++
+      })
+      
+      for (const email of Object.keys(userReviewMap)) {
+        const { name, count } = userReviewMap[email]
+        // Send email asynchronously without blocking the loop
+        sendSpacedReviewReminderEmail(email, name, count).catch(err => {
+          console.error(`[CRON] Failed to send spaced review reminder to ${email}:`, err)
+        })
+      }
+      
+      console.log(`[CRON] Dispatched review reminders to ${Object.keys(userReviewMap).length} users`)
+    } catch (error) {
+      console.error("[CRON] Error in spaced review reminders job:", error)
+    }
+  }, {
+    timezone: "UTC"
+  })
+  
+  console.log("[CRON] Daily spaced review reminders job scheduled for 08:00 UTC")
+}
+
+/**
  * Initialize all cron jobs
  */
 export function initializeCronJobs() {
@@ -157,5 +209,6 @@ export function initializeCronJobs() {
   scheduleDailyTokenReset()
   scheduleDailyFocusScoreUpdate()
   scheduleDailyReminderCleanup()
+  scheduleReviewReminders()
   console.log("[CRON] All cron jobs initialized")
 }

@@ -180,13 +180,13 @@ export default function NotesSection({ goalTitle = "Focus Goal", materialName = 
     }
 
     return (
-        <div className="flex flex-col h-full bg-[#0B1120] border-l border-white/10 relative">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 shrink-0">
+        <div className="flex flex-col h-full bg-[var(--surface)] border-l border-[var(--line)] relative transition-colors duration-300">
+            <div className="p-4 border-b border-[var(--line)] flex items-center justify-between bg-[var(--white)]/5 shrink-0">
                 <div className="flex items-center gap-2 overflow-hidden">
                     <FileText className="w-5 h-5 text-indigo-400 shrink-0" />
                     <div className="truncate">
-                        <h3 className="font-semibold text-white truncate text-sm">{materialName}</h3>
-                        <p className="text-[10px] text-gray-500 truncate">{goalTitle}</p>
+                        <h3 className="font-semibold text-[var(--white)] truncate text-sm">{materialName}</h3>
+                        <p className="text-[10px] text-[var(--muted)] truncate">{goalTitle}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -196,14 +196,14 @@ export default function NotesSection({ goalTitle = "Focus Goal", materialName = 
                         className="p-1.5 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white rounded-md transition-colors"
                         title="Capture Video Figure"
                     >
-                        <Camera className="w-4 h-4" />
+                        <Camera className="w-5 h-5" />
                     </button>
                     <button 
                         onClick={exportToPDF}
                         className="p-1.5 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white rounded-md transition-colors"
                         title="Export Study PDF"
                     >
-                        <FileText className="w-4 h-4" />
+                        <FileText className="w-5 h-5" />
                     </button>
                     <button 
                         onClick={handleSave}
@@ -235,13 +235,13 @@ export default function NotesSection({ goalTitle = "Focus Goal", materialName = 
                     value={notesText}
                     onChange={(e) => setNotesText(e.target.value)}
                     placeholder="Start typing your study notes... Click the camera to insert a video frame at your cursor."
-                    className="flex-1 w-full bg-transparent border-none p-6 text-sm text-gray-200 focus:outline-none resize-none custom-scrollbar leading-relaxed"
+                    className="flex-1 w-full bg-transparent border-none p-6 text-sm text-[var(--white)] focus:outline-none resize-none custom-scrollbar leading-relaxed placeholder:text-[var(--muted)]/50"
                 />
 
                 {screenshots.length > 0 && (
-                    <div className="h-28 border-t border-white/10 bg-[#060B14] p-3 shrink-0 flex flex-col gap-2">
+                    <div className="h-28 border-t border-[var(--line)] bg-[var(--black)]/40 p-3 shrink-0 flex flex-col gap-2">
                         <div className="flex items-center justify-between px-1">
-                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Captured Figures ({screenshots.length})</span>
+                            <span className="text-[10px] font-bold text-[var(--muted)] uppercase tracking-widest">Captured Figures ({screenshots.length})</span>
                             <button 
                                 onClick={clearAllScreenshots}
                                 className="text-[10px] text-gray-500 hover:text-rose-400 transition-colors uppercase font-bold"

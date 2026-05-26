@@ -6,6 +6,7 @@ import SpacedReview from "../models/SpacedReview.js"
 import HabitTask from "../models/HabitTask.js"
 import { calculateFocusScore } from "../services/focusScore.js"
 import { connectToMongo } from "../utils/db.js"
+import Subscription from "../models/Subscription.js"
 
 async function getUserDashboard(req, res){
   try {
@@ -45,7 +46,7 @@ async function getUserDashboard(req, res){
     const heatmapMap = {}
     heatmapSessions.forEach(s => {
       const dateKey = s.sessionDate.toISOString().split('T')[0]
-      heatmapMap[dateKey] = (heatmapMap[dateKey] || 0) + 1
+      heatmapMap[dateKey] = (heatmapMap[dateKey] || 0) + (s.duration || 0)
     })
 
     const heatmap = Array.from({ length: 365 }).map((_, i) => {
@@ -57,6 +58,24 @@ async function getUserDashboard(req, res){
         count: heatmapMap[dateKey] || 0
       }
     })
+
+    // Calculate max daily duration
+    const maxDailyMinutes = Math.max(...Object.values(heatmapMap), 0)
+
+    // Calculate weekly data (minutes per day) for WeeklyGraph
+    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    const weeklyData = []
+    const todayObj = new Date()
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(todayObj)
+        d.setDate(d.getDate() - i)
+        const dateKey = d.toISOString().split('T')[0]
+        const dayName = daysOfWeek[d.getDay()]
+        weeklyData.push({
+            day: dayName,
+            minutes: heatmapMap[dateKey] || 0
+        })
+    }
 
     // Rank Allocation Logic
     const getRank = (score) => {
@@ -86,8 +105,17 @@ async function getUserDashboard(req, res){
     const reviewsDue = await SpacedReview.find({ 
       userId: req.user.userId, 
       isCompleted: false,
-      scheduledDate: { $lte: new Date() } 
+      scheduledFor: { $lte: new Date() } 
     }).populate('lessonId')
+
+    const achievements = [
+      { id: '1', title: "3 Day Streak", unlocked: user.currentStreak >= 3 },
+      { id: '2', title: "10 Sessions", unlocked: user.totalSessions >= 10 },
+      { id: '3', title: "Focus Master", unlocked: user.focusScore >= 100 },
+      { id: '4', title: "Consistency Pro", unlocked: user.currentStreak >= 7 },
+      { id: '5', title: "Early Adopter", unlocked: true },
+      { id: '6', title: "Deep Diver", unlocked: user.totalSessions >= 5 }
+    ]
 
     res.json({
       user,
@@ -105,11 +133,15 @@ async function getUserDashboard(req, res){
       rankColor: rankInfo.color,
       rankLevel: rankInfo.level,
       sessions: user.totalSessions,
-      recentSessions: recentSessions.slice(0, 5), // Return last 5 for tracking
+      recentSessions: recentSessions.slice(0, 5),
       heatmap,
+      weeklyData,
+      maxDailyMinutes,
       learningPaths,
       reviewsDue,
-      tasks
+      tasks,
+      achievements,
+      combo: user.dailySessionCount || 0
     })
   } catch (error) {
     console.error("Dashboard error:", error)
@@ -127,10 +159,70 @@ async function getUserProfile(req, res) {
     }
 
     const streakRecord = await StreakRecord.findOne({ userId: user._id })
+    const subscription = await Subscription.findOne({ userId: user._id })
+
+    // Also get heatmap and sessions for profile
+    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+    const heatmapSessions = await HabitSession.find({
+      userId: req.user.userId,
+      sessionDate: { $gte: threeSixtyFiveDaysAgo },
+      status: "completed"
+    })
+
+    const heatmapMap = {}
+    heatmapSessions.forEach(s => {
+      const dateKey = s.sessionDate.toISOString().split('T')[0]
+      heatmapMap[dateKey] = (heatmapMap[dateKey] || 0) + (s.duration || 0)
+    })
+
+    const heatmap = Array.from({ length: 365 }).map((_, i) => {
+      const d = new Date()
+      d.setDate(d.getDate() - (364 - i))
+      const dateKey = d.toISOString().split('T')[0]
+      return {
+        date: dateKey,
+        count: heatmapMap[dateKey] || 0
+      }
+    })
+
+    const recentSessions = await HabitSession.find({
+      userId: req.user.userId,
+      status: "completed",
+    }).sort({ sessionDate: -1 }).limit(10)
+
+    const maxDailyMinutes = Math.max(...Object.values(heatmapMap), 0)
+
+    const getRank = (score) => {
+      if (score >= 90) return { name: "Grandmaster", color: "text-purple-400", level: 6 }
+      if (score >= 80) return { name: "Elite", color: "text-indigo-400", level: 5 }
+      if (score >= 60) return { name: "Expert", color: "text-blue-400", level: 4 }
+      if (score >= 40) return { name: "Scholar", color: "text-emerald-400", level: 3 }
+      if (score >= 20) return { name: "Apprentice", color: "text-amber-400", level: 2 }
+      return { name: "Novice", color: "text-gray-400", level: 1 }
+    }
+
+    const rankInfo = getRank(user.focusScore || 0)
+
+    const achievements = [
+      { id: '1', title: "3 Day Streak", unlocked: user.currentStreak >= 3 },
+      { id: '2', title: "10 Sessions", unlocked: user.totalSessions >= 10 },
+      { id: '3', title: "Focus Master", unlocked: user.focusScore >= 100 },
+      { id: '4', title: "Consistency Pro", unlocked: user.currentStreak >= 7 },
+      { id: '5', title: "Early Adopter", unlocked: true },
+      { id: '6', title: "Deep Diver", unlocked: user.totalSessions >= 5 }
+    ]
 
     res.json({
       user,
       streak: streakRecord,
+      subscription,
+      heatmap,
+      recentSessions,
+      maxDailyMinutes,
+      achievements,
+      rank: rankInfo,
+      combo: user.dailySessionCount || 0,
+      totalDuration: heatmapSessions.reduce((sum, s) => sum + (s.duration || 0), 0)
     })
   } catch (error) {
     console.error("Get profile error:", error)
