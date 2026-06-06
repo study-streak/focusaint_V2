@@ -167,13 +167,14 @@ export const getQuizHistory = async (req, res) => {
 
     const QuizResult = (await import("../models/QuizResult.js")).default
 
-    const results = await QuizResult.find({ userId: req.user.id })
-      .sort({ completedAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean()
-
-    const total = await QuizResult.countDocuments({ userId: req.user.id })
+    const [results, total] = await Promise.all([
+      QuizResult.find({ userId: req.user.id })
+        .sort({ completedAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      QuizResult.countDocuments({ userId: req.user.id })
+    ])
 
     return res.json({
       results,

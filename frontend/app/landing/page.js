@@ -7,6 +7,7 @@ import Method from './components/Method'
 import FlipCards from './components/FlipCards'
 import BackedBy from './components/BackedBy'
 import Features from './components/Features'
+import Products from './components/Products'
 import Team from './components/Team'
 import Timeline from './components/Timeline'
 // import Testimonials from './components/Testimonials'
@@ -27,6 +28,7 @@ export default function Home() {
         <FlipCards />
         <BackedBy />
         <Features />
+        <Products />
         <Team />
         <Timeline />
         {/* <Testimonials /> */}

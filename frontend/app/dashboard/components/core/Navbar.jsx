@@ -28,10 +28,10 @@
   - No UI crash
 */
 
-import { Flame, User, Bell, LogOut } from "lucide-react"
+import { Flame, User, Bell, LogOut, Shield } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useDashboardData } from "../../../../hooks/useDashboardData"
 import ThemeToggle from "./ThemeToggle"
 
@@ -43,6 +43,28 @@ export default function Navbar({ data: externalData }) {
 
 
     const [notifOpen, setNotifOpen] = useState(false)
+
+    const [isShieldActive, setIsShieldActive] = useState(false)
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const checkShield = () => {
+                setIsShieldActive(document.documentElement.dataset.focusShieldInstalled === "true")
+            }
+            checkShield()
+            
+            // Listen for custom installation event
+            window.addEventListener('FocusShieldInstalledEvent', checkShield)
+            
+            // Periodic checks as fallback
+            const interval = setInterval(checkShield, 2000)
+            
+            return () => {
+                window.removeEventListener('FocusShieldInstalledEvent', checkShield)
+                clearInterval(interval)
+            }
+        }
+    }, [])
 
     // Default to empty/zero state when backend data isn't available
     const user = data?.user ?? { name: "—" }
@@ -96,6 +118,30 @@ export default function Navbar({ data: externalData }) {
 
             {/* ⚡ RIGHT: NOTIFICATION + USER */}
             <div className="flex items-center gap-3 sm:gap-5">
+
+                {/* 🛡️ FocusShield Status */}
+                <div className="relative group">
+                    <div 
+                        className={`flex items-center justify-center w-8 h-8 rounded-full border transition-all duration-300 ${
+                            isShieldActive 
+                                ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500 cursor-pointer' 
+                                : 'bg-white/5 border-white/5 text-[var(--muted)] hover:text-[var(--white)] cursor-pointer'
+                        }`}
+                        title={isShieldActive ? "FocusShield Active" : "FocusShield Inactive"}
+                    >
+                        <Shield size={16} className={isShieldActive ? "fill-emerald-500/20 animate-pulse" : ""} />
+                    </div>
+                    {/* Tooltip */}
+                    <div className="absolute right-0 top-10 w-48 p-3.5 rounded-2xl bg-[var(--card)] border border-[var(--line)] text-[11px] text-[var(--muted)] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 shadow-2xl">
+                        <p className="font-bold text-[var(--white)] mb-1">
+                            {isShieldActive ? "FocusShield Active" : "FocusShield Inactive"}
+                        </p>
+                        {isShieldActive 
+                            ? "Your browser is shielded from distracting feeds." 
+                            : "Set up local extension to block feed loops."
+                        }
+                    </div>
+                </div>
 
                 <ThemeToggle />
 

@@ -37,6 +37,7 @@
 */
 
 import { motion } from "framer-motion"
+import { useRef, useEffect } from "react"
 
 const getColor = (count) => {
     if (count === 0) return "bg-[var(--surface)]"
@@ -48,6 +49,13 @@ const getColor = (count) => {
 
 export default function SessionHeatmap({ data }) {
     const heatmap = data?.heatmap ?? []
+    const scrollContainerRef = useRef(null)
+
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth
+        }
+    }, [data])
 
     // 🔹 GROUP DATA BY MONTH (Proper Distribution)
     const monthBlocks = []
@@ -100,7 +108,7 @@ export default function SessionHeatmap({ data }) {
         <div className="h-full flex flex-col">
             <h3 className="text-sm font-medium text-[var(--muted)] mb-6">Activity Heatmap</h3>
 
-            <div className="flex-1 overflow-x-auto pb-4 scrollbar-thin">
+            <div ref={scrollContainerRef} className="flex-1 overflow-x-auto pb-4 scrollbar-thin">
                 <div className="flex gap-4 p-2 rounded-xl border border-[var(--line)] w-fit mx-2">
                     {monthBlocks.map((monthDays, mi) => {
                         const monthWeeks = getMonthWeeks(monthDays);

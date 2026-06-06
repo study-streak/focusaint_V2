@@ -14,10 +14,9 @@ const fallback = {
         { day: "Sun", minutes: 70 },
     ]
 }
-
 export default function WeeklyGraph({ data }) {
     const weeklyData = data?.weeklyData ?? fallback.weeklyData
-    const max = Math.max(...weeklyData.map(d => d.minutes), 1)
+    const max = Math.max(...weeklyData.map(d => d.minutes), 30)
     const gridLines = [0.25, 0.5, 0.75, 1];
 
     return (
@@ -57,7 +56,7 @@ export default function WeeklyGraph({ data }) {
                             </div>
 
                             {/* BAR */}
-                            <div className="w-full relative flex flex-col items-center">
+                            <div className="h-[120px] w-full relative flex items-end justify-center">
                                 <motion.div
                                     initial={{ height: 0 }}
                                     animate={{ height: `${height}%` }}

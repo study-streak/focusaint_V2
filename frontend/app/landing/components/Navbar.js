@@ -28,6 +28,7 @@ export default function Navbar() {
   const links = [
     { label: 'Method', href: '#method' },
     { label: 'Features', href: '#features' },
+    { label: 'Products', href: '#products' },
     { label: 'Team', href: '#team' },
     { label: 'Pricing', href: '#pricing' },
   ]

@@ -15,8 +15,40 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const result = await APIClient.get("/api/user/profile")
-                setData(result)
+                let dashboardData = null
+                if (typeof window !== "undefined") {
+                    const cached = window.sessionStorage.getItem("focusaint_dashboard_data")
+                    if (cached) {
+                        dashboardData = JSON.parse(cached)
+                    }
+                }
+
+                if (dashboardData) {
+                    // Fetch only subscription details to save database pool resources
+                    const result = await APIClient.get("/api/user/profile?partial=true")
+                    
+                    const profileData = {
+                        user: dashboardData.user,
+                        streak: dashboardData.streak,
+                        heatmap: dashboardData.heatmap,
+                        recentSessions: dashboardData.recentSessions,
+                        maxDailyMinutes: dashboardData.maxDailyMinutes,
+                        achievements: dashboardData.achievements,
+                        rank: {
+                            name: dashboardData.rank,
+                            color: dashboardData.rankColor
+                        },
+                        combo: dashboardData.combo || 0,
+                        subscription: result.subscription,
+                        // Calculate total duration in memory by summing the focus activity count values
+                        totalDuration: (dashboardData.heatmap || []).reduce((sum, item) => sum + (item.count || 0), 0)
+                    }
+                    setData(profileData)
+                } else {
+                    // Fallback: full fetch when profile page is accessed directly or cache is empty
+                    const result = await APIClient.get("/api/user/profile")
+                    setData(result)
+                }
             } catch (error) {
                 console.error("Failed to fetch profile", error)
             } finally {
@@ -63,25 +95,25 @@ export default function ProfilePage() {
     return (
         <div className="pb-24 max-w-[1600px] mx-auto px-4 mt-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                
+
                 {/* LEFT SIDEBAR: IDENTITY & CORE METRICS (Fixed position behavior on desktop) */}
                 <div className="lg:col-span-3 space-y-6 lg:sticky lg:top-8">
                     <div className="bg-[var(--card)] border border-[var(--line)] rounded-3xl p-6 shadow-xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl -mr-16 -mt-16" />
-                        
+
                         <div className="flex flex-col items-center text-center relative z-10">
                             <div className="w-24 h-24 rounded-full p-1 bg-gradient-to-br from-indigo-500 to-purple-600 mb-4 shadow-lg shadow-indigo-500/20">
                                 <div className="w-full h-full rounded-full bg-[var(--black)] flex items-center justify-center text-3xl font-bold border-2 border-transparent bg-clip-border">
                                     {user?.name?.[0] || 'U'}
                                 </div>
                             </div>
-                            
+
                             <h1 className="text-2xl font-bold tracking-tight mb-1">{user?.name}</h1>
                             <p className="text-xs text-[var(--muted)] mb-3 flex items-center gap-1">
                                 <Mail size={12} />
                                 {user?.email}
                             </p>
-                            
+
                             {getTierBadge(user?.subscriptionTier)}
 
                             <div className="w-full h-px bg-[var(--line)] my-6" />
@@ -152,7 +184,7 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                
+
                 </div>
 
                 {/* CENTER COLUMN: ANALYTICS (ACHIEVEMENTS & HEATMAP) */}

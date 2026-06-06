@@ -10,10 +10,13 @@ import ProgressHUD from "./components/core/ProgressHUD"
 import GoalsLinkCard from "./components/core/GoalsLinkCard"
 import MarathonLinkCard from "./components/core/MarathonLinkCard"
 import LockedMarathonLinkCard from "./components/core/LockedMarathonLinkCard"
+import FocusShieldCard from "./components/core/FocusShieldCard"
+import FocusShieldModal from "./components/core/FocusShieldModal"
 import { Trophy, Flame, Clock, Zap } from "lucide-react"
 
 // GAMIFICATION
-import QuestCard from "./components/gamification/QuestCard"
+import QuestCard from
+    "./components/gamification/QuestCard"
 import RewardsPopup from "./components/core/RewardsPopup"
 import UnlockAnimation from "./components/gamification/UnlockAnimation"
 import XPToast from "./components/gamification/XPToast"
@@ -41,14 +44,39 @@ export default function DashboardContent() {
     const [showReward, setShowReward] = useState(false)
     const [showXP, setShowXP] = useState(false)
     const [notifOpen, setNotifOpen] = useState(false)
+    const [isShieldInstalled, setIsShieldInstalled] = useState(false)
+    const [showShieldModal, setShowShieldModal] = useState(false)
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const checkShield = () => {
+                setIsShieldInstalled(document.documentElement.dataset.focusShieldInstalled === "true")
+            }
+            checkShield()
+
+            window.addEventListener('FocusShieldInstalledEvent', checkShield)
+
+            const interval = setInterval(checkShield, 2000)
+
+            return () => {
+                window.removeEventListener('FocusShieldInstalledEvent', checkShield)
+                clearInterval(interval)
+            }
+        }
+    }, [])
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [dashData] = await Promise.all([
                     APIClient.get("/api/user/dashboard")
+
                 ])
+                console.log(dashData)
                 setData(dashData)
+                if (typeof window !== "undefined") {
+                    window.sessionStorage.setItem("focusaint_dashboard_data", JSON.stringify(dashData))
+                }
             } catch (err) {
                 console.error("Dashboard data fetch failed:", err)
             }
@@ -71,7 +99,7 @@ export default function DashboardContent() {
 
             {/* MAIN BENTO GRID */}
             <div className="px-6 grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)] pb-24">
-                
+
                 {/* TOP ROW - TASKS & GOALS */}
                 <div className="md:col-span-6 h-full">
                     <div className="h-full rounded-2xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-md p-1 shadow-md">
@@ -88,6 +116,7 @@ export default function DashboardContent() {
                     <div className="h-full rounded-3xl border border-[var(--line)] bg-[var(--card)] backdrop-blur-xl shadow-2xl p-8 flex flex-col">
                         <WeeklyGraph data={data} />
                     </div>
+
                 </div>
 
 
@@ -97,17 +126,17 @@ export default function DashboardContent() {
                     {isMarathonUnlocked ? (
                         <MarathonLinkCard />
                     ) : (
-                        <LockedMarathonLinkCard 
+                        <LockedMarathonLinkCard
                             currentStreak={streak}
                             currentMinutes={totalDuration}
                         />
                     )}
                 </div>
 
-                
-                 {/* ACHIEVEMENTS SECTION (Moved below Hero Metrics) */}
-                <div className="md:col-span-12">
-                    <div className="p-8 bg-[var(--card)] border border-[var(--line)] rounded-3xl shadow-xl">
+
+                {/* ACHIEVEMENTS SECTION (Moved below Hero Metrics) */}
+                <div className="md:col-span-8 h-full">
+                    <div className="p-8 bg-[var(--card)] border border-[var(--line)] rounded-3xl shadow-xl h-full">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center text-yellow-500">
                                 <Trophy size={20} />
@@ -121,6 +150,13 @@ export default function DashboardContent() {
                     </div>
                 </div>
 
+                <div className="md:col-span-4 h-full">
+                    <FocusShieldCard
+                        isInstalled={isShieldInstalled}
+                        onOpenSetup={() => setShowShieldModal(true)}
+                    />
+                </div>
+
             </div>
 
             {/* OVERLAYS */}
@@ -130,6 +166,12 @@ export default function DashboardContent() {
                 data={data}
                 open={notifOpen}
                 onClose={() => setNotifOpen(false)}
+            />
+
+            <FocusShieldModal
+                isOpen={showShieldModal}
+                onClose={() => setShowShieldModal(false)}
+                isInstalled={isShieldInstalled}
             />
 
             {/* REWARD SYSTEM */}

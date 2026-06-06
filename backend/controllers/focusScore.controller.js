@@ -10,9 +10,11 @@ import {
  */
 export const getFocusScore = async (req, res) => {
   try {
-    const scoreData = await calculateFocusScore(req.user.id)
-    const rank = await getFocusScoreRank(req.user.id)
-    const trend = await getFocusScoreTrend(req.user.id)
+    const [scoreData, rank, trend] = await Promise.all([
+      calculateFocusScore(req.user.id),
+      getFocusScoreRank(req.user.id),
+      getFocusScoreTrend(req.user.id)
+    ])
     
     res.json({
       ...scoreData,

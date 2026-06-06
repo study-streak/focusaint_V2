@@ -8,40 +8,57 @@ import { calculateFocusScore } from "../services/focusScore.js"
 import { connectToMongo } from "../utils/db.js"
 import Subscription from "../models/Subscription.js"
 
-async function getUserDashboard(req, res){
+async function getUserDashboard(req, res) {
   try {
     await connectToMongo()
 
-    // Calculate/Update Focus Score on the fly for latest data
-    const scoreData = await calculateFocusScore(req.user.userId)
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+    const today = new Date().toISOString().split('T')[0]
 
-    const user = await User.findById(req.user.userId).select(
-      "name email currentStreak longestStreak totalSessions lastSessionDate focusScore focusScoreHistory",
-    )
+    // Fetch all independent data concurrently
+    const [
+      scoreData,
+      user,
+      streakRecord,
+      recentSessions,
+      heatmapSessions,
+      tasks,
+      learningPaths,
+      reviewsDue
+    ] = await Promise.all([
+      calculateFocusScore(req.user.userId),
+      User.findById(req.user.userId).select(
+        "name email currentStreak longestStreak totalSessions lastSessionDate focusScore focusScoreHistory",
+      ),
+      StreakRecord.findOne({ userId: req.user.userId }),
+      HabitSession.find({
+        userId: req.user.userId,
+        status: "completed",
+      }).sort({ sessionDate: -1 }).limit(30),
+      HabitSession.find({
+        userId: req.user.userId,
+        sessionDate: { $gte: threeSixtyFiveDaysAgo },
+        status: "completed"
+      }),
+      HabitTask.find({
+        userId: req.user.userId,
+        assignedDate: today
+      }),
+      LearningPath.find({ userId: req.user.userId }),
+      SpacedReview.find({
+        userId: req.user.userId,
+        isCompleted: false,
+        scheduledFor: { $lte: new Date() }
+      }).populate('lessonId')
+    ])
 
     if (!user) {
       return res.status(404).json({ error: "User not found" })
     }
 
-    const streakRecord = await StreakRecord.findOne({ userId: req.user.userId })
-
-    // Calculate weekly consistency
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    const recentSessions = await HabitSession.find({
-      userId: req.user.userId,
-      status: "completed",
-    }).sort({ sessionDate: -1 }).limit(30)
-
     const weeklySessionsCount = recentSessions.filter(s => s.sessionDate >= oneWeekAgo).length
     const totalMinutes = recentSessions.reduce((sum, s) => sum + (s.duration || 0), 0)
-
-    // Generate Heatmap Data (Last 365 days)
-    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
-    const heatmapSessions = await HabitSession.find({
-      userId: req.user.userId,
-      sessionDate: { $gte: threeSixtyFiveDaysAgo },
-      status: "completed"
-    })
 
     const heatmapMap = {}
     heatmapSessions.forEach(s => {
@@ -67,14 +84,14 @@ async function getUserDashboard(req, res){
     const weeklyData = []
     const todayObj = new Date()
     for (let i = 6; i >= 0; i--) {
-        const d = new Date(todayObj)
-        d.setDate(d.getDate() - i)
-        const dateKey = d.toISOString().split('T')[0]
-        const dayName = daysOfWeek[d.getDay()]
-        weeklyData.push({
-            day: dayName,
-            minutes: heatmapMap[dateKey] || 0
-        })
+      const d = new Date(todayObj)
+      d.setDate(d.getDate() - i)
+      const dateKey = d.toISOString().split('T')[0]
+      const dayName = daysOfWeek[d.getDay()]
+      weeklyData.push({
+        day: dayName,
+        minutes: heatmapMap[dateKey] || 0
+      })
     }
 
     // Rank Allocation Logic
@@ -93,20 +110,6 @@ async function getUserDashboard(req, res){
     const xp = totalMinutes * 10 // Example: 10 XP per minute
     const level = Math.floor(xp / 500) || 1
     const energy = Math.min(100, Math.round((weeklySessionsCount / 7) * 100))
-
-    // Fetch today's tasks (Quests)
-    const today = new Date().toISOString().split('T')[0]
-    const tasks = await HabitTask.find({
-      userId: req.user.userId,
-      assignedDate: today
-    })
-
-    const learningPaths = await LearningPath.find({ userId: req.user.userId })
-    const reviewsDue = await SpacedReview.find({ 
-      userId: req.user.userId, 
-      isCompleted: false,
-      scheduledFor: { $lte: new Date() } 
-    }).populate('lessonId')
 
     const achievements = [
       { id: '1', title: "3 Day Streak", unlocked: user.currentStreak >= 3 },
@@ -151,44 +154,35 @@ async function getUserDashboard(req, res){
 
 async function getUserProfile(req, res) {
   try {
-      await connectToMongo()
+    await connectToMongo()
 
-    const user = await User.findById(req.user.userId).select("-password")
+    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
+
+    // Fetch user, streakRecord, subscription, heatmap, and recent sessions concurrently
+    const [
+      user,
+      streakRecord,
+      subscription,
+      heatmapSessions,
+      recentSessions
+    ] = await Promise.all([
+      User.findById(req.user.userId).select("-password"),
+      StreakRecord.findOne({ userId: req.user.userId }),
+      Subscription.findOne({ userId: req.user.userId }),
+      HabitSession.find({
+        userId: req.user.userId,
+        sessionDate: { $gte: threeSixtyFiveDaysAgo },
+        status: "completed"
+      }),
+      HabitSession.find({
+        userId: req.user.userId,
+        status: "completed",
+      }).sort({ sessionDate: -1 }).limit(10)
+    ])
+
     if (!user) {
       return res.status(404).json({ error: "User not found" })
     }
-
-    const streakRecord = await StreakRecord.findOne({ userId: user._id })
-    const subscription = await Subscription.findOne({ userId: user._id })
-
-    // Also get heatmap and sessions for profile
-    const threeSixtyFiveDaysAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
-    const heatmapSessions = await HabitSession.find({
-      userId: req.user.userId,
-      sessionDate: { $gte: threeSixtyFiveDaysAgo },
-      status: "completed"
-    })
-
-    const heatmapMap = {}
-    heatmapSessions.forEach(s => {
-      const dateKey = s.sessionDate.toISOString().split('T')[0]
-      heatmapMap[dateKey] = (heatmapMap[dateKey] || 0) + (s.duration || 0)
-    })
-
-    const heatmap = Array.from({ length: 365 }).map((_, i) => {
-      const d = new Date()
-      d.setDate(d.getDate() - (364 - i))
-      const dateKey = d.toISOString().split('T')[0]
-      return {
-        date: dateKey,
-        count: heatmapMap[dateKey] || 0
-      }
-    })
-
-    const recentSessions = await HabitSession.find({
-      userId: req.user.userId,
-      status: "completed",
-    }).sort({ sessionDate: -1 }).limit(10)
 
     const maxDailyMinutes = Math.max(...Object.values(heatmapMap), 0)
 
@@ -232,7 +226,7 @@ async function getUserProfile(req, res) {
 
 async function updateUserProfile(req, res) {
   try {
-      await connectToMongo()
+    await connectToMongo()
 
     const { name, learningGoal, preferredStudyTime, modePreference } = req.body
 

@@ -143,6 +143,59 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    focusShieldProfiles: {
+      type: [{
+        name: String,
+        icon: String,
+        sites: [String],
+        apps: [String],
+        elementBlocking: {
+          hideRecommendations: { type: Boolean, default: false },
+          blockShorts: { type: Boolean, default: false },
+          blockInfiniteScroll: { type: Boolean, default: false }
+        }
+      }],
+      default: []
+    },
+    focusShieldDevices: {
+      type: [{
+        id: String,
+        name: String,
+        os: String,
+        status: String,
+        lastSyncTime: Date,
+        exceptions: {
+          sites: { type: [String], default: [] },
+          apps: { type: [String], default: [] }
+        }
+      }],
+      default: []
+    },
+    focusShieldGlobalBlocklist: {
+      sites: { type: [String], default: ["facebook.com", "instagram.com", "twitter.com", "youtube.com", "reddit.com"] },
+      apps: { type: [String], default: ["Slack", "Discord", "Steam"] }
+    },
+    focusShieldActiveSession: {
+      isRunning: { type: Boolean, default: false },
+      profileName: { type: String, default: null },
+      durationLeft: { type: Number, default: 0 },
+      totalDuration: { type: Number, default: 0 },
+      isLocked: { type: Boolean, default: false },
+      startTime: { type: Date, default: null },
+      overrideMinutesUsed: { type: Number, default: 0 },
+      blockMode: { type: String, default: "Temporary Session" },
+      cooldownDurationLeft: { type: Number, default: 0 },
+      warningTriggered: { type: Boolean, default: false },
+      habitSessionId: { type: mongoose.Schema.Types.ObjectId, ref: "HabitSession", default: null }
+    },
+    focusShieldIntegrityLogs: {
+      type: [{
+        timestamp: { type: Date, default: Date.now },
+        level: String,
+        message: String
+      }],
+      default: []
+    }
   },
   { timestamps: true },
 )

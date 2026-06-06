@@ -131,12 +131,14 @@ export const submitReflection = async (req, res) => {
 export const getDashboardData = async (req, res) => {
   try {
     const userId = req.user.id;
-    const paths = await LearningPath.find({ userId }).sort({ updatedAt: -1 });
-    const reviewsDue = await SpacedReview.find({ 
-      userId, 
-      scheduledFor: { $lte: new Date() },
-      isCompleted: false 
-    }).populate('lessonId');
+    const [paths, reviewsDue] = await Promise.all([
+      LearningPath.find({ userId }).sort({ updatedAt: -1 }),
+      SpacedReview.find({ 
+        userId, 
+        scheduledFor: { $lte: new Date() },
+        isCompleted: false 
+      }).populate('lessonId')
+    ]);
 
     res.json({ paths, reviewsDue });
   } catch (error) {

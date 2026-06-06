@@ -249,8 +249,14 @@ export const getStreak = async (req, res) => {
   try {
     await connectToMongo()
 
-    const streak = await StreakRecord.findOne({ userId: req.user.userId })
-    const user = await User.findById(req.user.userId)
+    const [streak, user] = await Promise.all([
+      StreakRecord.findOne({ userId: req.user.userId }),
+      User.findById(req.user.userId)
+    ])
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" })
+    }
 
     res.json({
       currentStreak: user.currentStreak,
@@ -373,61 +379,49 @@ export const getStats = async (req, res) => {
   try {
     await connectToMongo()
 
-    const user = await User.findById(req.user.userId)
-    const streakRecord = await StreakRecord.findOne({ userId: req.user.userId })
-
-    // Get this week's sessions
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    const sessionsThisWeek = await HabitSession.countDocuments({
-      userId: req.user.userId,
-      sessionDate: { $gte: sevenDaysAgo },
-      status: "completed",
-    })
-
-    // Get total duration this week
-    const weekSessions = await HabitSession.aggregate([
-      {
-        $match: {
-          userId: new mongoose.Types.ObjectId(req.user.userId),
-          sessionDate: { $gte: sevenDaysAgo },
-          status: "completed",
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          totalDuration: { $sum: "$duration" },
-        },
-      },
-    ])
-
-    const totalDuration = weekSessions[0]?.totalDuration || 0
-
-    // Get weekly data for chart
     const today = new Date()
-    const weeklyData = []
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
+    // Fetch user, streak record, and ALL completed sessions for this week concurrently
+    const [user, streakRecord, sessionsThisWeekList] = await Promise.all([
+      User.findById(req.user.userId),
+      StreakRecord.findOne({ userId: req.user.userId }),
+      HabitSession.find({
+        userId: req.user.userId,
+        sessionDate: { $gte: sevenDaysAgo },
+        status: "completed",
+      })
+    ])
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" })
+    }
+
+    // Compute weekly metrics in memory to eliminate redundant aggregate and count queries
+    const sessionsThisWeek = sessionsThisWeekList.length
+    const totalDuration = sessionsThisWeekList.reduce((sum, s) => sum + (s.duration || 0), 0)
+
+    // Group sessions by day string in memory
+    const sessionsCountByDay = {}
+    sessionsThisWeekList.forEach(s => {
+      if (s.sessionDate) {
+        const dateKey = s.sessionDate.toISOString().split('T')[0]
+        sessionsCountByDay[dateKey] = (sessionsCountByDay[dateKey] || 0) + 1
+      }
+    })
+
+    // Construct weekly graph data in memory
+    const weeklyData = []
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today)
       date.setDate(date.getDate() - i)
-      date.setHours(0, 0, 0, 0)
-
-      const nextDate = new Date(date)
-      nextDate.setDate(nextDate.getDate() + 1)
-
-      const dayIndex = date.getDay()
-      const dayName = daysOfWeek[dayIndex]
-
-      const sessionsCount = await HabitSession.countDocuments({
-        userId: req.user.userId,
-        sessionDate: { $gte: date, $lt: nextDate },
-        status: "completed",
-      })
+      const dateKey = date.toISOString().split('T')[0]
+      const dayName = daysOfWeek[date.getDay()]
 
       weeklyData.push({
         day: dayName,
-        sessions: sessionsCount,
+        sessions: sessionsCountByDay[dateKey] || 0,
       })
     }
 
