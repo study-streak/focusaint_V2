@@ -21,13 +21,13 @@ export function CTA() {
           Convert scattered video sessions into structured progress with built-in notes, guided flow, and uninterrupted study.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
-          <Link href="/signup" className="btn-accent" style={{ fontSize: 16, padding: '15px 36px', fontWeight: 600 }}>
+          <Link href="/auth/signup" className="btn-accent" style={{ fontSize: 16, padding: '15px 36px', fontWeight: 600 }}>
             Begin your session
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </Link>
-          <Link href="/login" className="btn-ghost" style={{ fontSize: 16, padding: '15px 36px', fontWeight: 600 }}>Sign in</Link>
+          <Link href="/auth/login" className="btn-ghost" style={{ fontSize: 16, padding: '15px 36px', fontWeight: 600 }}>Sign in</Link>
         </div>
         <p style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: 'var(--muted)', opacity: 0.7 }}>
           Free plan available • No upfront commitment • Start instantly
