@@ -6,6 +6,13 @@ import Link from "next/link"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Play, Calendar, CheckCircle2, FileText, PlayCircle, Plus, Upload, Link as LinkIcon, Trash2 } from "lucide-react"
 import { APIClient } from "../../../../lib/api-client"
+import {
+    trackAttachmentAdded,
+    trackAttachmentDeleted,
+    trackGoalDeleteInitiated,
+    trackGoalDeleteCompleted,
+    trackGoalDeleteError,
+} from "../../../../lib/analytics"
 
 export default function PlannerContent() {
     const router = useRouter()
@@ -203,10 +210,16 @@ export default function PlannerContent() {
 
     const handleRemoveAttachment = async (attachmentId) => {
         if (!confirm("Remove this material?")) return;
+        const t0 = performance.now()
+        trackGoalDeleteInitiated(goalId)
         try {
             await APIClient.delete(`/api/plan/task/${goalId}/attachment/${attachmentId}`)
+            const duration_ms = Math.round(performance.now() - t0)
+            trackAttachmentDeleted(goalId, attachmentId, duration_ms)
             fetchTask()
         } catch (e) {
+            const duration_ms = Math.round(performance.now() - t0)
+            trackGoalDeleteError(goalId, e?.message || "Unknown error", duration_ms)
             console.error(e)
         }
     }

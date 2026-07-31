@@ -7,6 +7,7 @@ import SessionHeatmap from "../components/analytics/SessionHeatmap"
 import RecentSessions from "../components/analytics/RecentSessions"
 import ComboStreakBar from "../components/gamification/ComboStreakBar"
 import { Trophy, Flame, Clock, Calendar, Mail, User, Shield, Target, Zap } from "lucide-react"
+import { trackProfileViewed, trackUpgradeCtaClicked } from "../../../lib/analytics"
 
 export default function ProfilePage() {
     const [data, setData] = useState(null)
@@ -57,6 +58,13 @@ export default function ProfilePage() {
         }
         fetchProfile()
     }, [])
+
+    // Track profile view after data loads
+    useEffect(() => {
+        if (data?.user) {
+            trackProfileViewed(data.user.subscriptionTier || 'free')
+        }
+    }, [data?.user])
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-[var(--black)] text-[var(--white)]">
@@ -245,7 +253,11 @@ export default function ProfilePage() {
                             </div>
                             <h2 className="text-lg font-bold text-[var(--white)] mb-2 relative z-10">Upgrade to Premium</h2>
                             <p className="text-xs text-[var(--muted)] mb-6 relative z-10">Unlock advanced analytics, AI coach, and unlimited sessions.</p>
-                            <a href="/pricing" className="btn-accent w-full justify-center relative z-10">
+                            <a
+                                href="/pricing"
+                                onClick={() => trackUpgradeCtaClicked(user?.subscriptionTier || 'free')}
+                                className="btn-accent w-full justify-center relative z-10"
+                            >
                                 Upgrade Now
                             </a>
                         </div>

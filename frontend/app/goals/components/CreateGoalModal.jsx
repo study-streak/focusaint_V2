@@ -2,6 +2,11 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Target, Calendar, CheckCircle2 } from "lucide-react"
 import { APIClient } from "../../../lib/api-client"
+import {
+    trackGoalCreateInitiated,
+    trackGoalCreateCompleted,
+    trackGoalCreateError,
+} from "../../../lib/analytics"
 
 export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
     const [title, setTitle] = useState("")
@@ -15,6 +20,8 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
         if (!title.trim()) return
 
         setIsSubmitting(true)
+        const t0 = performance.now()
+        trackGoalCreateInitiated(!!deadline)
         try {
             const date = new Date()
             const dateStr = date.toISOString().split("T")[0]
@@ -37,6 +44,9 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
                     deadline
                 })
             }
+
+            const duration_ms = Math.round(performance.now() - t0)
+            trackGoalCreateCompleted(taskId, title.length, duration_ms)
             
             onCreate()
             onClose()
@@ -47,6 +57,8 @@ export default function CreateGoalModal({ isOpen, onClose, onCreate }) {
             }, 300)
 
         } catch (error) {
+            const duration_ms = Math.round(performance.now() - t0)
+            trackGoalCreateError(error?.message || "Unknown error", duration_ms)
             console.error("Failed to create goal", error)
             alert("Failed to create goal. Check console.")
         } finally {

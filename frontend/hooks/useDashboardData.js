@@ -1,28 +1,26 @@
-import { useState, useEffect } from 'react'
-import { APIClient } from '../lib/api-client'
+/**
+ * hooks/useDashboardData.js
+ *
+ * Backward-compatible Redux wrapper.
+ * Components still using useDashboardData() will get data from the Redux store
+ * (which has cache TTL) instead of making a fresh API call.
+ */
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchDashboard } from '../store/slices/dashboardSlice'
 
 export function useDashboardData() {
-    const [data, setData] = useState({
-        user: { name: "—" },
-        streak: 0,
-        notifications: []
-    })
-    const [loading, setLoading] = useState(true)
+    const dispatch = useDispatch()
+    const { data, status } = useSelector((state) => state.dashboard)
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const result = await APIClient.get("/api/user/dashboard")
-                setData(result)
-            } catch (error) {
-                console.error("Failed to fetch dashboard data:", error)
-            } finally {
-                setLoading(false)
-            }
+        if (status === 'idle') {
+            dispatch(fetchDashboard())
         }
+    }, [dispatch, status])
 
-        fetchData()
-    }, [])
-
-    return { data, loading }
+    return {
+        data,
+        loading: status === 'loading' || status === 'idle',
+    }
 }

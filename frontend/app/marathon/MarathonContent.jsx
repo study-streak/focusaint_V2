@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { APIClient } from "../../lib/api-client"
+import { useEffect } from "react"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchMarathon } from "../../store/slices/marathonSlice"
 import Link from "next/link"
 import { ArrowLeft, Trophy, Target, TrendingUp } from "lucide-react"
 import { motion } from "framer-motion"
@@ -13,28 +14,15 @@ import AmbientBackground from "../dashboard/components/ui-effects/AmbientBackgro
 import Navbar from "../dashboard/components/core/Navbar"
 
 export default function MarathonContent() {
-    const [leaderboard, setLeaderboard] = useState([])
-    const [challenges, setChallenges] = useState([])
-    const [loading, setLoading] = useState(true)
+    const dispatch = useDispatch()
+    const { leaderboard, challenges, status } = useSelector((state) => state.marathon)
+    const loading = status === "loading" || status === "idle"
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [lbData, challengeData] = await Promise.all([
-                    APIClient.get("/api/marathon/leaderboard"),
-                    APIClient.get("/api/marathon/challenges")
-                ])
-                setLeaderboard(lbData)
-                setChallenges(challengeData)
-            } catch (err) {
-                console.error("Marathon data fetch failed:", err)
-            } finally {
-                setLoading(false)
-            }
+        if (status === "idle") {
+            dispatch(fetchMarathon())
         }
-
-        fetchData()
-    }, [])
+    }, [dispatch, status])
 
     return (
         <div className="relative min-h-screen text-[var(--white)] bg-[var(--black)] overflow-hidden">

@@ -3,61 +3,27 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { useDispatch, useSelector } from "react-redux"
 import { Target, BookOpen, ArrowLeft, Plus, Layers, Lock, PlayCircle, CheckCircle } from "lucide-react"
 import CreateGoalModal from "./components/CreateGoalModal"
-import { APIClient } from "../../lib/api-client"
+import { fetchGoals, invalidateGoals } from "../../store/slices/goalsSlice"
 
 export default function GoalsContent() {
-    const [goals, setGoals] = useState([])
+    const dispatch = useDispatch()
+    const { goals, status } = useSelector((state) => state.goals)
+    const isLoading = status === "loading" || status === "idle"
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
-
-    const fetchGoals = async () => {
-        setIsLoading(true)
-        try {
-            const date = new Date()
-            const monthStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-            const response = await APIClient.get(`/api/plan/monthly?month=${monthStr}`)
-            
-            if (response.tasks) {
-                const mappedGoals = response.tasks.map(task => {
-                    const completedLevels = task.attachments?.filter(a => a.completed).length || 0
-                    const totalLevels = task.attachments?.length || 0
-                    const progress = totalLevels > 0
-                        ? Math.round((completedLevels / totalLevels) * 100)
-                        : (task.completed ? 100 : 0)
-                    const hasLevels = totalLevels > 0
-                    const hasVideo = task.attachments?.some(a => a.url?.includes('youtube') || a.url?.includes('youtu.be'))
-                    
-                    return {
-                        id: task._id,
-                        title: task.title,
-                        progress,
-                        totalLevels,
-                        completedLevels,
-                        hasLevels,
-                        hasVideo,
-                        deadline: task.deadline,
-                        assignedDate: task.assignedDate,
-                        completed: task.completed,
-                        duration: task.duration
-                    }
-                })
-                setGoals(mappedGoals)
-            }
-        } catch (error) {
-            console.error("Failed to fetch goals:", error)
-        } finally {
-            setIsLoading(false)
-        }
-    }
 
     useEffect(() => {
-        fetchGoals()
-    }, [])
+        if (status === "idle") {
+            dispatch(fetchGoals())
+        }
+    }, [dispatch, status])
 
     const handleCreateGoal = () => {
-        fetchGoals()
+        // Invalidate goals cache so next render re-fetches fresh list
+        dispatch(invalidateGoals())
+        dispatch(fetchGoals())
     }
 
     return (

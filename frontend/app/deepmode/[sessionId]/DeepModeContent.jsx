@@ -9,6 +9,13 @@ import { APIClient } from "../../../lib/api-client"
 import NotesSection from "../components/NotesSection"
 import AIBotDrawer from "../components/AIBotDrawer"
 import SessionCompleteFlow from "../components/SessionCompleteFlow"
+import {
+    trackSessionStarted,
+    trackSessionCompleted,
+    trackSessionFailed,
+    trackSessionPaused,
+    trackSessionResumed,
+} from "../../../lib/analytics"
 
 export default function DeepModeContent() {
     const router = useRouter()
@@ -149,13 +156,15 @@ export default function DeepModeContent() {
     const startServerSession = async (attId) => {
         if (serverSessionStarted.current) return
         sessionStartTime.current = Date.now()
-        
+        const t0 = performance.now()
         try {
             await APIClient.post(`/api/plan/task/${sessionId}/proctored/start`, {
                 attachmentId: attId,
                 mode: "deep",
             })
             serverSessionStarted.current = true
+            const duration_ms = Math.round(performance.now() - t0)
+            trackSessionStarted(sessionId, attId, "deep", duration_ms)
             console.log("Proctored session started on server")
         } catch (err) {
             console.warn("Failed to start server session:", err)
@@ -187,12 +196,19 @@ export default function DeepModeContent() {
             violationsRef.current.push("session_failed_3_strikes")
         }
 
+        const t0 = performance.now()
         try {
             await APIClient.post(`/api/plan/task/${sessionId}/proctored/end`, {
                 attachmentId: currentAttachmentId,
                 duration: focusedMinutes,
                 violations: violationsRef.current,
             })
+            const duration_ms = Math.round(performance.now() - t0)
+            if (failed) {
+                trackSessionFailed(sessionId, focusedMinutes, "3_strikes", duration_ms)
+            } else {
+                trackSessionCompleted(sessionId, focusedMinutes, violationsRef.current.length, duration_ms)
+            }
             console.log(`Session ended on server. Duration: ${focusedMinutes} min, Violations: ${violationsRef.current.length}`)
         } catch (err) {
             console.warn("Failed to end server session:", err)
