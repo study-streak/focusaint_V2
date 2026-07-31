@@ -1,4 +1,6 @@
 import { captureException, addBreadcrumb } from './sentry';
+import { trackApiCall } from './analytics';
+import { faroRecordApiLatency } from './grafana-faro';
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || ""
 // In the browser, we use relative paths to take advantage of Next.js rewrites and avoid CORS
@@ -93,6 +95,7 @@ export class APIClient {
     });
 
     const finalEndpoint = endpoint.startsWith("/api") ? endpoint : `/api${endpoint.startsWith("/") ? "" : "/"}${endpoint}`
+    const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
     try {
       const response = await fetch(`${API_BASE_URL}${finalEndpoint}`, {
         ...options,
@@ -128,6 +131,11 @@ export class APIClient {
             },
           });
 
+          // Track latency for failed requests
+          const duration_ms = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0);
+          trackApiCall(endpoint, method, response.status, duration_ms, false);
+          faroRecordApiLatency(endpoint, method, response.status, duration_ms, false);
+
           // Handle unauthorized/expired token
           // Special case: Do NOT logout if it's just a token limit reached error
           const isTokenLimit = error.error === 'TOKEN_LIMIT_EXCEEDED' || error.message?.includes('limit exceeded');
@@ -149,7 +157,12 @@ export class APIClient {
           throw new APIError(errorMessage, response.status, error)
         }
 
-        return response.json()
+        const responseJson = response.json();
+        // Track latency for successful requests
+        const duration_ms = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0);
+        trackApiCall(endpoint, method, response.status, duration_ms, true);
+        faroRecordApiLatency(endpoint, method, response.status, duration_ms, true);
+        return responseJson;
       } catch (error) {
         // Capture exception in Sentry
         captureException(error as Error, {
@@ -157,6 +170,11 @@ export class APIClient {
           method,
           apiBaseUrl: API_BASE_URL,
         });
+
+        // Track latency for network-level errors (no response)
+        const duration_ms = Math.round((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0);
+        trackApiCall(endpoint, method, 0, duration_ms, false);
+        faroRecordApiLatency(endpoint, method, 0, duration_ms, false);
         
         throw error;
       }

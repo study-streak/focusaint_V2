@@ -4,6 +4,12 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CheckCircle, ChevronRight, AlertCircle, Loader2, BookOpen, PenLine, Trophy } from "lucide-react"
 import { APIClient } from "../../../lib/api-client"
+import {
+    trackQuizGenerateInitiated,
+    trackQuizGenerateCompleted,
+    trackQuizGenerateError,
+    trackQuizSubmitted,
+} from "../../../lib/analytics"
 
 /**
  * POST-SESSION FLOW
@@ -53,12 +59,16 @@ export default function SessionCompleteFlow({
     const generateQuiz = async () => {
         setPhase(PHASES.LOADING)
         setError(null)
+        const t0 = performance.now()
+        trackQuizGenerateInitiated('session', sessionId)
         try {
             const res = await APIClient.post("/api/quiz/generate", {
                 videoUrl: contentUrl,
                 questionCount: 5,
             })
             if (res?.questions && res.questions.length > 0) {
+                const duration_ms = Math.round(performance.now() - t0)
+                trackQuizGenerateCompleted(res.questions.length, duration_ms)
                 setQuestions(res.questions)
                 setCurrentQ(0)
                 setAnswers({})
@@ -69,6 +79,8 @@ export default function SessionCompleteFlow({
                 setPhase(PHASES.REFLECTION)
             }
         } catch (err) {
+            const duration_ms = Math.round(performance.now() - t0)
+            trackQuizGenerateError(err?.message || 'Unknown error', duration_ms)
             console.error("Quiz generation failed:", err)
             // Skip quiz if generation fails, go straight to reflection but finalize session
             try {
@@ -84,6 +96,7 @@ export default function SessionCompleteFlow({
 
     const submitQuiz = async () => {
         setIsSubmitting(true)
+        const t0 = performance.now()
         try {
             const questionsWithAnswers = questions.map((q, i) => ({
                 ...q,
@@ -95,6 +108,8 @@ export default function SessionCompleteFlow({
                 sessionId,
             })
 
+            const duration_ms = Math.round(performance.now() - t0)
+            trackQuizSubmitted(res?.score ?? 0, res?.total ?? questions.length, duration_ms)
             setQuizResult(res)
             setPhase(PHASES.QUIZ_RESULT)
         } catch (err) {

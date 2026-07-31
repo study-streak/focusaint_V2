@@ -4,25 +4,30 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start"
   },
   "dependencies": {
+    "@grafana/faro-web-sdk": "^2.9.0",
     "@react-oauth/google": "^0.13.5",
-    "@sentry/nextjs": "^10.50.0",
+    "@reduxjs/toolkit": "^2.12.0",
+    "@sentry/nextjs": "^10.69.0",
     "axios": "^1.15.2",
+    "firebase": "^12.17.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.14.0",
     "motion-utils": "^12.39.0",
-    "next": "^16.2.5",
+    "next": "^16.2.12",
     "react": "^19.2.5",
     "react-confetti": "^6.4.0",
     "react-dom": "^19.2.5",
     "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
+    "react-redux": "^9.3.0",
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "@grafana/faro-webpack-plugin": "^0.12.1",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17"

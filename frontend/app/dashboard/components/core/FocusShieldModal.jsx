@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Copy, Check, ChevronRight, ChevronLeft, Shield, ShieldCheck, Loader2 } from "lucide-react"
+import {
+    trackExtensionDownloadInitiated,
+    trackExtensionSetupStepAdvanced,
+    trackExtensionConnected,
+} from "../../../../lib/analytics"
 
 export default function FocusShieldModal({ isOpen, onClose, isInstalled }) {
   const [step, setStep] = useState(1)
@@ -36,6 +41,7 @@ export default function FocusShieldModal({ isOpen, onClose, isInstalled }) {
   useEffect(() => {
     if (isInstalled) {
       setStep(5)
+      trackExtensionConnected(browserName)
     } else if (step === 5) {
       // If extension becomes uninstalled somehow while on success screen, reset to step 1
       setStep(1)
@@ -128,6 +134,7 @@ export default function FocusShieldModal({ isOpen, onClose, isInstalled }) {
                     <a
                       href="/focus-shield.zip"
                       download
+                      onClick={() => trackExtensionDownloadInitiated(browserName)}
                       className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[var(--accent)] text-white hover:bg-[var(--accent2)] transition-all rounded-xl text-sm font-bold shadow-[0_4px_12px_rgba(200,64,42,0.2)]"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
@@ -254,7 +261,11 @@ export default function FocusShieldModal({ isOpen, onClose, isInstalled }) {
                   </button>
 
                   <button
-                    onClick={() => setStep((s) => Math.min(4, s + 1))}
+                    onClick={() => {
+                      const nextStep = Math.min(4, step + 1)
+                      trackExtensionSetupStepAdvanced(step, nextStep)
+                      setStep(nextStep)
+                    }}
                     className="flex items-center gap-1.5 px-5 py-2.5 bg-white text-black hover:bg-slate-200 transition-all rounded-xl text-sm font-bold"
                   >
                     Next

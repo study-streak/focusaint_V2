@@ -6,6 +6,15 @@ import ThemeToggle from '../../landing/components/ThemeToggle'
 import { persistAuthToken } from '../../../lib/auth-cookie'
 import { APIClient } from '../../../lib/api-client'
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google'
+import {
+  trackLoginInitiated,
+  trackLoginCompleted,
+  trackLoginError,
+  trackGoogleOAuthInitiated,
+  trackGoogleOAuthCompleted,
+  trackGoogleOAuthError,
+  identifyUser,
+} from '../../../lib/analytics'
 
 function LoginContent() {
   const router = useRouter()
@@ -53,6 +62,8 @@ function LoginContent() {
     if (ev) ev.preventDefault()
     if (!validate()) return
     setLoading(true)
+    const t0 = performance.now()
+    trackLoginInitiated(mode)
     try {
       if (mode === 'magic') {
         setSent(true)
@@ -61,7 +72,11 @@ function LoginContent() {
       }
 
       const data = await APIClient.post('/api/auth/login', { email: form.email, password: form.password })
-
+      const duration_ms = Math.round(performance.now() - t0)
+      trackLoginCompleted(mode, data.user?.id || data.user?._id || '', duration_ms)
+      if (data.user?.id || data.user?._id) {
+        identifyUser(data.user?.id || data.user?._id, { subscription_tier: data.user?.subscriptionTier || 'free' })
+      }
       persistAuthToken(data.token)
       router.push(safeNextPath)
     } catch (err) {
@@ -70,7 +85,10 @@ function LoginContent() {
         setErrors({})
         return
       }
-      setErrors({ global: err instanceof Error ? err.message : "Failed to login" })
+      const duration_ms = Math.round(performance.now() - t0)
+      const msg = err instanceof Error ? err.message : "Failed to login"
+      trackLoginError(mode, msg, err?.status || 'unknown', duration_ms)
+      setErrors({ global: msg })
     } finally {
       setLoading(false)
     }

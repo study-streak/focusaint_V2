@@ -3,6 +3,15 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Bot, Send, User, X, Sparkles, BookOpen, Lightbulb, Brain, Layers, Loader2 } from "lucide-react"
 import { APIClient } from "../../../lib/api-client"
 import ReactMarkdown from "react-markdown"
+import {
+    trackAiAnalyzeInitiated,
+    trackAiAnalyzeCompleted,
+    trackAiAnalyzeError,
+    trackAiChatSent,
+    trackAiChatReceived,
+    trackAiChatError,
+    trackAiLimitReached,
+} from "../../../lib/analytics"
 
 const TABS = {
     CHAT: "chat",
@@ -33,6 +42,9 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
         analysisStarted.current = true
         setLastAnalyzedUrl(videoUrl)
         setIsAnalyzing(true)
+        const t0 = performance.now()
+        const content_type = videoUrl.includes('youtube') || videoUrl.includes('youtu.be') ? 'video' : 'pdf'
+        trackAiAnalyzeInitiated(content_type, null)
         try {
             // Call study-assistant in analyze mode (default)
             const response = await APIClient.post('/api/ai/study-assistant', {
@@ -43,6 +55,8 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
             if (response && response.summary) {
                 setStudyPack(response)
                 setLastAnalyzedUrl(videoUrl)
+                const duration_ms = Math.round(performance.now() - t0)
+                trackAiAnalyzeCompleted(content_type, duration_ms)
                 
                 // Add a message from AI about the analysis
                 setMessages(prev => [...prev, { 
@@ -52,9 +66,13 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
                 }])
             }
         } catch (error) {
+            const duration_ms = Math.round(performance.now() - t0)
+            const isLimit = error.status === 403 || error.status === 429 || error.message?.includes("limit exceeded") || error.message?.includes("TOKEN_LIMIT_EXCEEDED")
+            trackAiAnalyzeError(error.status || "unknown", isLimit, duration_ms)
             console.error("AI analysis error:", error)
-            if (error.status === 403 || error.status === 429 || error.message?.includes("limit exceeded") || error.message?.includes("TOKEN_LIMIT_EXCEEDED")) {
+            if (isLimit) {
                 setIsLimitReached(true)
+                trackAiLimitReached("analyze")
             } else {
                 setMessages(prev => [...prev, { 
                     id: Date.now(), 
@@ -90,6 +108,8 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
         setInput("")
         setMessages(prev => [...prev, { id: Date.now(), sender: "user", text: userMsg }])
         setIsLoading(true)
+        const t0 = performance.now()
+        trackAiChatSent(null, userMsg.length)
 
         try {
             // Call AI API for study assistant chat
@@ -100,11 +120,17 @@ export default function AIBotDrawer({ isOpen, onClose, videoUrl }) {
             })
             
             const replyText = response.reply ?? response.data?.reply ?? "I'm sorry, I couldn't generate a response. Please try rephrasing your question."
+            const duration_ms = Math.round(performance.now() - t0)
+            trackAiChatReceived(null, replyText.length, duration_ms)
             setMessages(prev => [...prev, { id: Date.now(), sender: "ai", text: replyText }])
         } catch (error) {
+            const duration_ms = Math.round(performance.now() - t0)
+            const isLimit = error.status === 403 || error.status === 429 || error.message?.includes("limit exceeded") || error.message?.includes("TOKEN_LIMIT_EXCEEDED")
+            trackAiChatError(error.status || "unknown", duration_ms)
             console.error("AI chat error:", error)
-            if (error.status === 403 || error.status === 429 || error.message?.includes("limit exceeded") || error.message?.includes("TOKEN_LIMIT_EXCEEDED")) {
+            if (isLimit) {
                 setIsLimitReached(true)
+                trackAiLimitReached("chat")
             } else {
                 setMessages(prev => [...prev, { id: Date.now(), sender: "ai", text: `Sorry, I couldn't process that: ${error.message}` }])
             }

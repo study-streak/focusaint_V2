@@ -1,4 +1,5 @@
 import './globals.css'
+import Providers from './providers'
 
 export const metadata = {
   title: 'Focusaint — Learn, Don\'t Just Watch',
@@ -16,7 +17,9 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="bg-[var(--black)] text-[var(--white)] transition-colors duration-300" suppressHydrationWarning>{children}</body>
+      <body className="bg-[var(--black)] text-[var(--white)] transition-colors duration-300" suppressHydrationWarning>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   )
 }

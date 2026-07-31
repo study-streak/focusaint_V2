@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
-import { APIClient } from "../../lib/api-client"
+import { useDispatch, useSelector } from "react-redux"
+import { fetchDashboard } from "../../store/slices/dashboardSlice"
+import { trackExtensionSetupOpened } from "../../lib/analytics"
 
 // CORE
 import Navbar from "./components/core/Navbar"
@@ -39,13 +40,28 @@ import NoiseOverlay from "./components/ui-effects/NoiseOverlay"
 import ParallaxContainer from "./components/ui-effects/ParallaxContainer"
 
 export default function DashboardContent() {
+    const dispatch = useDispatch()
+    const { data, status } = useSelector((state) => state.dashboard)
 
-    const [data, setData] = useState({})
     const [showReward, setShowReward] = useState(false)
     const [showXP, setShowXP] = useState(false)
     const [notifOpen, setNotifOpen] = useState(false)
     const [isShieldInstalled, setIsShieldInstalled] = useState(false)
     const [showShieldModal, setShowShieldModal] = useState(false)
+
+    // Fetch dashboard data via Redux (respects cache TTL)
+    useEffect(() => {
+        if (status === "idle") {
+            dispatch(fetchDashboard())
+        }
+    }, [dispatch, status])
+
+    // Cache in sessionStorage for profile page partial-fetch optimization
+    useEffect(() => {
+        if (status === "succeeded" && Object.keys(data).length && typeof window !== "undefined") {
+            window.sessionStorage.setItem("focusaint_dashboard_data", JSON.stringify(data))
+        }
+    }, [data, status])
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -65,30 +81,15 @@ export default function DashboardContent() {
         }
     }, [])
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [dashData] = await Promise.all([
-                    APIClient.get("/api/user/dashboard")
-
-                ])
-                console.log(dashData)
-                setData(dashData)
-                if (typeof window !== "undefined") {
-                    window.sessionStorage.setItem("focusaint_dashboard_data", JSON.stringify(dashData))
-                }
-            } catch (err) {
-                console.error("Dashboard data fetch failed:", err)
-            }
-        }
-
-        fetchData()
-    }, [])
-
     const isMarathonUnlocked = (data?.streak?.currentStreak >= 7 && data?.totalDuration >= 210)
     const user = data?.user
     const streak = data?.streak?.currentStreak || 0
     const totalDuration = data?.totalDuration || 0
+
+    const handleOpenShieldSetup = () => {
+        trackExtensionSetupOpened(isShieldInstalled)
+        setShowShieldModal(true)
+    }
 
     return (
         <>
@@ -153,7 +154,7 @@ export default function DashboardContent() {
                 <div className="md:col-span-4 h-full">
                     <FocusShieldCard
                         isInstalled={isShieldInstalled}
-                        onOpenSetup={() => setShowShieldModal(true)}
+                        onOpenSetup={handleOpenShieldSetup}
                     />
                 </div>
 
